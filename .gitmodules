@@ -1,3 +1,6 @@
 [submodule "6502sp-elite-beebasm"]
 	path = 6502sp-elite-beebasm
 	url = https://github.com/markmoxon/6502sp-elite-beebasm.git
+[submodule "master-elite-beebasm"]
+	path = master-elite-beebasm
+	url = https://github.com/markmoxon/master-elite-beebasm.git
