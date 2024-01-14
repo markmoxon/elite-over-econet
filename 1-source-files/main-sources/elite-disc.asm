@@ -32,7 +32,7 @@
  PUTFILE "master-elite-beebasm/3-assembled-output/M128Elt.bin", "ELTMC", &000E00, &000E43
  PUTFILE "master-elite-beebasm/3-assembled-output/BDATA.bin", "ELTBD", &001300, &001300
  PUTFILE "master-elite-beebasm/3-assembled-output/BCODE.bin", "ELTBC", &001300, &002C6C
- PUTFILE "master-elite-beebasm/1-source-files/boot-files/ELITE.bin", "ELITE", &FFFFFF, &FFFFFF
+ PUTFILE "master-elite-beebasm/3-assembled-output/ELITE.bin", "ELITE", &002000, &002000
 
 \ 6502SP Elite (Econet version) = *RUN ELITESP
 
@@ -40,7 +40,7 @@
  PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "ELTIE", &FF2000, &FF2000
  PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "ELTIC", &FF2400, &FF2C89
  PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "ELTPC", &001000, &00106A
- PUTFILE "6502sp-elite-beebasm/1-source-files/boot-files/ELITESP.bin", "ELITESP", &FFFFFF, &FFFFFF
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITESP.bin", "ELITESP", &FF2000, &FF2000
 
 \ Other files
 
