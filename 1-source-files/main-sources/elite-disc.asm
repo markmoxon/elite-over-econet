@@ -48,4 +48,4 @@
 \ Other files
 
  PUTFILE "master-elite-beebasm/1-source-files/other-files/E.MAX.bin", "MAX", &000000, &000000
- PUTFILE "2-assembled-output/README.txt", "README", &FFFFFF, &FFFFFF
+ PUTFILE "2-assembled-output/ReadMe.txt", "ReadMe", &FFFFFF, &FFFFFF

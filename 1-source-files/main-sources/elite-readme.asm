@@ -21,7 +21,7 @@
 \
 \ This source file produces the following binary file:
 \
-\   * README.txt
+\   * ReadMe.txt
 \
 \ ******************************************************************************
 
@@ -52,7 +52,7 @@
  EQUB 10, 13
  EQUS "the server and copy all the ELT* files"
  EQUB 10, 13
- EQUS "in there"
+ EQUS "and this README file into the directory"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "2. Either copy EliteM and EliteSP into"
@@ -71,9 +71,9 @@
  EQUB 10, 13
  EQUS "3. Create a directory called Elite in"
  EQUB 10, 13
- EQUS "each user's main directory, and copy"
+ EQUS "the top level of each user's main"
  EQUB 10, 13
- EQUS "the MAX file in there"
+ EQUS "directory, and copy the MAX file there"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "4. Users can then play Elite by typing:"
@@ -85,9 +85,16 @@
  EQUS "*EliteSP (for 6502 Second Proc Elite)"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "Commander files will be saved into the"
+ EQUS "If you copied EliteM and EliteSP into"
  EQUB 10, 13
- EQUS "user's Elite folder"
+ EQUS "the user's directory, they will need to"
+ EQUB 10, 13
+ EQUS "use *DIR to go to that directory first"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "5. Commander files will be saved into"
+ EQUB 10, 13
+ EQUS "the individual user's Elite folder"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "See www.bbcelite.com/hacks for details"
@@ -97,5 +104,5 @@
  EQUB 10, 13
  EQUS "---------------------------------------"
 
- SAVE "2-assembled-output/README.txt", readme, P%
+ SAVE "2-assembled-output/ReadMe.txt", readme, P%
 
