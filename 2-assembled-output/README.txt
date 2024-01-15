@@ -3,21 +3,40 @@
 
 Econet conversion by Mark Moxon
 
-Copy all the EL* files into the
-$.LIBRARY directory on the server
+For the following networked machines:
 
-Create a directory called ELITE in
-the user's main directory, and copy
+* BBC Micro with 6502 Second Processor
+* BBC Master 128
+* BBC Master Turbo
+
+To install Elite on your network:
+
+1. Create a directory called $.Elite on
+the server and copy all the ELT* files
+in there
+
+2. Either copy EliteM and EliteSP into
+$.Library and $.Library1 (if you want
+all users to be able to play Elite)
+
+Or copy EliteM and EliteSP into each
+user's main directory (if you want
+to restrict it to those users only)
+
+3. Create a directory called Elite in
+each user's main directory, and copy
 the MAX file in there
 
-Users can then play Elite by typing:
-  *ELITE (for BBC Master 128 Elite)
-  *ELITESP (for 6502 Second Proc Elite)
+4. Users can then play Elite by typing:
+
+*EliteM  (for BBC Master 128 Elite)
+
+*EliteSP (for 6502 Second Proc Elite)
 
 Commander files will be saved into the
-user's ELITE folder
+user's Elite folder
 
-See www.bbcelite.com for details
+See www.bbcelite.com/hacks for details
 
-Build: 2024-01-14 17:08:08
+Build: 2024-01-15 06:28:37
 ---------------------------------------

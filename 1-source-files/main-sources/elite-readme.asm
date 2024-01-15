@@ -35,31 +35,62 @@
  EQUS "Econet conversion by Mark Moxon"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "Copy all the EL* files into the"
- EQUB 10, 13
- EQUS "$.LIBRARY directory on the server"
+ EQUS "For the following networked machines:"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "Create a directory called ELITE in"
+ EQUS "* BBC Micro with 6502 Second Processor"
  EQUB 10, 13
- EQUS "the user's main directory, and copy"
+ EQUS "* BBC Master 128"
+ EQUB 10, 13
+ EQUS "* BBC Master Turbo"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "To install Elite on your network:"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "1. Create a directory called $.Elite on"
+ EQUB 10, 13
+ EQUS "the server and copy all the ELT* files"
+ EQUB 10, 13
+ EQUS "in there"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "2. Either copy EliteM and EliteSP into"
+ EQUB 10, 13
+ EQUS "$.Library and $.Library1 (if you want"
+ EQUB 10, 13
+ EQUS "all users to be able to play Elite)"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "Or copy EliteM and EliteSP into each"
+ EQUB 10, 13
+ EQUS "user's main directory (if you want"
+ EQUB 10, 13
+ EQUS "to restrict it to those users only)"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "3. Create a directory called Elite in"
+ EQUB 10, 13
+ EQUS "each user's main directory, and copy"
  EQUB 10, 13
  EQUS "the MAX file in there"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "Users can then play Elite by typing:"
+ EQUS "4. Users can then play Elite by typing:"
  EQUB 10, 13
- EQUS "  *ELITE (for BBC Master 128 Elite)"
  EQUB 10, 13
- EQUS "  *ELITESP (for 6502 Second Proc Elite)"
+ EQUS "*EliteM  (for BBC Master 128 Elite)"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "*EliteSP (for 6502 Second Proc Elite)"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "Commander files will be saved into the"
  EQUB 10, 13
- EQUS "user's ELITE folder"
+ EQUS "user's Elite folder"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "See www.bbcelite.com for details"
+ EQUS "See www.bbcelite.com/hacks for details"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "Build: ", TIME$("%F %T")
