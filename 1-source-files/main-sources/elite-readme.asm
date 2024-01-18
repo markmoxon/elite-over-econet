@@ -27,6 +27,7 @@
 
 .readme
 
+ EQUB 10, 13
  EQUS "---------------------------------------"
  EQUB 10, 13
  EQUS "Acornsoft Elite (Econet version)"
@@ -103,6 +104,7 @@
  EQUS "Build: ", TIME$("%F %T")
  EQUB 10, 13
  EQUS "---------------------------------------"
+ EQUB 10, 13
 
  SAVE "2-assembled-output/ReadMe.txt", readme, P%
 
