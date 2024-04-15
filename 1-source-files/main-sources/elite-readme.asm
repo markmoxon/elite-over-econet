@@ -39,6 +39,8 @@
  EQUS "For the following networked machines:"
  EQUB 10, 13
  EQUB 10, 13
+ EQUS "* BBC Micro with 16K Sideways RAM"
+ EQUB 10, 13
  EQUS "* BBC Micro with 6502 Second Processor"
  EQUB 10, 13
  EQUS "* BBC Master 128"
@@ -53,17 +55,17 @@
  EQUB 10, 13
  EQUS "the server and copy all the ELT* files"
  EQUB 10, 13
- EQUS "and this README file into the directory"
+ EQUS "and this ReadMe file into the directory"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "2. Either copy EliteM and EliteSP into"
+ EQUS "2. Either copy EliteB, M and SP into"
  EQUB 10, 13
  EQUS "$.Library and $.Library1 (if you want"
  EQUB 10, 13
  EQUS "all users to be able to play Elite)"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "Or copy EliteM and EliteSP into each"
+ EQUS "Or copy EliteB, M and SP into each"
  EQUB 10, 13
  EQUS "user's main directory (if you want"
  EQUB 10, 13
@@ -80,13 +82,16 @@
  EQUS "4. Users can then play Elite by typing:"
  EQUB 10, 13
  EQUB 10, 13
+ EQUS "*EliteB  (for BBC Micro SRAM Elite)"
+ EQUB 10, 13
+ EQUB 10, 13
  EQUS "*EliteM  (for BBC Master 128 Elite)"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "*EliteSP (for 6502 Second Proc Elite)"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "If you copied EliteM and EliteSP into"
+ EQUS "If you copied EliteB, M and SP into"
  EQUB 10, 13
  EQUS "the user's directory, they will need to"
  EQUB 10, 13
