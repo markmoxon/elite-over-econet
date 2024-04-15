@@ -39,7 +39,11 @@
  EQUS "For the following networked machines:"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "* BBC Micro with 16K Sideways RAM"
+ EQUS "* BBC Micro Model B & 16K Sideways RAM"
+ EQUB 10, 13
+ EQUS "* BBC Micro Model B+ 64K"
+ EQUB 10, 13
+ EQUS "* BBC Micro Model B+ 128K"
  EQUB 10, 13
  EQUS "* BBC Micro with 6502 Second Processor"
  EQUB 10, 13
@@ -58,31 +62,33 @@
  EQUS "and this ReadMe file into the directory"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "2. Either copy EliteB, M and SP into"
+ EQUS "2. If you want all users to be able to"
  EQUB 10, 13
- EQUS "$.Library and $.Library1 (if you want"
+ EQUS "play Elite, copy EliteB, EliteM and"
  EQUB 10, 13
- EQUS "all users to be able to play Elite)"
+ EQUS "EliteSP into $.Library and $.Library1"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "Or copy EliteB, M and SP into each"
+ EQUS "If you want to restrict it to specific"
  EQUB 10, 13
- EQUS "user's main directory (if you want"
+ EQUS "users, copy EliteB, EliteM and EliteSP"
  EQUB 10, 13
- EQUS "to restrict it to those users only)"
+ EQUS "into just those users' main directories"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "3. Create a directory called Elite in"
  EQUB 10, 13
- EQUS "the top level of each user's main"
+ EQUS "the top level of the main directory for"
  EQUB 10, 13
- EQUS "directory, and copy the MAX file there"
+ EQUS "each user who wants to play Elite, and"
+ EQUB 10, 13
+ EQUS "copy the MAX file there"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "4. Users can then play Elite by typing:"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "*EliteB  (for BBC Micro SRAM Elite)"
+ EQUS "*EliteB  (for BBC Micro Elite)"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "*EliteM  (for BBC Master 128 Elite)"
@@ -91,16 +97,19 @@
  EQUS "*EliteSP (for 6502 Second Proc Elite)"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "If you copied EliteB, M and SP into"
+ EQUS "If you restricted Elite to specific"
  EQUB 10, 13
- EQUS "the user's directory, they will need to"
- EQUB 10, 13
- EQUS "use *DIR to go to that directory first"
+ EQUS "users, they should enter *DIR first"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "5. Commander files will be saved into"
+ EQUS "5. Users must have their library set to"
  EQUB 10, 13
- EQUS "the individual user's Elite folder"
+ EQUS "$.Library or $.Library1, as appropriate"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "6. Commander files will be saved into"
+ EQUB 10, 13
+ EQUS "each individual user's Elite folder"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "See www.bbcelite.com/hacks for details"

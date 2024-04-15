@@ -34,19 +34,20 @@
 \
 \ ******************************************************************************
 
- ZP = &70
+ ZP = &32               \ Use the XX15 block for the loading code, so it doesn't
+                        \ clash with any persistent variables
 
- sram% = &7400
+ sram% = &7400          \ The sideways RAM table in the SRAM loader
 
- used% = &7410
+ used% = &7410          \ The used ROM table in the SRAM loader
 
- dupl% = &7420
+ dupl% = &7420          \ The duplicate ROM table in the SRAM loader
 
- eliterom% = &7430
+ eliterom% = &7430      \ The Elite ROM bank number in the SRAM loader
 
- testbbc% = &7432
+ testbbc% = &7432       \ The ROM bank test routine in the SRAM loader
 
- loadrom% = &7438
+ loadrom% = &7438       \ The Elite ROM load routine in the SRAM loader
 
  OSARGS = &FFDA         \ The address for the OSARGS routine
 
@@ -62,8 +63,9 @@
 \
 \ ******************************************************************************
 
- CODE% = &12E3
- LOAD% = &12E3
+ CODE% = &0B00          \ The address where the loader code runs
+
+ LOAD% = &0B00          \ The address where the loader code loads
 
  ORG CODE%
 
@@ -124,10 +126,10 @@
 .chek2
 
  CLC                    \ Set ZP(1 0) = ZP(1 0) + Y
- TYA
- ADC ZP+1
- STA ZP+1
- BCC chek3
+ TYA                    \
+ ADC ZP+1               \ So ZP(1 0) points to the correct address of the
+ STA ZP+1               \ argument to the *EliteB command, irrespective of the
+ BCC chek3              \ version of NFS that's in use
  INC ZP
 
 .chek3
@@ -279,11 +281,11 @@
                         \ If we get here then there is no sideways RAM, so print
                         \ an error message and quit
 
- LDA #LO(nosram)        \ Set the low byte of ZP(1 0) to point to the message
- STA ZP                 \ at nosram
+ LDA #LO(noSRAM)        \ Set the low byte of ZP(1 0) to point to the message
+ STA ZP                 \ at noSRAM
 
- LDA #HI(nosram)        \ Set the high byte of ZP(1 0) to point to the message
- STA ZP+1               \ at nosram
+ LDA #HI(noSRAM)        \ Set the high byte of ZP(1 0) to point to the message
+ STA ZP+1               \ at noSRAM
 
  LDY #0                 \ We are now going to print the error message
 
@@ -299,7 +301,16 @@
 
  RTS                    \ Return from the subroutine
 
-.nosram
+\ ******************************************************************************
+\
+\       Name: noSRAM
+\       Type: Variable
+\   Category: Loader
+\    Summary: The error message to display if there is no sideways RAM
+\
+\ ******************************************************************************
+
+.noSRAM
 
  EQUB 22, 7
  EQUS "No sideways RAM found"
@@ -309,7 +320,7 @@
 \
 \       Name: B%
 \       Type: Variable
-\   Category: Drawing the screen
+\   Category: Loader
 \    Summary: VDU commands for the loader
 \
 \ ******************************************************************************
@@ -324,13 +335,13 @@
                         \ cursor start line at 0, effectively disabling the
                         \ cursor
 
-
 \ ******************************************************************************
 \
 \       Name: MESS7
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the docked code for disc Elite
+\    Summary: Load the Elite ROM image to &3400, so it can be copied to sideways
+\             RAM by the LoadRom routine
 \
 \ ******************************************************************************
 
@@ -344,7 +355,7 @@
 \       Name: MESS6
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the docked code for disc Elite
+\    Summary: Load the sideways RAM loader routines (MNUCODE)
 \
 \ ******************************************************************************
 
@@ -358,7 +369,7 @@
 \       Name: MESS5
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the docked code for disc Elite
+\    Summary: Run the code that displays the Acornsoft loading screen (SCREEN)
 \
 \ ******************************************************************************
 
@@ -372,7 +383,7 @@
 \       Name: MESS4
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the docked code for disc Elite
+\    Summary: Run the docked code for disc Elite (T.CODE)
 \
 \ ******************************************************************************
 
@@ -386,7 +397,7 @@
 \       Name: MESS3
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the flight code for disc Elite
+\    Summary: Run the flight code for disc Elite (D.CODE)
 \
 \ ******************************************************************************
 
@@ -400,7 +411,7 @@
 \       Name: MESS2
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run Elite
+\    Summary: Run the Elite loader (INTRO)
 \
 \ ******************************************************************************
 

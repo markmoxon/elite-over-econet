@@ -53,7 +53,7 @@
 
  PUTFILE "2-assembled-output/EliteM.bin", "EliteM", &002000, &002000
  PUTFILE "2-assembled-output/EliteSP.bin", "EliteSP", &FF2000, &FF2000
- PUTFILE "2-assembled-output/EliteB.bin", "EliteB", &0012E3, &0012E3
+ PUTFILE "2-assembled-output/EliteB.bin", "EliteB", &000B00, &000B00
 
 \ Other files
 
