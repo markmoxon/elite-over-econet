@@ -1,6 +1,6 @@
 \ ******************************************************************************
 \
-\ BBC MASTER ELITE BOOT FILE
+\ BBC MASTER ELITE ECONET BOOT FILE
 \
 \ BBC Master Elite was written by Ian Bell and David Braben and is copyright
 \ Acornsoft 1986
