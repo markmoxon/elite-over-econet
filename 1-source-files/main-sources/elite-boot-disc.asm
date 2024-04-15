@@ -48,6 +48,8 @@
 
  loadrom% = &7438
 
+ OSARGS = &FFDA         \ The address for the OSARGS routine
+
  OSWRCH = &FFEE         \ The address for the OSWRCH routine
 
  OSBYTE = &FFF4         \ The address for the OSBYTE routine
@@ -76,6 +78,88 @@
 \ ******************************************************************************
 
 .ENTRY
+
+ LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.Elite")
+ LDY #HI(MESS1)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
+                        \ to the game folder
+
+ LDA #1                 \ Set ZP(1 0) to the address of the argument to the
+ LDX #ZP                \ *EliteB command
+ LDY #0
+ JSR OSARGS
+
+                        \ We need to check for NFS 3.34 as this has a bug in it
+                        \ that points ZP(1 0) to the start of the command, so
+                        \ we now set Y to an additional index to the argument in
+                        \ the *EliteB command (which will be zero for all
+                        \ versions except NFS 3.34)
+
+ LDA #0                 \ Fetch the filing system type into A
+ LDY #0
+ JSR OSARGS
+
+ CMP #5                 \ If this is not NFS (type 5), jump to chek1 to set
+ BNE chek1              \ Y = 0
+
+ LDA #2                 \ Fetch the version of NFS
+ LDY #0
+ JSR OSARGS
+
+ CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
+ BNE chek1              \ so if this is not NFS 3.34, jump to chek1 to set Y = 0
+
+ LDY #7                 \ This is NFS 3.34, which contains the bug, so set Y = 7
+                        \ so adding it to the address in ZP(1 0) will point to
+                        \ the argument x in *EliteB x
+
+ BNE chek2              \ Jump to chek2 to skip the following (this BNE is
+                        \ effectively a JMP as Y is never zero)
+
+.chek1
+
+ LDY #0                 \ This is not NFS 3.34, so set Y = 0
+
+.chek2
+
+ CLC                    \ Set ZP(1 0) = ZP(1 0) + Y
+ TYA
+ ADC ZP+1
+ STA ZP+1
+ BCC chek3
+ INC ZP
+
+.chek3
+
+ LDY #0                 \ If the argument is not T (i.e. *EliteB T), jump to
+ LDA (ZP),Y             \ chek4 to keep looking
+ CMP #'T'
+ BNE chek4
+
+ LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("RUN ELTTC")
+ LDY #HI(MESS4)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS4, which *RUNs
+                        \ the docked code, returning from the subroutine using
+                        \ a tail call
+
+.chek4
+
+ CMP #'D'               \ If the argument is not D (i.e. *EliteB D), jump to
+ BNE chek5              \ chek5 to load the game
+
+ LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("RUN ELTDC")
+ LDY #HI(MESS3)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS3, which *RUNs
+                        \ the flight code, returning from the subroutine using
+                        \ a tail call
+
+.chek5
+
+                        \ There is no D or T argument to *EliteB, so now we need
+                        \ to load the game from the loading screen
 
  LDA #4                 \ Call OSBYTE with A = 4, X = 1 and Y = 0 to disable
  LDX #1                 \ cursor editing, so the cursor keys return ASCII values
@@ -106,13 +190,13 @@
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTSC")
  LDY #HI(MESS5)
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to show the
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS5 to show the
                         \ Acornsoft loading screen
 
  LDX #LO(MESS6)         \ Set (Y X) to point to MESS6 ("LOAD ELTMN")
  LDY #HI(MESS6)
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to load the
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS6 to load the
                         \ menu code
 
  JSR testbbc%           \ Test all the ROM banks for sideways RAM
@@ -182,12 +266,6 @@
  LDX ZP                 \ Set X to the sideways RAM bank number
 
  JSR loadrom%           \ Move the ROM code into sideways RAM
-
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.Elite")
- LDY #HI(MESS1)
-
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
-                        \ to the game folder
 
  LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("RUN ELTIN")
  LDY #HI(MESS2)
