@@ -179,7 +179,7 @@
 
  LDY #0                 \ We are now going to print the VDU commands from B%
 
-.entr1
+.chek6
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -187,7 +187,7 @@
  INY                    \ Increment the loop counter
 
  CPY #12                \ Loop back for the next byte until we have done them
- BNE entr1              \ all 12
+ BNE chek6              \ all 12
 
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTSC")
  LDY #HI(MESS5)
@@ -203,9 +203,9 @@
 
  JSR testbbc%           \ Test all the ROM banks for sideways RAM
 
- BIT eliterom%          \ If bit 7 of eliterom% is clear then the Elite ROM has
- BPL entr4              \ already been loaded, so jump to entr4 to skip the
-                        \ following
+ LDY eliterom%          \ If bit 7 of eliterom% is clear then the Elite ROM has
+ BPL chek8              \ already been loaded, so jump to chek8 to skip the
+                        \ ROM checks and load the game into this bank
 
  LDA #LO(sram%)         \ Set ZP(2 1) = &7400 = sram%
  STA ZP+1
@@ -225,39 +225,41 @@
  LDY #15                \ We now loop through the ROM banks to check for
                         \ sideways RAM, so set a counter in Y
 
-.entr2
+.chek7
 
  LDA (ZP+1),Y           \ If sram% for this bank is not &FF, move on to the next
  CMP #&FF               \ bank
- BNE entr3
+ BNE chek9
 
  LDA (ZP+3),Y           \ If used% for this bank is not 0, move on to the next
- BNE entr3              \ bank
+ BNE chek9              \ bank
 
  LDA (ZP+5),Y           \ If dupl% for this bank is not the bank number itself,
  STY ZP                 \ move on to the next bank
  CMP ZP
- BNE entr3
+ BNE chek9
 
                         \ If we get here then this bank contains sideways RAM,
                         \ it doesn't already contain a ROM, and it is not a
                         \ duplicate of another ROM, so we can use this bank
 
+.chek8
+
  STY ZP                 \ Store the bank number in ZP
 
- JMP entr4              \ Jump to entr4 to load the ROM image
+ JMP chek10             \ Jump to chek10 to load the ROM image
 
-.entr3
+.chek9
 
  DEY                    \ Decrement the ROM counter
 
- BPL entr2              \ Loop back until we have checked all 16 ROM banks
+ BPL chek7              \ Loop back until we have checked all 16 ROM banks
 
- JMP entr5              \ If we get here then there is no sideways RAM that
-                        \ we can use, so jump to entr5 to print an error
+ JMP chek11             \ If we get here then there is no sideways RAM that
+                        \ we can use, so jump to chek11 to print an error
                         \ message and quit
 
-.entr4
+.chek10
 
  LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTRM 3400")
  LDY #HI(MESS7)
@@ -276,7 +278,7 @@
                         \ the game in ELTIN, returning from the subroutine using
                         \ a tail call
 
-.entr5
+.chek11
 
                         \ If we get here then there is no sideways RAM, so print
                         \ an error message and quit
@@ -289,7 +291,7 @@
 
  LDY #0                 \ We are now going to print the error message
 
-.entr6
+.chek12
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -297,7 +299,7 @@
  INY                    \ Increment the loop counter
 
  CMP #13                \ Loop back until we have printed the whole message
- BNE entr6
+ BNE chek12
 
  RTS                    \ Return from the subroutine
 
