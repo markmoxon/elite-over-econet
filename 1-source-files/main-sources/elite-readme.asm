@@ -62,27 +62,33 @@
  EQUS "and this ReadMe file into the directory"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "2. If you want all users to be able to"
+ EQUS "2. Create a directory called Elite in"
+ EQUB 10, 13
+ EQUS "the top level of the main directory for"
+ EQUB 10, 13
+ EQUS "each user who wants to play Elite, and"
+ EQUB 10, 13
+ EQUS "copy the MAX file into this directory"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "3. If you want all users to be able to"
  EQUB 10, 13
  EQUS "play Elite, copy EliteB, EliteM and"
  EQUB 10, 13
  EQUS "EliteSP into $.Library and $.Library1"
+ EQUB 10, 13
+ EQUS "and ensure all users have their library"
+ EQUB 10, 13
+ EQUS "set accordingly"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "If you want to restrict it to specific"
  EQUB 10, 13
  EQUS "users, copy EliteB, EliteM and EliteSP"
  EQUB 10, 13
- EQUS "into just those users' main directories"
+ EQUS "into the Elite folder that you just"
  EQUB 10, 13
- EQUB 10, 13
- EQUS "3. Create a directory called Elite in"
- EQUB 10, 13
- EQUS "the top level of the main directory for"
- EQUB 10, 13
- EQUS "each user who wants to play Elite, and"
- EQUB 10, 13
- EQUS "copy the MAX file there"
+ EQUS "created in the users' main directories"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "4. Users can then play Elite by typing:"
@@ -99,15 +105,12 @@
  EQUB 10, 13
  EQUS "If you restricted Elite to specific"
  EQUB 10, 13
- EQUS "users, they should enter *DIR first"
+ EQUS "users, they will need to *DIR into"
+ EQUB 10, 13
+ EQUS "their own Elite folders first"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "5. Users must have their library set to"
- EQUB 10, 13
- EQUS "$.Library or $.Library1, as appropriate"
- EQUB 10, 13
- EQUB 10, 13
- EQUS "6. Commander files will be saved into"
+ EQUS "5. Commander files will be saved into"
  EQUB 10, 13
  EQUS "each individual user's Elite folder"
  EQUB 10, 13

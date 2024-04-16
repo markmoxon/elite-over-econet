@@ -19,18 +19,21 @@
 the server and copy all the ELT* files
 and this ReadMe file into the directory
 
-2. If you want all users to be able to
+2. Create a directory called Elite in
+the top level of the main directory for
+each user who wants to play Elite, and
+copy the MAX file into this directory
+
+3. If you want all users to be able to
 play Elite, copy EliteB, EliteM and
 EliteSP into $.Library and $.Library1
+and ensure all users have their library
+set accordingly
 
 If you want to restrict it to specific
 users, copy EliteB, EliteM and EliteSP
-into just those users' main directories
-
-3. Create a directory called Elite in
-the top level of the main directory for
-each user who wants to play Elite, and
-copy the MAX file there
+into the Elite folder that you just
+created in the users' main directories
 
 4. Users can then play Elite by typing:
 
@@ -41,16 +44,14 @@
 *EliteSP (for 6502 Second Proc Elite)
 
 If you restricted Elite to specific
-users, they should enter *DIR first
+users, they will need to *DIR into
+their own Elite folders first
 
-5. Users must have their library set to
-$.Library or $.Library1, as appropriate
-
-6. Commander files will be saved into
+5. Commander files will be saved into
 each individual user's Elite folder
 
 See www.bbcelite.com/hacks for details
 
-Build: 2024-04-16 14:41:17
+Build: 2024-04-16 15:10:00
 ---------------------------------------
 
