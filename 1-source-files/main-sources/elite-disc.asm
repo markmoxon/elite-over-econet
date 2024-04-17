@@ -58,6 +58,7 @@
 \ Scoreboard
 
  PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "ElScore"
+ PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "ElDebug"
 
 \ Other files
 
