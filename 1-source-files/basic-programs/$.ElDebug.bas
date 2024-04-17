@@ -1,7 +1,7 @@
 REM ElDebug - Traffic monitor for Elite over Econet
 REM By Mark Moxon
 REM
-OSWORD=&FFF1:OSBYTE=&FFF4
+OSWORD=&FFF1:OSBYTE=&FFF4:TIME=0
 DIM cblock% 40,rxbuffer% 40
 INPUT "Port",port%
 X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
@@ -35,6 +35,7 @@ ENDPROC
 REM
 DEFPROCprintdata
 PRINT '"Name: ";$rxbuffer%
+PRINT "Timestamp: ";TIME
 PRINT "Legal status: ";rxbuffer%?8
 PRINT "Condition: ";rxbuffer%?9
 PRINT "Rank: ";rxbuffer%?10+256*rxbuffer%?11
