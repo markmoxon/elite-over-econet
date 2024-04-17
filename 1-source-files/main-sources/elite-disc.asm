@@ -43,7 +43,7 @@
 \ BBC Micro Disc Elite (Econet Sideways RAM version) = *RUN EliteB
 
  PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.SCREEN.bin", "ELTSC", &007800, &007BE8
- PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.ELTROMEC.bin", "ELTRM", &003400, &003400
+ PUTFILE "disc-elite-beebasm/3-assembled-output/ELTRM.bin", "ELTRM", &003400, &003400
  PUTFILE "disc-elite-beebasm/3-assembled-output/MNUCODE.bin", "ELTMN", &007400, &00743B
  PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "ELTIN", &001900, &00197B
  PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "ELTDC", &0012E3, &0012E3
