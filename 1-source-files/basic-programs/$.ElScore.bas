@@ -7,11 +7,11 @@ DIM M$(2):M$(0)="B":M$(1)="M":M$(2)="S"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)="Cln":L$(1)="Off":L$(2)="Fug"
 DIM cblock% 40,rxbuffer% 40
-OSWORD=&FFF1:OSBYTE=&FFF4:next%=0:sort%=0
+OSWORD=&FFF1:OSBYTE=&FFF4:next%=0:sort%=0:@%=10
 X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
 snw%=cblock%?2:sst%=cblock%?1
 :
-MODE 7
+MODE 7:VDU23;8202;0;0;0;
 INPUT "Port",port%
 CLS
 PRINT "  [S]ort by Cr   EELLIITTEE   Stn: ";snw%;".";sst%
@@ -112,8 +112,11 @@ DEF PROCprintCmdr(I%)
   IF cmdr%=I% THEN style$="* " ELSE style$="  "
   PRINT style$;M$(machine%(I%));" ";network%(I%);".";station%(I%);
   PRINT TAB(9);C$(condition%(I%));CHR$(255);CHR$(135);L$(legal%(I%));"  ";name$(I%);
-  S%=score%(I%):J%=INT(LOG(S%))
+  S%=score%(I%)
+  IF S%=0 THEN J%=0 ELSE J%=INT(LOG(S%))
   PRINT TAB(29-J%);S%;
-  C%=credits%(I%):I%=INT(LOG(C%))
-  @%=&2010A:PRINT TAB(37-I%);C%/10
+  C%=credits%(I%)
+  IF C%>999999 THEN K$="k":C%=C%/1000:K%=1 ELSE K$="":K%=0
+  IF C%=0 THEN J%=0 ELSE J%=INT(LOG(C%))
+  @%=&2010A:PRINT TAB(38-J%-K%);C%/10;K$;
 ENDPROC
