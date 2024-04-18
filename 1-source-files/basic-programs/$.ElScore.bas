@@ -21,9 +21,8 @@ REPEAT
   PROCreceive
   IF next%>0 THEN cmdr%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmdr%=-1
   IF cmdr%=-1 AND next%<20 THEN cmdr%=next%:order%(next%)=cmdr%:next%=next%+1
-  IF cmdr%<>-1 THEN PROCupdateCmdr(cmdr%)
-  IF next%>1 THEN PROCsort
-  IF next%>0 THEN PROCprintTable
+  IF cmdr%<>-1 THEN dosort%=FNupdateCmdr(cmdr%) ELSE dosort%=FALSE
+  IF next%>1 AND dosort% THEN PROCsort:PROCprintTable ELSE PROCprintRow(cmdr%)
 UNTIL FALSE
 END
 :
@@ -59,23 +58,26 @@ DEF PROCreceiveTest
   cblock%?4=RND(10)-1
 ENDPROC
 :
-DEF PROCupdateCmdr(I%)
+DEF FNupdateCmdr(I%)
+  ch%=FALSE
   name$(I%)=$rxbuffer%
   legal%(I%)=rxbuffer%?8
   condition%(I%)=rxbuffer%?9
-  score%(I%)=rxbuffer%?10+256*rxbuffer%?11
+  newscore%=rxbuffer%?10+256*rxbuffer%?11
+  IF sort%=0 AND newscore%<>score%(I%) THEN ch%=TRUE
+  score%(I%)=newscore%
+  IF sort%=1 AND credits%(I%)<>rxbuffer%!12 THEN ch%=TRUE
   credits%(I%)=rxbuffer%!12
   machine%(I%)=rxbuffer%?16
   station%(I%)=cblock%?3
   network%(I%)=cblock%?4
-ENDPROC
+=ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
-  J%=-1
   FOR I%=0 TO next%-1
-    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN J%=I%
+    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN =I%
   NEXT
-=J%
+=-1
 :
 DEF PROCsort
   IF sort%=0 THEN PROCsortByScore ELSE PROCsortByCr
@@ -100,23 +102,29 @@ ENDPROC
 DEF PROCprintTable
   PRINT TAB(0,4);
   FOR I%=0 TO next%-1
-    PROCprintCmdr(order%(I%))
+    PROCprintCmdr(order%(I%),4+I%)
   NEXT
   FOR I%=next% TO 19
     PRINT SPC(39)
   NEXT
 ENDPROC
 :
-DEF PROCprintCmdr(I%)
+DEF PROCprintRow(C%)
+  FOR I%=0 TO next%-1
+    IF C%=order%(I%) THEN PROCprintCmdr(I%,4+I%)
+  NEXT
+ENDPROC
+:
+DEF PROCprintCmdr(I%,row%)
   @%=10
   IF cmdr%=I% THEN style$="* " ELSE style$="  "
-  PRINT style$;M$(machine%(I%));" ";network%(I%);".";station%(I%);
-  PRINT TAB(9);C$(condition%(I%));CHR$(255);CHR$(135);L$(legal%(I%));"  ";name$(I%);
+  PRINT TAB(0,row%);style$;M$(machine%(I%));" ";network%(I%);".";station%(I%);
+  PRINT TAB(9,row%);C$(condition%(I%));CHR$(255);CHR$(135);L$(legal%(I%));"  ";name$(I%);
   S%=score%(I%)
   IF S%=0 THEN J%=0 ELSE J%=INT(LOG(S%))
-  PRINT TAB(29-J%);S%;
+  PRINT TAB(29-J%,row%);S%;
   C%=credits%(I%)
   IF C%>999999 THEN K$="k":C%=C%/1000:K%=1 ELSE K$="":K%=0
   IF C%=0 THEN J%=0 ELSE J%=INT(LOG(C%))
-  @%=&2010A:PRINT TAB(38-J%-K%);C%/10;K$;
+  @%=&2010A:PRINT TAB(38-J%-K%,row%);C%/10;K$;
 ENDPROC
