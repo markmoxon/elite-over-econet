@@ -3,7 +3,7 @@ REM By Mark Moxon
 :
 DIM order%(19),name$(19),credits%(19),score%(19),machine%(19)
 DIM condition%(19),legal%(19),network%(19),station%(19)
-DIM M$(2):M$(0)="M":M$(1)="S":M$(2)="B"
+DIM M$(2):M$(0)="B":M$(1)="M":M$(2)="S"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)="Cln":L$(1)="Off":L$(2)="Fug"
 DIM cblock% 40,rxbuffer% 40
