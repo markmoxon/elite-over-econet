@@ -3,9 +3,9 @@ REM By Mark Moxon
 :
 DIM order%(19),name$(19),credits%(19),score%(19),machine%(19)
 DIM condition%(19),legal%(19),network%(19),station%(19)
-DIM M$(2):M$(0)="B":M$(1)="M":M$(2)="S"
+DIM M$(2):M$(0)="Bb":M$(1)="Ma":M$(2)="Sp"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
-DIM L$(2):L$(0)="Cln":L$(1)="Off":L$(2)="Fug"
+DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
 DIM cblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:next%=0:sort%=0:@%=10
 X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
@@ -14,9 +14,14 @@ snw%=cblock%?2:sst%=cblock%?1
 MODE 7:VDU23;8202;0;0;0;
 INPUT "Port",port%
 CLS
-PRINT "  [S]ort by Cr   EELLIITTEE   Stn: ";snw%;".";sst%
-PRINT "  [Esc] to quit  EELLIITTEE    Port: ";port%
-PRINT CHR$(157);CHR$(132);"Station Status Name    Score   Credits"
+PRINT CHR$(132);"Sort: [C]reds ";
+PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
+PRINT SPC(4-FNdigits(snw%)-FNdigits(sst%));"Stn: ";snw%;".";sst%;
+PRINT TAB(0,1);CHR$(133);"Quit: [Esc]   ";
+PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
+PRINT SPC(5-FNdigits(port%));"Port: ";port%
+PRINT TAB(15,2);CHR$(131);"LAN  Party"
+PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Net.Stn C Lgl Command Score Credits"
 REPEAT
   PROCreceive
   IF next%>0 THEN cmdr%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmdr%=-1
@@ -50,12 +55,11 @@ DEF PROCreceiveTest
   $rxbuffer%=n$
   rxbuffer%?8=RND(3)-1
   rxbuffer%?9=RND(4)-1
-  rxbuffer%?10=RND(256)-1
-  rxbuffer%?11=RND(256)-1
-  rxbuffer%!12=RND(65536)-1
+  rxbuffer%!10=RND(65536)-1
+  rxbuffer%!12=RND(&00CA9A3B)
   rxbuffer%?16=RND(3)-1
   cblock%?3=RND(256)-1
-  cblock%?4=RND(10)-1
+  cblock%?4=RND(129)-1
 ENDPROC
 :
 DEF FNupdateCmdr(I%)
@@ -105,7 +109,7 @@ DEF PROCprintTable
     PROCprintCmdr(order%(I%),4+I%)
   NEXT
   FOR I%=next% TO 19
-    PRINT SPC(39)
+    PRINT SPC(40);
   NEXT
 ENDPROC
 :
@@ -116,15 +120,18 @@ DEF PROCprintRow(C%)
 ENDPROC
 :
 DEF PROCprintCmdr(I%,row%)
+  PRINT TAB(0,row%);SPC(40);
   @%=10
-  IF cmdr%=I% THEN style$="* " ELSE style$="  "
-  PRINT TAB(0,row%);style$;M$(machine%(I%));" ";network%(I%);".";station%(I%);
-  PRINT TAB(9,row%);C$(condition%(I%));CHR$(255);CHR$(135);L$(legal%(I%));"  ";name$(I%);
+  IF cmdr%=I% THEN flag$="*" ELSE flag$=" "
+  N%=network%(I%):L%=legal%(I%)
+  PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(I%));SPC(3-FNdigits(N%));N%;".";station%(I%);
+  PRINT TAB(12,row%);C$(condition%(I%));CHR$(255);L$(legal%(I%));CHR$(134);name$(I%);CHR$(130);
   S%=score%(I%)
-  IF S%=0 THEN J%=0 ELSE J%=INT(LOG(S%))
-  PRINT TAB(29-J%,row%);S%;
+  PRINT TAB(31-FNdigits(S%),row%);S%;
   C%=credits%(I%)
   IF C%>999999 THEN K$="k":C%=C%/1000:K%=1 ELSE K$="":K%=0
-  IF C%=0 THEN J%=0 ELSE J%=INT(LOG(C%))
-  @%=&2010A:PRINT TAB(38-J%-K%,row%);C%/10;K$;
+  @%=&2010A:PRINT TAB(38-FNdigits(C%)-K%,row%);C%/10;K$;
 ENDPROC
+:
+DEF FNdigits(D%)
+IF D%=0 THEN =0 ELSE =INT(LOG(D%))
