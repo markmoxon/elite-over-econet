@@ -78,10 +78,11 @@ DEF FNupdateCmdr(I%)
 =ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
+  match%=-1
   FOR I%=0 TO next%-1
-    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN =I%
+    IF match%=-1 AND station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN match%=I%
   NEXT
-=-1
+=match%
 :
 DEF PROCsort
   IF sort%=0 THEN PROCsortByScore ELSE PROCsortByCr
@@ -129,8 +130,8 @@ DEF PROCprintCmdr(I%,row%)
   S%=score%(I%)
   PRINT TAB(31-FNdigits(S%),row%);S%;
   C%=credits%(I%)
-  IF C%>999999 THEN K$="k":C%=C%/1000:K%=1 ELSE K$="":K%=1
-  @%=&2010A:PRINT TAB(38-FNdigits(C%)-K%,row%);C%/10;K$;
+  IF C%>99999 THEN K$="k":C%=C%/1000 ELSE K$=""
+  @%=&2010A:PRINT TAB(38-FNdigits(C%),row%);C%/10;K$;
 ENDPROC
 :
 DEF FNdigits(D%)
