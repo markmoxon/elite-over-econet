@@ -14,14 +14,14 @@ snw%=cblock%?2:sst%=cblock%?1
 MODE 7:VDU23;8202;0;0;0;
 INPUT "Port",port%
 CLS
-PRINT CHR$(132);"Sort: [C]reds ";
+PRINT CHR$(132);"[S]ort      ";
 PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
-PRINT SPC(4-FNdigits(snw%)-FNdigits(sst%));"Stn: ";snw%;".";sst%;
-PRINT TAB(0,1);CHR$(133);"Quit: [Esc]   ";
+PRINT SPC(7-FNdigits(snw%)-FNdigits(sst%));"Stn: ";snw%;".";sst%;
+PRINT TAB(0,1);CHR$(133);"[M]enu      ";
 PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
-PRINT SPC(5-FNdigits(port%));"Port: ";port%
-PRINT TAB(15,2);CHR$(131);"LAN  Party"
-PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Net.Stn C Lgl Command Score Credits"
+PRINT SPC(8-FNdigits(port%));"Port: ";port%
+PRINT TAB(13,2);CHR$(131);"SCOREBOARD"
+PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Net Stn C Lgl Player  Score Credits"
 REPEAT
   PROCreceive
   IF next%>0 THEN cmdr%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmdr%=-1
@@ -125,11 +125,11 @@ DEF PROCprintCmdr(I%,row%)
   IF cmdr%=I% THEN flag$="*" ELSE flag$=" "
   N%=network%(I%):L%=legal%(I%)
   PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(I%));SPC(3-FNdigits(N%));N%;".";station%(I%);
-  PRINT TAB(12,row%);C$(condition%(I%));CHR$(255);L$(legal%(I%));CHR$(134);name$(I%);CHR$(130);
+  PRINT TAB(12,row%);C$(condition%(I%));CHR$(172);L$(legal%(I%));CHR$(134);name$(I%);CHR$(130);
   S%=score%(I%)
   PRINT TAB(31-FNdigits(S%),row%);S%;
   C%=credits%(I%)
-  IF C%>999999 THEN K$="k":C%=C%/1000:K%=1 ELSE K$="":K%=0
+  IF C%>999999 THEN K$="k":C%=C%/1000:K%=1 ELSE K$="":K%=1
   @%=&2010A:PRINT TAB(38-FNdigits(C%)-K%,row%);C%/10;K$;
 ENDPROC
 :
