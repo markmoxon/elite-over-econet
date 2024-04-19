@@ -7,21 +7,13 @@ DIM M$(2):M$(0)="Bb":M$(1)="Ma":M$(2)="Sp"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
 DIM cblock% 40,rxbuffer% 40
-OSWORD=&FFF1:OSBYTE=&FFF4:next%=0:sort%=0:@%=10
+OSWORD=&FFF1:OSBYTE=&FFF4:next%=0:sort%=0:cmdr%=-1:@%=10
 X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
 snw%=cblock%?2:sst%=cblock%?1
 :
 MODE 7:VDU23;8202;0;0;0;
-INPUT "Port",port%
-CLS
-PRINT CHR$(132);"[S]ort      ";
-PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
-PRINT SPC(7-FNdigits(snw%)-FNdigits(sst%));"Stn: ";snw%;".";sst%;
-PRINT TAB(0,1);CHR$(133);"[M]enu      ";
-PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
-PRINT SPC(8-FNdigits(port%));"Port: ";port%
-PRINT TAB(13,2);CHR$(131);"SCOREBOARD"
-PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Net Stn C Lgl Player  Score Credits"
+PROCmenu
+PROCprintHeader
 REPEAT
   PROCreceive
   IF next%>0 THEN cmdr%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmdr%=-1
@@ -44,10 +36,18 @@ DEF PROCreceive
   REM Wait for reception
   A%=&33:X%=rxcb_number%
   REPEAT:U%=USR OSBYTE
+  IF INKEY(-82) THEN PROCswapSort
+  IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
   UNTIL (U% AND &8000)<>0
   REM Read control block back
   X%=cblock%:Y%=cblock% DIV 256:A%=&11
   ?cblock%=rxcb_number%:CALL OSWORD
+ENDPROC
+:
+DEF PROCswapSort
+  VDU 7
+  sort%=sort%EOR1
+  IF next%>1 THEN PROCsort:PROCprintTable
 ENDPROC
 :
 DEF PROCreceiveTest
@@ -60,6 +60,28 @@ DEF PROCreceiveTest
   rxbuffer%?16=RND(3)-1
   cblock%?3=RND(256)-1
   cblock%?4=RND(129)-1
+ENDPROC
+:
+DEF PROCprintHeader
+  @%=10
+  PRINT TAB(0,0);CHR$(132);"<S>ort      ";
+  PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
+  PRINT SPC(7-FNdigits(snw%)-FNdigits(sst%));"Stn: ";snw%;".";sst%;
+  PRINT TAB(0,1);CHR$(133);"<M>enu      ";
+  PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
+  PRINT SPC(8-FNdigits(port%));"Port: ";port%
+  PRINT TAB(13,2);CHR$(131);"SCOREBOARD"
+  PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Net Stn C Lgl Player  Kills Credits"
+ENDPROC
+:
+DEF PROCmenu
+  CLS
+  INPUT "Port ",port%
+  INPUT "Forwarding station ",fstn%
+  INPUT "Forwarding network ",fnet%
+  INPUT "Quit (Y/N) ",q$
+  IF q$="Y" OR q$="y" THEN END
+  CLS
 ENDPROC
 :
 DEF FNupdateCmdr(I%)
@@ -129,9 +151,10 @@ DEF PROCprintCmdr(I%,row%)
   PRINT TAB(12,row%);C$(condition%(I%));CHR$(172);L$(legal%(I%));CHR$(134);name$(I%);CHR$(130);
   S%=score%(I%)
   PRINT TAB(31-FNdigits(S%),row%);S%;
-  C%=credits%(I%)
-  IF C%>99999 THEN K$="k":C%=C%/1000 ELSE K$=""
-  @%=&2010A:PRINT TAB(38-FNdigits(C%),row%);C%/10;K$;
+  K$=" ":C%=credits%(I%)
+  IF C%>99999 AND C%<=99999999 THEN K$="k":C%=C%/1000
+  IF C%>99999999 THEN K$="m":C%=C%/1000000
+  @%=&2010A:PRINT TAB(37-FNdigits(C%),row%);C%/10;K$;
 ENDPROC
 :
 DEF FNdigits(D%)
