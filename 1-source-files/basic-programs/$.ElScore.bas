@@ -126,7 +126,7 @@ DEF FNfindCmdr(nm$,nw%,st%)
 =match%
 :
 DEF PROCsort
-  IF sort%=0 THEN PROCsortByScore ELSE PROCsortByCr
+  IF sort%=0 THEN PROCsortByKills ELSE PROCsortByCr
 ENDPROC
 :
 DEF PROCsortByCr
@@ -137,7 +137,7 @@ DEF PROCsortByCr
   NEXT
 ENDPROC
 :
-DEF PROCsortByScore
+DEF PROCsortByKills
   FOR I%=next%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
       IF kills%(order%(J%))<kills%(order%(J%+1)) THEN T%=order%(J%):order%(J%)=order%(J%+1):order%(J%+1)=T%
@@ -147,9 +147,7 @@ ENDPROC
 :
 DEF PROCprintTable
   PRINT TAB(0,4);
-  FOR I%=0 TO next%-1
-    PROCprintCmdr(order%(I%),4+I%)
-  NEXT
+  IF next%>0 THEN FOR I%=0 TO next%-1:PROCprintCmdr(order%(I%),4+I%):NEXT
   FOR I%=next% TO 19
     PRINT SPC(40);
   NEXT
