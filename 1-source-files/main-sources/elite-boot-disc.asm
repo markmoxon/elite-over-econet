@@ -35,6 +35,9 @@
  ZP = &32               \ Use the XX15 block for the loading code, so it doesn't
                         \ clash with any persistent variables
 
+ S% = &12E3             \ The address of the main entry point workspace in the
+                        \ main game code
+
  sram% = &7400          \ The sideways RAM table in the SRAM loader
 
  used% = &7410          \ The used ROM table in the SRAM loader
@@ -137,17 +140,41 @@
  CMP #'T'
  BNE chek4
 
- LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("RUN ELTTC")
- LDY #HI(MESS4)
+                        \ If we get here then the command is *EliteB T, which
+                        \ loads the docked code and restarts the game
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS4, which *RUNs
-                        \ the docked code, returning from the subroutine using
-                        \ a tail call
+ LDX #LO(MESS8)         \ Set (Y X) to point to MESS8 ("LOAD ELTTC")
+ LDY #HI(MESS8)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS8, which
+                        \ *LOADs the docked code
+
+ JMP S%+3               \ Jump to the second JMP instruction in the docked code,
+                        \ which is a JMP DOBEGIN that restarts the game
 
 .chek4
 
+                        \ If we get here then the command is *EliteB R, which
+                        \ loads the docked code and docks with the station
+
+ CMP #'R'               \ If the argument is not R (i.e. *EliteB R), jump to
+ BNE chek5              \ chek6 to load the game
+
+ LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("RUN ELTTC")
+ LDY #HI(MESS4)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS3, which *RUNs
+                        \ the flight code (and calls the DOENTRY routine to dock
+                        \ at the station), returning from the subroutine using
+                        \ a tail call
+
+.chek5
+
+                        \ If we get here then the command is *EliteB D, which
+                        \ runs the flight code
+
  CMP #'D'               \ If the argument is not D (i.e. *EliteB D), jump to
- BNE chek5              \ chek5 to load the game
+ BNE chek6              \ chek6 to load the game
 
  LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("RUN ELTDC")
  LDY #HI(MESS3)
@@ -156,7 +183,7 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek5
+.chek6
 
                         \ There is no D or T argument to *EliteB, so now we need
                         \ to load the game from the loading screen
@@ -177,7 +204,7 @@
 
  LDY #0                 \ We are now going to print the VDU commands from B%
 
-.chek6
+.chek7
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -185,7 +212,7 @@
  INY                    \ Increment the loop counter
 
  CPY #12                \ Loop back for the next byte until we have done them
- BNE chek6              \ all 12
+ BNE chek7              \ all 12
 
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTSC")
  LDY #HI(MESS5)
@@ -202,7 +229,7 @@
  JSR testbbc%           \ Test all the ROM banks for sideways RAM
 
  LDY eliterom%          \ If bit 7 of eliterom% is clear then the Elite ROM has
- BPL chek8              \ already been loaded, so jump to chek8 to skip the
+ BPL chek9              \ already been loaded, so jump to chek9 to skip the
                         \ ROM checks and load the game into this bank
 
  LDA #LO(sram%)         \ Set ZP(2 1) = &7400 = sram%
@@ -223,41 +250,41 @@
  LDY #15                \ We now loop through the ROM banks to check for
                         \ sideways RAM, so set a counter in Y
 
-.chek7
+.chek8
 
  LDA (ZP+1),Y           \ If sram% for this bank is not &FF, move on to the next
  CMP #&FF               \ bank
- BNE chek9
+ BNE chek10
 
  LDA (ZP+3),Y           \ If used% for this bank is not 0, move on to the next
- BNE chek9              \ bank
+ BNE chek10             \ bank
 
  LDA (ZP+5),Y           \ If dupl% for this bank is not the bank number itself,
  STY ZP                 \ move on to the next bank
  CMP ZP
- BNE chek9
+ BNE chek10
 
                         \ If we get here then this bank contains sideways RAM,
                         \ it doesn't already contain a ROM, and it is not a
                         \ duplicate of another ROM, so we can use this bank
 
-.chek8
+.chek9
 
  STY ZP                 \ Store the bank number in ZP
 
- JMP chek10             \ Jump to chek10 to load the ROM image
+ JMP chek11             \ Jump to chek11 to load the ROM image
 
-.chek9
+.chek10
 
  DEY                    \ Decrement the ROM counter
 
- BPL chek7              \ Loop back until we have checked all 16 ROM banks
+ BPL chek8              \ Loop back until we have checked all 16 ROM banks
 
- JMP chek11             \ If we get here then there is no sideways RAM that
-                        \ we can use, so jump to chek11 to print an error
+ JMP chek12             \ If we get here then there is no sideways RAM that
+                        \ we can use, so jump to chek12 to print an error
                         \ message and quit
 
-.chek10
+.chek11
 
  LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTRM 3400")
  LDY #HI(MESS7)
@@ -276,7 +303,7 @@
                         \ the game in ELTIN, returning from the subroutine using
                         \ a tail call
 
-.chek11
+.chek12
 
                         \ If we get here then there is no sideways RAM, so print
                         \ an error message and quit
@@ -289,7 +316,7 @@
 
  LDY #0                 \ We are now going to print the error message
 
-.chek12
+.chek13
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -297,7 +324,7 @@
  INY                    \ Increment the loop counter
 
  CMP #13                \ Loop back until we have printed the whole message
- BNE chek12
+ BNE chek13
 
  RTS                    \ Return from the subroutine
 
@@ -334,6 +361,20 @@
  EQUB 0, 0, 0           \ This is the "cursor start" register, so this sets the
                         \ cursor start line at 0, effectively disabling the
                         \ cursor
+
+\ ******************************************************************************
+\
+\       Name: MESS8
+\       Type: Variable
+\   Category: Loader
+\    Summary: Load the docked code for disc Elite (T.CODE)
+\
+\ ******************************************************************************
+
+.MESS8
+
+ EQUS "LOAD ELTTC"
+ EQUB 13
 
 \ ******************************************************************************
 \
