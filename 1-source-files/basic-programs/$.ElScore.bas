@@ -103,19 +103,19 @@ DEF PROCmenu
   CLS
 ENDPROC
 :
-DEF FNupdateCmdr(I%)
+DEF FNupdateCmdr(cm%)
   ch%=FALSE
-  name$(I%)=$rxbuffer%
-  legal%(I%)=rxbuffer%?8
-  condition%(I%)=rxbuffer%?9
+  name$(cm%)=$rxbuffer%
+  legal%(cm%)=rxbuffer%?8
+  condition%(cm%)=rxbuffer%?9
   newkills%=rxbuffer%?10+256*rxbuffer%?11
-  IF sort%=0 AND newkills%<>kills%(I%) THEN ch%=TRUE
-  kills%(I%)=newkills%
-  IF sort%=1 AND credits%(I%)<>rxbuffer%!12 THEN ch%=TRUE
-  credits%(I%)=rxbuffer%!12
-  machine%(I%)=rxbuffer%?16
-  station%(I%)=cblock%?3
-  network%(I%)=cblock%?4
+  IF sort%=0 AND newkills%<>kills%(cm%) THEN ch%=TRUE
+  kills%(cm%)=newkills%
+  IF sort%=1 AND credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
+  credits%(cm%)=rxbuffer%!12
+  machine%(cm%)=rxbuffer%?16
+  station%(cm%)=cblock%?3
+  network%(cm%)=cblock%?4
 =ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
@@ -146,32 +146,29 @@ DEF PROCsortByKills
 ENDPROC
 :
 DEF PROCprintTable
-  PRINT TAB(0,4);
   IF next%>0 THEN FOR I%=0 TO next%-1:PROCprintCmdr(order%(I%),4+I%):NEXT
-  FOR I%=next% TO 19
-    PRINT SPC(40);
-  NEXT
+  IF next%<20 THEN FOR I%=next% TO 19:PRINT TAB(0,4+I%);SPC(40);:NEXT
 ENDPROC
 :
-DEF PROCprintRow(C%)
+DEF PROCprintRow(cm%)
   FOR I%=0 TO next%-1
-    IF C%=order%(I%) THEN PROCprintCmdr(I%,4+I%)
+    IF cm%=order%(I%) THEN PROCprintCmdr(cm%,4+I%)
   NEXT
 ENDPROC
 :
-DEF PROCprintCmdr(I%,row%)
+DEF PROCprintCmdr(cm%,row%)
   PRINT TAB(0,row%);SPC(40);
-  IF cmdr%=I% THEN flag$="*" ELSE flag$=" "
-  N%=network%(I%):L%=legal%(I%)
-  PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(I%));SPC(3-FNdigits(N%));N%;".";station%(I%);
-  PRINT TAB(12,row%);C$(condition%(I%));CHR$(172);L$(legal%(I%));CHR$(134);name$(I%);CHR$(130);
-  S%=kills%(I%)
-  PRINT TAB(31-FNdigits(S%),row%);S%;
-  K$=" ":C%=credits%(I%)
-  IF C%>99999 AND C%<=99999999 THEN K$="k":C%=C%/1000
-  IF C%>99999999 THEN K$="m":C%=C%/1000000
-  @%=&2010A:PRINT TAB(37-FNdigits(C%),row%);C%/10;K$;:@%=10
+  IF cmdr%=cm% THEN flag$="*" ELSE flag$=" "
+  N%=network%(cm%):L%=legal%(cm%)
+  PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";station%(cm%);
+  PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
+  K%=kills%(cm%)
+  PRINT TAB(31-FNdigits(K%),row%);K%;
+  K$=" ":R%=credits%(cm%)
+  IF R%>99999 AND R%<=99999999 THEN K$="k":R%=R%/1000
+  IF R%>99999999 THEN K$="m":R%=R%/1000000
+  @%=&2010A:PRINT TAB(37-FNdigits(R%),row%);R%/10;K$;:@%=10
 ENDPROC
 :
-DEF FNdigits(D%)
-IF D%=0 THEN =0 ELSE =INT(LOG(D%))
+DEF FNdigits(dg%)
+IF dg%=0 THEN =0 ELSE =INT(LOG(dg%))
