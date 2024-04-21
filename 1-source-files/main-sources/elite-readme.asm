@@ -73,34 +73,33 @@
  EQUB 10, 13
  EQUS "3. If you want all users to be able to"
  EQUB 10, 13
- EQUS "play Elite, copy EliteB, EliteM and"
+ EQUS "play Elite, copy all the Elite* files"
  EQUB 10, 13
- EQUS "EliteSP into $.Library and $.Library1"
+ EQUS "into $.Library and $.Library1 and"
  EQUB 10, 13
- EQUS "and ensure all users have their library"
+ EQUS "ensure all users have their library set"
  EQUB 10, 13
  EQUS "set accordingly"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "If you want to restrict it to specific"
  EQUB 10, 13
- EQUS "users, copy EliteB, EliteM and EliteSP"
+ EQUS "users, copy all the Elite* files into"
  EQUB 10, 13
- EQUS "into the Elite folder that you just"
+ EQUS "the Elite folder that you just created"
  EQUB 10, 13
- EQUS "created in the users' main directories"
+ EQUS "in the users' main directories"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "4. Users can then play Elite by typing:"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "*EliteB  (for BBC Micro Elite)"
+ EQUS "*Elite"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "*EliteM  (for BBC Master 128 Elite)"
+ EQUS "which will load the correct version of"
  EQUB 10, 13
- EQUB 10, 13
- EQUS "*EliteSP (for 6502 Second Proc Elite)"
+ EQUS "Elite for their machine."
  EQUB 10, 13
  EQUB 10, 13
  EQUS "If you restricted Elite to specific"
@@ -108,6 +107,16 @@
  EQUS "users, they will need to *DIR into"
  EQUB 10, 13
  EQUS "their own Elite folders first"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "You can run specific versions using:"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "*EliteB  (for BBC Micro Elite)"
+ EQUB 10, 13
+ EQUS "*EliteM  (for BBC Master 128 Elite)"
+ EQUB 10, 13
+ EQUS "*EliteSP (for 6502 Second Proc Elite)"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "5. Commander files will be saved into"

@@ -6,6 +6,7 @@ all:
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-master.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-6502sp.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-disc.asm
+	$(BEEBASM) -i 1-source-files/main-sources/elite-boot.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-disc.asm -do 3-compiled-game-discs/elite-over-econet.ssd -title "E L I T E"
 
 .PHONY:b2

@@ -54,6 +54,7 @@
  PUTFILE "2-assembled-output/EliteM.bin", "EliteM", &002000, &002000
  PUTFILE "2-assembled-output/EliteSP.bin", "EliteSP", &FF2000, &FF2000
  PUTFILE "2-assembled-output/EliteB.bin", "EliteB", &000B00, &000B00
+ PUTFILE "2-assembled-output/Elite.bin", "Elite", &002400, &002400
 
 \ Scoreboard
 
