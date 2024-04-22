@@ -58,7 +58,7 @@
 
 .ENTRY
 
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.Elite")
+ LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
  LDY #HI(MESS1)
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
@@ -96,7 +96,7 @@
 
 .MESS1
 
- EQUS "DIR $.Elite"
+ EQUS "DIR $.EliteGame"
  EQUB 13
 
 \ ******************************************************************************

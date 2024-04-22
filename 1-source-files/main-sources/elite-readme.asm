@@ -55,14 +55,14 @@
  EQUS "To install Elite on your network:"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "1. Create a directory called $.Elite on"
+ EQUS "1. Create a $.EliteGame directory on"
  EQUB 10, 13
  EQUS "the server and copy all the ELT* files"
  EQUB 10, 13
  EQUS "and this ReadMe file into the directory"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "2. Create a directory called Elite in"
+ EQUS "2. Create an EliteSaves directory in"
  EQUB 10, 13
  EQUS "the top level of the main directory for"
  EQUB 10, 13
@@ -86,7 +86,7 @@
  EQUB 10, 13
  EQUS "users, copy all the Elite* files into"
  EQUB 10, 13
- EQUS "the Elite folder that you just created"
+ EQUS "the EliteSaves folder that you created"
  EQUB 10, 13
  EQUS "in the users' main directories"
  EQUB 10, 13
@@ -106,7 +106,7 @@
  EQUB 10, 13
  EQUS "users, they will need to *DIR into"
  EQUB 10, 13
- EQUS "their own Elite folders first"
+ EQUS "their own EliteSaves folders first"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "You can run specific versions using:"
@@ -119,9 +119,9 @@
  EQUS "*EliteSP (for 6502 Second Proc Elite)"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "5. Commander files will be saved into"
+ EQUS "5. Commander files are saved into each"
  EQUB 10, 13
- EQUS "each individual user's Elite folder"
+ EQUS "individual user's EliteSaves folder"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "See www.bbcelite.com/hacks for details"

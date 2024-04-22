@@ -15,11 +15,11 @@
 
 To install Elite on your network:
 
-1. Create a directory called $.Elite on
+1. Create a $.EliteGame directory on
 the server and copy all the ELT* files
 and this ReadMe file into the directory
 
-2. Create a directory called Elite in
+2. Create an EliteSaves directory in
 the top level of the main directory for
 each user who wants to play Elite, and
 copy the MAX file into this directory
@@ -32,7 +32,7 @@
 
 If you want to restrict it to specific
 users, copy all the Elite* files into
-the Elite folder that you just created
+the EliteSaves folder that you created
 in the users' main directories
 
 4. Users can then play Elite by typing:
@@ -44,7 +44,7 @@
 
 If you restricted Elite to specific
 users, they will need to *DIR into
-their own Elite folders first
+their own EliteSaves folders first
 
 You can run specific versions using:
 
@@ -52,11 +52,11 @@
 *EliteM  (for BBC Master 128 Elite)
 *EliteSP (for 6502 Second Proc Elite)
 
-5. Commander files will be saved into
-each individual user's Elite folder
+5. Commander files are saved into each
+individual user's EliteSaves folder
 
 See www.bbcelite.com/hacks for details
 
-Build: 2024-04-22 13:16:30
+Build: 2024-04-22 14:06:02
 ---------------------------------------
 

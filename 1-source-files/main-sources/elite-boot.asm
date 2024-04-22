@@ -125,10 +125,10 @@
 
  JSR PrintMessage       \ Print the text at LOAD3
 
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("EliteSP")
- LDY #HI(MESS1)
+ LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("EliteSP")
+ LDY #HI(MESS3)
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS1 to run the
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS3 to run the
                         \ 6502 Second Processor version of Elite over Econet
 
 \ ******************************************************************************
