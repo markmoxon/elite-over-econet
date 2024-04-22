@@ -143,7 +143,7 @@
                         \ If we get here then the command is *EliteB T, which
                         \ loads the docked code and restarts the game
 
- LDX #LO(MESS8)         \ Set (Y X) to point to MESS8 ("LOAD ELTTC")
+ LDX #LO(MESS8)         \ Set (Y X) to point to MESS8 ("LOAD ELTBT")
  LDY #HI(MESS8)
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS8, which
@@ -160,7 +160,7 @@
  CMP #'R'               \ If the argument is not R (i.e. *EliteB R), jump to
  BNE chek5              \ chek6 to load the game
 
- LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("RUN ELTTC")
+ LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("RUN ELTBT")
  LDY #HI(MESS4)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS3, which *RUNs
@@ -176,7 +176,7 @@
  CMP #'D'               \ If the argument is not D (i.e. *EliteB D), jump to
  BNE chek6              \ chek6 to load the game
 
- LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("RUN ELTDC")
+ LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("RUN ELTBD")
  LDY #HI(MESS3)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS3, which *RUNs
@@ -214,13 +214,13 @@
  CPY #12                \ Loop back for the next byte until we have done them
  BNE chek7              \ all 12
 
- LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTSC")
+ LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTBS")
  LDY #HI(MESS5)
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS5 to show the
                         \ Acornsoft loading screen
 
- LDX #LO(MESS6)         \ Set (Y X) to point to MESS6 ("LOAD ELTMN")
+ LDX #LO(MESS6)         \ Set (Y X) to point to MESS6 ("LOAD ELTBM")
  LDY #HI(MESS6)
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS6 to load the
@@ -286,7 +286,7 @@
 
 .chek11
 
- LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTRM 3400")
+ LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTBR 3400")
  LDY #HI(MESS7)
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS7 to load the
@@ -296,11 +296,11 @@
 
  JSR loadrom%           \ Move the ROM code into sideways RAM
 
- LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("RUN ELTIN")
+ LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("RUN ELTBI")
  LDY #HI(MESS2)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
-                        \ the game in ELTIN, returning from the subroutine using
+                        \ the game in ELTBI, returning from the subroutine using
                         \ a tail call
 
 .chek12
@@ -373,7 +373,7 @@
 
 .MESS8
 
- EQUS "LOAD ELTTC"
+ EQUS "LOAD ELTBT"
  EQUB 13
 
 \ ******************************************************************************
@@ -388,7 +388,7 @@
 
 .MESS7
 
- EQUS "LOAD ELTRM 3400"
+ EQUS "LOAD ELTBR 3400"
  EQUB 13
 
 \ ******************************************************************************
@@ -402,7 +402,7 @@
 
 .MESS6
 
- EQUS "LOAD ELTMN"
+ EQUS "LOAD ELTBM"
  EQUB 13
 
 \ ******************************************************************************
@@ -416,7 +416,7 @@
 
 .MESS5
 
- EQUS "RUN ELTSC"
+ EQUS "RUN ELTBS"
  EQUB 13
 
 \ ******************************************************************************
@@ -430,7 +430,7 @@
 
 .MESS4
 
- EQUS "RUN ELTTC"
+ EQUS "RUN ELTBT"
  EQUB 13
 
 \ ******************************************************************************
@@ -444,7 +444,7 @@
 
 .MESS3
 
- EQUS "RUN ELTDC"
+ EQUS "RUN ELTBD"
  EQUB 13
 
 \ ******************************************************************************
@@ -458,7 +458,7 @@
 
 .MESS2
 
- EQUS "RUN ELTIN"
+ EQUS "RUN ELTBI"
  EQUB 13
 
 \ ******************************************************************************

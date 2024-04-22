@@ -65,11 +65,11 @@
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
                         \ to the game folder
 
- LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("RUN ELTSP")
+ LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("RUN ELTSE")
  LDY #HI(MESS2)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
-                        \ the game in ELTSP, returning from the subroutine using
+                        \ the game in ELTSE, returning from the subroutine using
                         \ a tail call
 
 \ ******************************************************************************
@@ -83,7 +83,7 @@
 
 .MESS2
 
- EQUS "RUN ELTSP"
+ EQUS "RUN ELTSE"
  EQUB 13
 
 \ ******************************************************************************

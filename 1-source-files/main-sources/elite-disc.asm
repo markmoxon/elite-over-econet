@@ -29,25 +29,25 @@
 
 \ BBC Master Elite (Econet version) = *RUN EliteM
 
- PUTFILE "master-elite-beebasm/3-assembled-output/M128Elt.bin", "ELTMC", &000E00, &000E43
- PUTFILE "master-elite-beebasm/3-assembled-output/BDATA.bin", "ELTBD", &001300, &001300
- PUTFILE "master-elite-beebasm/3-assembled-output/BCODE.bin", "ELTBC", &001300, &002C6C
+ PUTFILE "master-elite-beebasm/3-assembled-output/M128Elt.bin", "ELTME", &000E00, &000E43
+ PUTFILE "master-elite-beebasm/3-assembled-output/BDATA.bin", "ELTMD", &001300, &001300
+ PUTFILE "master-elite-beebasm/3-assembled-output/BCODE.bin", "ELTMC", &001300, &002C6C
 
 \ 6502SP Elite (Econet version) = *RUN EliteSP
 
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITE.bin", "ELTSP", &FF1FDC, &FF2085
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "ELTIE", &FF2000, &FF2000
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "ELTIC", &FF2400, &FF2C89
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "ELTPC", &001000, &00106A
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITE.bin", "ELTSE", &FF1FDC, &FF2085
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "ELTSA", &FF2000, &FF2000
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "ELTSI", &FF2400, &FF2C89
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "ELTSP", &001000, &00106A
 
 \ BBC Micro Disc Elite (Econet Sideways RAM version) = *RUN EliteB
 
- PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.SCREEN.bin", "ELTSC", &007800, &007BE8
- PUTFILE "disc-elite-beebasm/3-assembled-output/ELTRM.bin", "ELTRM", &003400, &003400
- PUTFILE "disc-elite-beebasm/3-assembled-output/MNUCODE.bin", "ELTMN", &007400, &00743B
- PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "ELTIN", &001900, &00197B
- PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "ELTDC", &0012E3, &0012E3
- PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "ELTTC", &0012E3, &0012E3
+ PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.SCREEN.bin", "ELTBS", &007800, &007BE8
+ PUTFILE "disc-elite-beebasm/3-assembled-output/ELTROM.bin", "ELTBR", &003400, &003400
+ PUTFILE "disc-elite-beebasm/3-assembled-output/MNUCODE.bin", "ELTBM", &007400, &00743B
+ PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "ELTBI", &001900, &00197B
+ PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "ELTBD", &0012E3, &0012E3
+ PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "ELTBT", &0012E3, &0012E3
 
 \ Boot files
 
