@@ -12,6 +12,7 @@ See the individual subprojects for more information.
 
 * [6502 Second Processor Elite](https://github.com/markmoxon/6502sp-elite-beebasm)
 * [BBC Master Elite](https://github.com/markmoxon/master-elite-beebasm)
+* [BBC Micro disc Elite](https://github.com/markmoxon/disc-elite-beebasm)
 
 ---
 
