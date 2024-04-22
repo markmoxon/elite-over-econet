@@ -10,7 +10,7 @@ DIM cblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4
 port%=0:fstation%=0:fnetwork%=0:fport%=0:next%=0:sort%=0:cmdr%=-1:quit%=FALSE
 X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
-snw%=cblock%?2:sst%=cblock%?1
+snetwork%=cblock%?2:sstation%=cblock%?1
 :
 ON ERROR PROCerror
 MODE 7
@@ -138,7 +138,7 @@ ENDPROC
 DEF PROCprintHeader
   PRINT TAB(0,0);CHR$(132);"<S>ort      ";
   PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
-  PRINT SPC(7-FNdigits(snw%)-FNdigits(sst%));"Stn: ";snw%;".";sst%;
+  PRINT SPC(7-FNdigits(snetwork%)-FNdigits(sstation%));"Stn: ";snetwork%;".";sstation%;
   PRINT TAB(0,1);CHR$(133);"<M>enu      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
   PRINT SPC(8-FNdigits(port%));"Port: ";port%
