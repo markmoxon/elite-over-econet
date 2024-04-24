@@ -8,12 +8,9 @@
 
 * BBC Micro Model B
 * BBC Micro Model B & 16K Sideways RAM
-* BBC Micro Model B+ 64K
-* BBC Micro Model B+ 128K
+* BBC Micro Model B+ 64K and 128K
 * BBC Micro with 6502 Second Processor
-* BBC Master 128
-* BBC Master ET
-* BBC Master Turbo
+* BBC Master 128, ET and Turbo
 
 To install Elite on your network, copy
 files from this disc to your server as
@@ -24,13 +21,17 @@
 the server and copy all the files from
 DFS directory G to there
 
-2. Create an EliteCmdrs directory in
+2. Create a $.EliteGame.D directory on
+the server and copy all the files from
+DFS directory D (on side 2) to there
+
+3. Create an EliteCmdrs directory in
 the top level of the main directory for
 each user who wants to play Elite, and
 copy all the files from DFS directory
 C to there
 
-3. If you want all users to be able to
+4. If you want all users to be able to
 play Elite, copy all the files from DFS
 directory L into $.Library and
 $.Library1 and ensure all users have
@@ -42,7 +43,7 @@
 that you created in the users' main
 directories
 
-4. Users can then play Elite by typing:
+5. Users can then play Elite by typing:
 
 *Elite
 
@@ -53,17 +54,11 @@
 users, they will need to *DIR into
 their own EliteCmdrs folder first
 
-You can run specific versions using:
-
-*EliteB  (for BBC Micro Elite)
-*EliteM  (for BBC Master 128 Elite)
-*EliteSP (for 6502 Second Proc Elite)
-
-5. Commander files are saved into each
+6. Commander files are saved into each
 individual user's EliteCmdrs folder
 
 See www.bbcelite.com/hacks for details
 
-Build: 2024-04-24 16:26:49
+Build: 2024-04-24 16:53:43
 ---------------------------------------
 

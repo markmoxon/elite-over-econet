@@ -43,17 +43,11 @@
  EQUB 10, 13
  EQUS "* BBC Micro Model B & 16K Sideways RAM"
  EQUB 10, 13
- EQUS "* BBC Micro Model B+ 64K"
- EQUB 10, 13
- EQUS "* BBC Micro Model B+ 128K"
+ EQUS "* BBC Micro Model B+ 64K and 128K"
  EQUB 10, 13
  EQUS "* BBC Micro with 6502 Second Processor"
  EQUB 10, 13
- EQUS "* BBC Master 128"
- EQUB 10, 13
- EQUS "* BBC Master ET"
- EQUB 10, 13
- EQUS "* BBC Master Turbo"
+ EQUS "* BBC Master 128, ET and Turbo"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "To install Elite on your network, copy"
@@ -72,7 +66,14 @@
  EQUS "DFS directory G to there"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "2. Create an EliteCmdrs directory in"
+ EQUS "2. Create a $.EliteGame.D directory on"
+ EQUB 10, 13
+ EQUS "the server and copy all the files from"
+ EQUB 10, 13
+ EQUS "DFS directory D (on side 2) to there"
+ EQUB 10, 13
+ EQUB 10, 13
+ EQUS "3. Create an EliteCmdrs directory in"
  EQUB 10, 13
  EQUS "the top level of the main directory for"
  EQUB 10, 13
@@ -83,7 +84,7 @@
  EQUS "C to there"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "3. If you want all users to be able to"
+ EQUS "4. If you want all users to be able to"
  EQUB 10, 13
  EQUS "play Elite, copy all the files from DFS"
  EQUB 10, 13
@@ -105,7 +106,7 @@
  EQUS "directories"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "4. Users can then play Elite by typing:"
+ EQUS "5. Users can then play Elite by typing:"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "*Elite"
@@ -123,17 +124,7 @@
  EQUS "their own EliteCmdrs folder first"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "You can run specific versions using:"
- EQUB 10, 13
- EQUB 10, 13
- EQUS "*EliteB  (for BBC Micro Elite)"
- EQUB 10, 13
- EQUS "*EliteM  (for BBC Master 128 Elite)"
- EQUB 10, 13
- EQUS "*EliteSP (for 6502 Second Proc Elite)"
- EQUB 10, 13
- EQUB 10, 13
- EQUS "5. Commander files are saved into each"
+ EQUS "6. Commander files are saved into each"
  EQUB 10, 13
  EQUS "individual user's EliteCmdrs folder"
  EQUB 10, 13

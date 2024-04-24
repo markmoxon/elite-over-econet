@@ -17,4 +17,4 @@ all:
 .PHONY:b2
 b2:
 	curl -G "http://localhost:48075/reset/b2"
-	curl -H "Content-Type:application/binary" --upload-file "3-compiled-game-discs/elite-over-econet.ssd" "http://localhost:48075/run/b2?name=elite-over-econet.ssd"
+	curl -H "Content-Type:application/binary" --upload-file "3-compiled-game-discs/elite-over-econet.dsd" "http://localhost:48075/run/b2?name=elite-over-econet.dsd"
