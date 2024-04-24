@@ -78,6 +78,40 @@
 \    Summary: Does the job of the !BOOT file but in a machine code file so it
 \             can be run with a star-command from a BBC Micro
 \
+\ ------------------------------------------------------------------------------
+\
+\ This part implements the following loader commands:
+\
+\   *EliteB             Perform sideways RAM checks and run the correct disc
+\                       version of Elite:
+\
+\                         * ELTBI for the sideways RAM version (INTRO in the
+\                           original version)
+\                           
+\                         * ELTAI for the standard version (ELITE4 in the
+\                           original version)
+\
+\   *EliteB A to P      Load a ship blueprints file for the standard version
+\                       (*LOAD D.MO0 in the original)
+\
+\   *EliteB Q           Run the docked code for the standard version and dock
+\                       with the station (*RUN T.CODE in the original)
+\
+\   *EliteB R           Run the docked code for the sideways RAM version and
+\                       dock with the station (*RUN T.CODE in the original)
+\
+\   *EliteB S           Load the docked code for the standard version and
+\                       restart the game (*LOAD T.CODE in the original)
+\
+\   *EliteB T           Load the docked code for the sideways RAM version and
+\                       restart the game (*LOAD T.CODE in the original)
+\
+\   *EliteB U           Run the flight code for the standard version
+\                       (*RUN D.CODE in the original)
+\
+\   *EliteB V           Run the flight code for the sideways RAM version
+\                       (*RUN D.CODE in the original)
+\
 \ ******************************************************************************
 
 .ENTRY
@@ -141,7 +175,8 @@
  BNE chek4
 
                         \ If we get here then the command is *EliteB T, which
-                        \ loads the docked code and restarts the game
+                        \ loads the docked code for the sideways RAM version
+                        \ and restarts the game (*LOAD T.CODE in the original)
 
  LDX #LO(MESS8)         \ Set (Y X) to point to MESS8 ("LOAD ELTBT")
  LDY #HI(MESS8)
@@ -154,11 +189,13 @@
 
 .chek4
 
-                        \ If we get here then the command is *EliteB R, which
-                        \ loads the docked code and docks with the station
-
  CMP #'R'               \ If the argument is not R (i.e. *EliteB R), jump to
- BNE chek5              \ chek6 to load the game
+ BNE chek5              \ chek5 to keep looking
+
+                        \ If we get here then the command is *EliteB R, which
+                        \ runs the docked code for the sideways RAM version
+                        \ and docks with the station (*RUN T.CODE in the
+                        \ original)
 
  LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("RUN ELTBT")
  LDY #HI(MESS4)
@@ -170,11 +207,12 @@
 
 .chek5
 
-                        \ If we get here then the command is *EliteB D, which
-                        \ runs the flight code
+ CMP #'U'               \ If the argument is not D (i.e. *EliteB U), jump to
+ BNE chek6              \ chek6 to keep looking
 
- CMP #'D'               \ If the argument is not D (i.e. *EliteB D), jump to
- BNE chek6              \ chek6 to load the game
+                        \ If we get here then the command is *EliteB U, which
+                        \ runs the flight code for the sideways RAM version
+                        \ (*RUN D.CODE in the original)
 
  LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("RUN ELTBD")
  LDY #HI(MESS3)
@@ -185,7 +223,82 @@
 
 .chek6
 
-                        \ There is no D or T argument to *EliteB, so now we need
+ CMP #'S'               \ If the argument is not S (i.e. *EliteB S), jump to
+ BNE chek7              \ chek7 to keep looking
+
+                        \ If we get here then the command is *EliteB S, which
+                        \ loads the docked code for the standard version and
+                        \ restarts the game (*LOAD T.CODE in the original)
+
+ LDX #LO(MESS11)        \ Set (Y X) to point to MESS11 ("LOAD ELTAT")
+ LDY #HI(MESS11)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS8, which
+                        \ *LOADs the docked code
+
+ JMP S%+3               \ Jump to the second JMP instruction in the docked code,
+                        \ which is a JMP DOBEGIN that restarts the game
+
+.chek7
+
+ CMP #'Q'               \ If the argument is not Q (i.e. *EliteB Q), jump to
+ BNE chek8              \ chek8 to keep looking
+
+                        \ If we get here then the command is *EliteB Q, which
+                        \ runs the docked code for the standard version and
+                        \ docks with the station (*RUN T.CODE in the original)
+
+ LDX #LO(MESS10)        \ Set (Y X) to point to MESS10 ("RUN ELTAT")
+ LDY #HI(MESS10)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS3, which *RUNs
+                        \ the flight code (and calls the DOENTRY routine to dock
+                        \ at the station), returning from the subroutine using
+                        \ a tail call
+
+.chek8
+
+ CMP #'V'               \ If the argument is not V (i.e. *EliteB V), jump to
+ BNE chek9              \ chek9 to keep looking
+
+                        \ If we get here then the command is *EliteB V, which
+                        \ runs the flight code for the standard version
+                        \ (*RUN D.CODE in the original)
+
+ LDX #LO(MESS9)         \ Set (Y X) to point to MESS9 ("RUN ELTAD")
+ LDY #HI(MESS9)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS3, which *RUNs
+                        \ the flight code, returning from the subroutine using
+                        \ a tail call
+
+.chek9
+
+ CMP #'A'               \ If the argument is not in the range A to P (so that's
+ BCC chek10             \ *EliteB A to *EliteB P), jump to chek10 to keep
+ CMP #'Q'               \ looking
+ BCS chek10
+
+                        \ If we get here then the command is *EliteB A to P,
+                        \ which loads a ship blueprints file for the standard
+                        \ version (*LOAD D.MO0 in the original, where 0 is the
+                        \ argument)
+
+ STA MESS13+9           \ Store the letter of the ship blueprints file we want
+                        \ in the tenth byte of the command string at MESS13, so
+                        \ it overwrites the "0" in "D.MO0" with the file letter
+                        \ to load, from D.MOA to D.MOP
+
+ LDX #LO(MESS13)        \ Set (Y X) to point to MESS13 ("LOAD D.MO0")
+ LDY #HI(MESS13)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS13, which
+                        \ *LOADs the ship blueprints file, returning from the
+                        \ subroutine using a tail call
+
+.chek10
+
+                        \ There is no valid argument to *EliteB, so now we need
                         \ to load the game from the loading screen
 
  LDA #4                 \ Call OSBYTE with A = 4, X = 1 and Y = 0 to disable
@@ -204,7 +317,7 @@
 
  LDY #0                 \ We are now going to print the VDU commands from B%
 
-.chek7
+.chek11
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -212,7 +325,7 @@
  INY                    \ Increment the loop counter
 
  CPY #12                \ Loop back for the next byte until we have done them
- BNE chek7              \ all 12
+ BNE chek11             \ all 12
 
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTBS")
  LDY #HI(MESS5)
@@ -229,7 +342,7 @@
  JSR testbbc%           \ Test all the ROM banks for sideways RAM
 
  LDY eliterom%          \ If bit 7 of eliterom% is clear then the Elite ROM has
- BPL chek9              \ already been loaded, so jump to chek9 to skip the
+ BPL chek13             \ already been loaded, so jump to chek13 to skip the
                         \ ROM checks and load the game into this bank
 
  LDA #LO(sram%)         \ Set ZP(2 1) = &7400 = sram%
@@ -250,41 +363,41 @@
  LDY #15                \ We now loop through the ROM banks to check for
                         \ sideways RAM, so set a counter in Y
 
-.chek8
+.chek12
 
  LDA (ZP+1),Y           \ If sram% for this bank is not &FF, move on to the next
  CMP #&FF               \ bank
- BNE chek10
+ BNE chek14
 
  LDA (ZP+3),Y           \ If used% for this bank is not 0, move on to the next
- BNE chek10             \ bank
+ BNE chek14             \ bank
 
  LDA (ZP+5),Y           \ If dupl% for this bank is not the bank number itself,
  STY ZP                 \ move on to the next bank
  CMP ZP
- BNE chek10
+ BNE chek14
 
                         \ If we get here then this bank contains sideways RAM,
                         \ it doesn't already contain a ROM, and it is not a
                         \ duplicate of another ROM, so we can use this bank
 
-.chek9
+.chek13
 
  STY ZP                 \ Store the bank number in ZP
 
- JMP chek11             \ Jump to chek11 to load the ROM image
+ JMP chek15             \ Jump to chek15 to load the ROM image
 
-.chek10
+.chek14
 
  DEY                    \ Decrement the ROM counter
 
- BPL chek8              \ Loop back until we have checked all 16 ROM banks
+ BPL chek12             \ Loop back until we have checked all 16 ROM banks
 
- JMP chek12             \ If we get here then there is no sideways RAM that
-                        \ we can use, so jump to chek12 to print an error
+ JMP chek16             \ If we get here then there is no sideways RAM that
+                        \ we can use, so jump to chek16 to print an error
                         \ message and quit
 
-.chek11
+.chek15
 
  LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTBR 3400")
  LDY #HI(MESS7)
@@ -303,45 +416,17 @@
                         \ the game in ELTBI, returning from the subroutine using
                         \ a tail call
 
-.chek12
+.chek16
 
-                        \ If we get here then there is no sideways RAM, so print
-                        \ an error message and quit
+                        \ If we get here then there is no sideways RAM, so run
+                        \ the standard version
 
- LDA #LO(noSRAM)        \ Set the low byte of ZP(1 0) to point to the message
- STA ZP                 \ at noSRAM
+ LDX #LO(MESS12)        \ Set (Y X) to point to MESS12 ("RUN ELTAI")
+ LDY #HI(MESS12)
 
- LDA #HI(noSRAM)        \ Set the high byte of ZP(1 0) to point to the message
- STA ZP+1               \ at noSRAM
-
- LDY #0                 \ We are now going to print the error message
-
-.chek13
-
- LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
- JSR OSWRCH
-
- INY                    \ Increment the loop counter
-
- CMP #13                \ Loop back until we have printed the whole message
- BNE chek13
-
- RTS                    \ Return from the subroutine
-
-\ ******************************************************************************
-\
-\       Name: noSRAM
-\       Type: Variable
-\   Category: Loader
-\    Summary: The error message to display if there is no sideways RAM
-\
-\ ******************************************************************************
-
-.noSRAM
-
- EQUB 22, 7
- EQUS "No sideways RAM found"
- EQUB 10, 13
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS12, which *RUNs
+                        \ the game in ELTAI, returning from the subroutine using
+                        \ a tail call
 
 \ ******************************************************************************
 \
@@ -364,10 +449,80 @@
 
 \ ******************************************************************************
 \
+\       Name: MESS13
+\       Type: Variable
+\   Category: Loader
+\    Summary: Load a ship file for standard Elite (D.MOx)
+\
+\ ******************************************************************************
+
+.MESS13
+
+ EQUS "LOAD D.MO0"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS12
+\       Type: Variable
+\   Category: Loader
+\    Summary: Run the loader for standard Elite (ELITE4)
+\
+\ ******************************************************************************
+
+.MESS12
+
+ EQUS "RUN ELTAI"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS11
+\       Type: Variable
+\   Category: Loader
+\    Summary: Load the docked code for standard disc Elite (T.CODE)
+\
+\ ******************************************************************************
+
+.MESS11
+
+ EQUS "LOAD ELTAT"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS10
+\       Type: Variable
+\   Category: Loader
+\    Summary: Run the docked code for standard disc Elite (T.CODE)
+\
+\ ******************************************************************************
+
+.MESS10
+
+ EQUS "RUN ELTAT"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS9
+\       Type: Variable
+\   Category: Loader
+\    Summary: Run the flight code for standard disc Elite (D.CODE)
+\
+\ ******************************************************************************
+
+.MESS9
+
+ EQUS "RUN ELTAD"
+ EQUB 13
+
+\ ******************************************************************************
+\
 \       Name: MESS8
 \       Type: Variable
 \   Category: Loader
-\    Summary: Load the docked code for disc Elite (T.CODE)
+\    Summary: Load the docked code for sideways RAM disc Elite (T.CODE)
 \
 \ ******************************************************************************
 
@@ -424,7 +579,7 @@
 \       Name: MESS4
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the docked code for disc Elite (T.CODE)
+\    Summary: Run the docked code for sideways RAM disc Elite (T.CODE)
 \
 \ ******************************************************************************
 
@@ -438,7 +593,7 @@
 \       Name: MESS3
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the flight code for disc Elite (D.CODE)
+\    Summary: Run the flight code for sideways RAM disc Elite (D.CODE)
 \
 \ ******************************************************************************
 
@@ -452,7 +607,7 @@
 \       Name: MESS2
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the Elite loader (INTRO)
+\    Summary: Run the loader for sideways RAM Elite (INTRO)
 \
 \ ******************************************************************************
 
