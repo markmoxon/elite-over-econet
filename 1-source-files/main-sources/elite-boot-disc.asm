@@ -207,10 +207,10 @@
 
 .chek5
 
- CMP #'U'               \ If the argument is not D (i.e. *EliteB U), jump to
+ CMP #'V'               \ If the argument is not V (i.e. *EliteB V), jump to
  BNE chek6              \ chek6 to keep looking
 
-                        \ If we get here then the command is *EliteB U, which
+                        \ If we get here then the command is *EliteB V, which
                         \ runs the flight code for the sideways RAM version
                         \ (*RUN D.CODE in the original)
 
@@ -258,10 +258,10 @@
 
 .chek8
 
- CMP #'V'               \ If the argument is not V (i.e. *EliteB V), jump to
+ CMP #'U'               \ If the argument is not U (i.e. *EliteB U), jump to
  BNE chek9              \ chek9 to keep looking
 
-                        \ If we get here then the command is *EliteB V, which
+                        \ If we get here then the command is *EliteB U, which
                         \ runs the flight code for the standard version
                         \ (*RUN D.CODE in the original)
 

@@ -3,6 +3,7 @@ BEEBASM?=beebasm
 .PHONY:all
 all:
 	$(BEEBASM) -i 1-source-files/main-sources/elite-readme.asm
+	$(BEEBASM) -i 1-source-files/main-sources/elite-version.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-master.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-6502sp.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-disc.asm

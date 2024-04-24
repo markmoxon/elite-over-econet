@@ -67,7 +67,11 @@
  PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "G.ElScore"
  PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElDebug"
 
-\ Other files
+\ Commander files
 
  PUTFILE "master-elite-beebasm/1-source-files/other-files/E.MAX.bin", "C.MAX", &000000, &000000
- PUTFILE "2-assembled-output/ReadMe.txt", "G.ReadMe", &FFFFFF, &FFFFFF
+
+\ ReadMe files
+
+ PUTFILE "2-assembled-output/Version.txt", "G.Version", &FFFFFF, &FFFFFF
+ PUTFILE "2-assembled-output/ReadMe.txt", "ReadMe", &FFFFFF, &FFFFFF

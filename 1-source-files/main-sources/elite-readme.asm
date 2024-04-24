@@ -39,6 +39,8 @@
  EQUS "For the following networked machines:"
  EQUB 10, 13
  EQUB 10, 13
+ EQUS "* BBC Micro Model B"
+ EQUB 10, 13
  EQUS "* BBC Micro Model B & 16K Sideways RAM"
  EQUB 10, 13
  EQUS "* BBC Micro Model B+ 64K"
@@ -49,46 +51,58 @@
  EQUB 10, 13
  EQUS "* BBC Master 128"
  EQUB 10, 13
+ EQUS "* BBC Master ET"
+ EQUB 10, 13
  EQUS "* BBC Master Turbo"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "To install Elite on your network:"
+ EQUS "To install Elite on your network, copy"
+ EQUB 10, 13
+ EQUS "files from this disc to your server as"
+ EQUB 10, 13
+ EQUS "follows (files have been grouped into"
+ EQUB 10, 13
+ EQUS "DFS directories to make this easier):"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "1. Create a $.EliteGame directory on"
  EQUB 10, 13
- EQUS "the server and copy all the ELT* files"
+ EQUS "the server and copy all the files from"
  EQUB 10, 13
- EQUS "and this ReadMe file into the directory"
+ EQUS "DFS directory G to there"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "2. Create an EliteSaves directory in"
+ EQUS "2. Create an EliteCmdrs directory in"
  EQUB 10, 13
  EQUS "the top level of the main directory for"
  EQUB 10, 13
  EQUS "each user who wants to play Elite, and"
  EQUB 10, 13
- EQUS "copy the MAX file into this directory"
+ EQUS "copy all the files from DFS directory"
+ EQUB 10, 13
+ EQUS "C to there"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "3. If you want all users to be able to"
  EQUB 10, 13
- EQUS "play Elite, copy all the Elite* files"
+ EQUS "play Elite, copy all the files from DFS"
  EQUB 10, 13
- EQUS "into $.Library and $.Library1 and"
+ EQUS "directory L into $.Library and"
  EQUB 10, 13
- EQUS "ensure all users have their library set"
+ EQUS "$.Library1 and ensure all users have"
  EQUB 10, 13
- EQUS "set accordingly"
+ EQUS "their library set accordingly"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "If you want to restrict it to specific"
  EQUB 10, 13
- EQUS "users, copy all the Elite* files into"
+ EQUS "users, copy all the files from DFS"
  EQUB 10, 13
- EQUS "the EliteSaves folder that you created"
+ EQUS "directory L into the EliteCmdrs folder"
  EQUB 10, 13
- EQUS "in the users' main directories"
+ EQUS "that you created in the users' main"
+ EQUB 10, 13
+ EQUS "directories"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "4. Users can then play Elite by typing:"
@@ -106,7 +120,7 @@
  EQUB 10, 13
  EQUS "users, they will need to *DIR into"
  EQUB 10, 13
- EQUS "their own EliteSaves folders first"
+ EQUS "their own EliteCmdrs folder first"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "You can run specific versions using:"
@@ -121,7 +135,7 @@
  EQUB 10, 13
  EQUS "5. Commander files are saved into each"
  EQUB 10, 13
- EQUS "individual user's EliteSaves folder"
+ EQUS "individual user's EliteCmdrs folder"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "See www.bbcelite.com/hacks for details"
