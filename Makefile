@@ -8,7 +8,11 @@ all:
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-6502sp.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-disc.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot.asm
-	$(BEEBASM) -i 1-source-files/main-sources/elite-disc.asm -do 3-compiled-game-discs/elite-over-econet.ssd -title "E L I T E"
+	$(BEEBASM) -i 1-source-files/main-sources/elite-disc-1.asm -do 2-assembled-output/side1.ssd
+	$(BEEBASM) -i 1-source-files/main-sources/elite-disc-2.asm -do 2-assembled-output/side2.ssd
+	dfsimage create 3-compiled-game-discs/elite-over-econet.dsd
+	dfsimage backup --title="E L I T E" --from 2-assembled-output/side1.ssd --to -1 3-compiled-game-discs/elite-over-econet.dsd
+	dfsimage backup --title="E L I T E" --from 2-assembled-output/side2.ssd --to -2 3-compiled-game-discs/elite-over-econet.dsd
 
 .PHONY:b2
 b2:

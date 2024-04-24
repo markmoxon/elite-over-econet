@@ -21,7 +21,7 @@
 \
 \ This source file produces side 1 of the following DSD disc image:
 \
-\   * elite-compendium.dsd
+\   * elite-over-econet.dsd
 \
 \ This can be loaded into an emulator or a real BBC Master.
 \
