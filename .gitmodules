@@ -7,3 +7,6 @@
 [submodule "disc-elite-beebasm"]
 	path = disc-elite-beebasm
 	url = https://github.com/markmoxon/disc-elite-beebasm.git
+[submodule "dfsimage"]
+	path = dfsimage
+	url = https://github.com/monkeyman79/dfsimage.git
