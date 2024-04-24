@@ -29,39 +29,45 @@
 
 \ BBC Master Elite (Econet version) = *RUN EliteM
 
- PUTFILE "master-elite-beebasm/3-assembled-output/M128Elt.bin", "ELTME", &000E00, &000E43
- PUTFILE "master-elite-beebasm/3-assembled-output/BDATA.bin", "ELTMD", &001300, &001300
- PUTFILE "master-elite-beebasm/3-assembled-output/BCODE.bin", "ELTMC", &001300, &002C6C
+ PUTFILE "master-elite-beebasm/3-assembled-output/M128Elt.bin", "G.ELTME", &000E00, &000E43
+ PUTFILE "master-elite-beebasm/3-assembled-output/BDATA.bin", "G.ELTMD", &001300, &001300
+ PUTFILE "master-elite-beebasm/3-assembled-output/BCODE.bin", "G.ELTMC", &001300, &002C6C
 
 \ 6502SP Elite (Econet version) = *RUN EliteSP
 
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITE.bin", "ELTSE", &FF1FDC, &FF2085
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "ELTSA", &FF2000, &FF2000
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "ELTSI", &FF2400, &FF2C89
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "ELTSP", &001000, &00106A
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITE.bin", "G.ELTSE", &FF1FDC, &FF2085
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "G.ELTSA", &FF2000, &FF2000
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "G.ELTSI", &FF2400, &FF2C89
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "G.ELTSP", &001000, &00106A
 
 \ BBC Micro Disc Elite (Econet Sideways RAM version) = *RUN EliteB
 
- PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.SCREEN.bin", "ELTBS", &007800, &007BE8
- PUTFILE "disc-elite-beebasm/3-assembled-output/ELTROM.bin", "ELTBR", &003400, &003400
- PUTFILE "disc-elite-beebasm/3-assembled-output/MNUCODE.bin", "ELTBM", &007400, &00743B
- PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "ELTBI", &001900, &00197B
- PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "ELTBD", &0012E3, &0012E3
- PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "ELTBT", &0012E3, &0012E3
+ PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.SCREEN.bin", "G.ELTBS", &007800, &007BE8
+ PUTFILE "disc-elite-beebasm/3-assembled-output/ELTROM.bin", "G.ELTBR", &003400, &003400
+ PUTFILE "disc-elite-beebasm/3-assembled-output/MNUCODE.bin", "G.ELTBM", &007400, &00743B
+ PUTFILE "disc-elite-beebasm/3-assembled-output/sELITE4.bin", "G.ELTBI", &001900, &00197B
+ PUTFILE "disc-elite-beebasm/3-assembled-output/sD.CODE.bin", "G.ELTBD", &0012E3, &0012E3
+ PUTFILE "disc-elite-beebasm/3-assembled-output/sT.CODE.bin", "G.ELTBT", &0012E3, &0012E3
+
+\ BBC Micro Disc Elite (standard version) = *RUN EliteB
+
+ PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "G.ELTAI", &001900, &00197B
+ PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "G.ELTAD", &0012E3, &0012E3
+ PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "G.ELTAT", &0012E3, &0012E3
 
 \ Boot files
 
- PUTFILE "2-assembled-output/EliteM.bin", "EliteM", &002000, &002000
- PUTFILE "2-assembled-output/EliteSP.bin", "EliteSP", &FF2000, &FF2000
- PUTFILE "2-assembled-output/EliteB.bin", "EliteB", &000B00, &000B00
- PUTFILE "2-assembled-output/Elite.bin", "Elite", &002400, &002400
+ PUTFILE "2-assembled-output/EliteM.bin", "L.EliteM", &002000, &002000
+ PUTFILE "2-assembled-output/EliteSP.bin", "L.EliteSP", &FF2000, &FF2000
+ PUTFILE "2-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00
+ PUTFILE "2-assembled-output/Elite.bin", "L.Elite", &002400, &002400
 
 \ Scoreboard
 
- PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "ElScore"
- PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "ElDebug"
+ PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "G.ElScore"
+ PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElDebug"
 
 \ Other files
 
- PUTFILE "master-elite-beebasm/1-source-files/other-files/E.MAX.bin", "MAX", &000000, &000000
- PUTFILE "2-assembled-output/ReadMe.txt", "ReadMe", &FFFFFF, &FFFFFF
+ PUTFILE "master-elite-beebasm/1-source-files/other-files/E.MAX.bin", "C.MAX", &000000, &000000
+ PUTFILE "2-assembled-output/ReadMe.txt", "G.ReadMe", &FFFFFF, &FFFFFF
