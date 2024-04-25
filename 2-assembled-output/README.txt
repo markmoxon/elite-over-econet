@@ -23,25 +23,25 @@
 
 2. Create a $.EliteGame.D directory on
 the server and copy all the files from
-DFS directory D (on side 2) to there
+DFS directory D (on drive 2) to there
 
 3. Create an EliteCmdrs directory in
 the top level of the main directory for
 each user who wants to play Elite, and
 copy all the files from DFS directory
-C to there
+C (on drive 2) to there
 
 4. If you want all users to be able to
 play Elite, copy all the files from DFS
-directory L into $.Library and
-$.Library1 and ensure all users have
-their library set accordingly
+directory L (on drive 2) into $.Library
+and $.Library1 and ensure all users
+have their library set accordingly
 
 If you want to restrict it to specific
 users, copy all the files from DFS
-directory L into the EliteCmdrs folder
-that you created in the users' main
-directories
+directory L (on drive 2) into the
+EliteCmdrs folder that you created in
+the users' main directories
 
 5. Users can then play Elite by typing:
 
@@ -59,6 +59,6 @@
 
 See www.bbcelite.com/hacks for details
 
-Build: 2024-04-24 16:53:43
+Build: 2024-04-25 15:42:27
 ---------------------------------------
 

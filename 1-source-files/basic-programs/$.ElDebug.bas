@@ -4,7 +4,9 @@ REM By Mark Moxon
 DIM cblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:TIME=0
 X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
-snetwork%=cblock%?2:sstation%=cblock%?1
+sstation%=cblock%?1
+X%=cblock%:Y%=cblock% DIV 256:A%=&13:?cblock%=17:cblock%!1=0:CALL OSWORD
+snetwork%=cblock%?1
 :
 CLS
 PROCstartMenu

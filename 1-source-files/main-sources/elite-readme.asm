@@ -70,7 +70,7 @@
  EQUB 10, 13
  EQUS "the server and copy all the files from"
  EQUB 10, 13
- EQUS "DFS directory D (on side 2) to there"
+ EQUS "DFS directory D (on drive 2) to there"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "3. Create an EliteCmdrs directory in"
@@ -81,29 +81,29 @@
  EQUB 10, 13
  EQUS "copy all the files from DFS directory"
  EQUB 10, 13
- EQUS "C to there"
+ EQUS "C (on drive 2) to there"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "4. If you want all users to be able to"
  EQUB 10, 13
  EQUS "play Elite, copy all the files from DFS"
  EQUB 10, 13
- EQUS "directory L into $.Library and"
+ EQUS "directory L (on drive 2) into $.Library"
  EQUB 10, 13
- EQUS "$.Library1 and ensure all users have"
+ EQUS "and $.Library1 and ensure all users"
  EQUB 10, 13
- EQUS "their library set accordingly"
+ EQUS "have their library set accordingly"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "If you want to restrict it to specific"
  EQUB 10, 13
  EQUS "users, copy all the files from DFS"
  EQUB 10, 13
- EQUS "directory L into the EliteCmdrs folder"
+ EQUS "directory L (on drive 2) into the"
  EQUB 10, 13
- EQUS "that you created in the users' main"
+ EQUS "EliteCmdrs folder that you created in"
  EQUB 10, 13
- EQUS "directories"
+ EQUS "the users' main directories"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "5. Users can then play Elite by typing:"
