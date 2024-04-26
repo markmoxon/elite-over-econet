@@ -1,7 +1,7 @@
 REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
-DIM order%(19),name$(19),credits%(19),kills%(19),machine%(19)
+DIM order%(19),name$(19),credits%(19),kills%(19),deaths%(19),machine%(19)
 DIM condition%(19),legal%(19),network%(19),station%(19)
 DIM M$(3):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
@@ -73,7 +73,7 @@ DEF PROCreceiveTest
     IF n$="S" THEN PROCswapSort
   UNTIL LEN(n$)>3 OR n$="R" OR n$="U"
   IF n$="R" OR n$="U" THEN U%=RND(next%)-1:$rxbuffer%=name$(U%):cblock%?3=station%(U%):cblock%?4=network%(U%) ELSE $rxbuffer%=n$:cblock%?3=RND(256)-1:cblock%?4=RND(129)-1
-  IF n$="R" THEN rxbuffer%?8=legal%(U%):rxbuffer%?9=condition%(U%):rxbuffer%!10=kills%(U%):rxbuffer%!12=credits%(U%):rxbuffer%?16=machine%(U%)
+  IF n$="R" THEN rxbuffer%?8=legal%(U%):rxbuffer%?9=condition%(U%):rxbuffer%?10=kills%(U%):rxbuffer%?11=deaths%(U%):rxbuffer%!12=credits%(U%):rxbuffer%?16=machine%(U%)
   IF n$<>"R" THEN rxbuffer%?8=RND(3)-1:rxbuffer%?9=RND(4)-1:rxbuffer%!10=RND(65536)-1:rxbuffer%!12=RND(&00CA9A3B):rxbuffer%?16=RND(4)-1
 ENDPROC
 :
@@ -88,10 +88,11 @@ DEF FNupdateCmdr(cm%)
   name$(cm%)=$rxbuffer%
   legal%(cm%)=rxbuffer%?8
   condition%(cm%)=rxbuffer%?9
-  newkills%=rxbuffer%?10+256*rxbuffer%?11
+  newkills%=rxbuffer%?10
   IF sort%=0 AND newkills%<>kills%(cm%) THEN ch%=TRUE
   kills%(cm%)=newkills%
   IF sort%=1 AND credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
+  deaths%(cm%)=rxbuffer%?11
   credits%(cm%)=rxbuffer%!12
   machine%(cm%)=rxbuffer%?16
   station%(cm%)=cblock%?3
@@ -198,8 +199,8 @@ DEF PROCprintCmdr(cm%,row%)
   N%=network%(cm%):L%=legal%(cm%)
   PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";station%(cm%);
   PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
-  K%=kills%(cm%)
-  PRINT TAB(31-FNdigits(K%),row%);K%;
+  K%=kills%(cm%):D%=deaths%(cm%)
+  PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
   K$=" ":R%=credits%(cm%)
   IF R%>99999 AND R%<=99999999 THEN K$="k":R%=R%/1000
   IF R%>99999999 THEN K$="m":R%=R%/1000000

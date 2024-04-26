@@ -49,7 +49,8 @@ DEFPROCprintData
   PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
-  PRINT "Kills: ";rxbuffer%?10+256*rxbuffer%?11
+  PRINT "Kills: ";rxbuffer%?10
+  PRINT "Deaths: ";rxbuffer%?11
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
   PRINT "Port: ";cblock%?2
