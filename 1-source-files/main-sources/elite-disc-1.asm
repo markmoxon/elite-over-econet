@@ -38,7 +38,7 @@
  PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITE.bin", "G.ELTSE", &FF1FDC, &FF2085
  PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "G.ELTSA", &FF2000, &FF2000
  PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "G.ELTSI", &FF2400, &FF2C89
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "G.ELTSP", &001000, &00106A
+ PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "G.ELTSP", &001000, &0010D1
 
 \ BBC Micro Disc Elite (Econet Sideways RAM version) = *RUN EliteB
 

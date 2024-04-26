@@ -3,7 +3,7 @@ REM By Mark Moxon
 :
 DIM order%(19),name$(19),credits%(19),kills%(19),machine%(19)
 DIM condition%(19),legal%(19),network%(19),station%(19)
-DIM M$(2):M$(0)="Bb":M$(1)="Ma":M$(2)="Sp"
+DIM M$(2):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
 DIM cblock% 40,rxbuffer% 40
@@ -74,7 +74,7 @@ DEF PROCreceiveTest
   UNTIL LEN(n$)>3 OR n$="R" OR n$="U"
   IF n$="R" OR n$="U" THEN U%=RND(next%)-1:$rxbuffer%=name$(U%):cblock%?3=station%(U%):cblock%?4=network%(U%) ELSE $rxbuffer%=n$:cblock%?3=RND(256)-1:cblock%?4=RND(129)-1
   IF n$="R" THEN rxbuffer%?8=legal%(U%):rxbuffer%?9=condition%(U%):rxbuffer%!10=kills%(U%):rxbuffer%!12=credits%(U%):rxbuffer%?16=machine%(U%)
-  IF n$<>"R" THEN rxbuffer%?8=RND(3)-1:rxbuffer%?9=RND(4)-1:rxbuffer%!10=RND(65536)-1:rxbuffer%!12=RND(&00CA9A3B):rxbuffer%?16=RND(3)-1
+  IF n$<>"R" THEN rxbuffer%?8=RND(3)-1:rxbuffer%?9=RND(4)-1:rxbuffer%!10=RND(65536)-1:rxbuffer%!12=RND(&00CA9A3B):rxbuffer%?16=RND(4)-1
 ENDPROC
 :
 DEF PROCforward
