@@ -189,6 +189,7 @@ ENDPROC
 :
 DEF PROCprintRow(cm%)
   FOR I%=0 TO next%-1
+    PRINT TAB(0,4+I%);" ";
     IF cm%=order%(I%) THEN PROCprintCmdr(cm%,4+I%)
   NEXT
 ENDPROC
