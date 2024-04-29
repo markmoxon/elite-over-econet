@@ -58,6 +58,10 @@
  PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "G.ElScore"
  PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElDebug"
 
+\ Utility programs
+
+ PUTFILE "disc-elite-beebasm/3-assembled-output/FixPAGE.bin", "G.FixPAGE", &007400, &007400
+
 \ Commander files
 
  PUTFILE "master-elite-beebasm/1-source-files/other-files/E.MAX.bin", "C.MAX", &000000, &000000
