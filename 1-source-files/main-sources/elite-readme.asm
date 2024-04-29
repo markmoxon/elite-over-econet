@@ -63,7 +63,9 @@
  EQUB 10, 13
  EQUS "the server and copy all the files from"
  EQUB 10, 13
- EQUS "DFS directory G to there"
+ EQUS "DFS directory G (on both drive 0 and"
+ EQUB 10, 13
+ EQUS "drive 2) to there"
  EQUB 10, 13
  EQUB 10, 13
  EQUS "2. Create a $.EliteGame.D directory on"

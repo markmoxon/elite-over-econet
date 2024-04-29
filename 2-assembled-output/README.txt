@@ -19,7 +19,8 @@
 
 1. Create a $.EliteGame directory on
 the server and copy all the files from
-DFS directory G to there
+DFS directory G (on both drive 0 and
+drive 2) to there
 
 2. Create a $.EliteGame.D directory on
 the server and copy all the files from
@@ -59,6 +60,6 @@
 
 See www.bbcelite.com/hacks for details
 
-Build: 2024-04-26 15:32:12
+Build: 2024-04-29 14:59:05
 ---------------------------------------
 

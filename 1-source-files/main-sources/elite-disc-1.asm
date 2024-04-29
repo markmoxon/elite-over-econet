@@ -55,11 +55,6 @@
  PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "G.ELTAD", &0012E3, &0012E3
  PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "G.ELTAT", &0012E3, &0012E3
 
-\ Scoreboard
-
- PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "G.ElScore"
- PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElDebug"
-
 \ ReadMe files
 
  PUTFILE "2-assembled-output/Version.txt", "G.Version", &FFFFFF, &FFFFFF

@@ -53,6 +53,11 @@
  PUTFILE "2-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00
  PUTFILE "2-assembled-output/Elite.bin", "L.Elite", &002400, &002400
 
+\ Scoreboard
+
+ PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "G.ElScore"
+ PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElDebug"
+
 \ Commander files
 
  PUTFILE "master-elite-beebasm/1-source-files/other-files/E.MAX.bin", "C.MAX", &000000, &000000

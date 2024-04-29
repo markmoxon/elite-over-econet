@@ -6,13 +6,10 @@ DIM condition%(19),legal%(19),network%(19),station%(19)
 DIM M$(3):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
-DIM cblock% 40,rxbuffer% 40
-OSWORD=&FFF1:OSBYTE=&FFF4
+DIM cblock% 40,tblock% 40,rxbuffer% 40
+OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA
 port%=0:fstation%=0:fnetwork%=0:fport%=0:next%=0:sort%=0:cmdr%=-1:quit%=FALSE
-X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
-sstation%=cblock%?1
-X%=cblock%:Y%=cblock% DIV 256:A%=&13:?cblock%=17:cblock%!1=0:CALL OSWORD
-snetwork%=cblock%?1
+PROCgetStationNumber
 :
 ON ERROR PROCerror
 MODE 7
@@ -54,15 +51,21 @@ DEF PROCreceive
   cblock%!9=rxbuffer%+20
   X%=cblock%:Y%=cblock% DIV 256:A%=&11:CALL OSWORD
   rxcb_number%=?cblock%
+  :
   REM Wait for reception
   A%=&33:X%=rxcb_number%
-  REPEAT:U%=USR OSBYTE
-  IF INKEY(-82) THEN PROCswapSort
-  IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
+  REPEAT
+    U%=USR OSBYTE
+    IF INKEY(-82) THEN PROCswapSort
+    IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
   UNTIL (U% AND &8000)<>0
+  :
   REM Read control block back
   X%=cblock%:Y%=cblock% DIV 256:A%=&11
   ?cblock%=rxcb_number%:CALL OSWORD
+  :
+  REM Delete control block
+  A%=&34:X%=cblock%?0:CALL OSBYTE
 ENDPROC
 :
 DEF PROCreceiveTest
@@ -141,7 +144,7 @@ ENDPROC
 DEF PROCprintHeader
   PRINT TAB(0,0);CHR$(132);"<S>ort      ";
   PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
-  PRINT SPC(7-FNdigits(snetwork%)-FNdigits(sstation%));"Stn: ";snetwork%;".";sstation%;
+  IF snetwork%=-1 THEN PRINT SPC(6-FNdigits(sstation%));"Stn: ?.";sstation%; ELSE PRINT SPC(7-FNdigits(snetwork%)-FNdigits(sstation%));"Stn: ";snetwork%;".";sstation%;
   PRINT TAB(0,1);CHR$(133);"<M>enu      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
   PRINT SPC(8-FNdigits(port%));"Port: ";port%
@@ -210,3 +213,62 @@ ENDPROC
 :
 DEF FNdigits(dg%)
   IF dg%=0 THEN =0 ELSE =INT(LOG(dg%))
+:
+DEF PROCgetStationNumber
+  X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
+  sstation%=cblock%?1
+  IF PAGE>&8000 THEN A%=0 ELSE A%=1:X%=&70:Y%=0:CALL OSARGS
+  IF A%=5 THEN snetwork%=FNdoBridgeQuery ELSE snetwork%=FNgetNetworkNumber
+ENDPROC
+:
+DEF FNgetNetworkNumber
+  X%=cblock%:Y%=cblock% DIV 256:A%=&13:?cblock%=17:cblock%!1=0:CALL OSWORD
+=cblock%?1
+:
+DEF FNdoBridgeQuery
+  REM Open RECEIVE block on port &8A, read control block number
+  ?cblock%=0
+  cblock%?1=&7F
+  cblock%?2=&8A
+  cblock%!3=0
+  cblock%!5=rxbuffer%
+  cblock%!9=rxbuffer%+20
+  X%=cblock%:Y%=cblock% DIV 256:A%=&11:CALL OSWORD
+  rxcb_number%=?cblock%
+  :
+  REM Broadcast bridge query with control byte &82 to port &9C
+  REM and receive response on port &8A
+  attempts%=5
+  REPEAT
+    tblock%?0=&82
+    tblock%?1=&9C
+    tblock%!2=&FFFF
+    $(tblock%+4)="BRIDGE"
+    tblock%?10=&8A
+    tblock%?11=0
+    X%=tblock%:Y%=tblock% DIV 256:A%=&10:CALL OSWORD
+    :
+    REM Wait for broadcast to be sent
+    A%=&32
+    REPEAT
+      U%=USR OSBYTE
+    UNTIL (U% AND &8000)<>0
+    X%=(U% AND &FF00) DIV &100
+    attempts%=attempts%-1
+  UNTIL attempts%=0 OR X%=&40 OR X%=&43 OR X%=&44 OR X%=0
+  IF X%>0 THEN =-1
+  :
+  REM Fetch network number from response
+  attempts%=20
+  REPEAT
+    REPEAT
+      U%=USR OSBYTE
+    UNTIL (U% AND &8000)<>0
+    X%=(U% AND &FF00) DIV &100
+    attempts%=attempts%-1
+  UNTIL attempts%=0 OR X%>0
+  IF X%>0 THEN result%=?rxbuffer% ELSE result%=-1
+  :
+  REM Delete control block
+  A%=&34:X%=cblock%?0:CALL OSBYTE
+=result%
