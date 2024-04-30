@@ -144,7 +144,7 @@ ENDPROC
 DEF PROCprintHeader
   PRINT TAB(0,0);CHR$(132);"<S>ort      ";
   PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
-  IF snetwork%=-1 THEN PRINT SPC(6-FNdigits(sstation%));"Stn: ?.";sstation%; ELSE PRINT SPC(7-FNdigits(snetwork%)-FNdigits(sstation%));"Stn: ";snetwork%;".";sstation%;
+  PRINT SPC(7-FNdigits(snetwork%)-FNdigits(sstation%));"Stn: ";snetwork%;".";sstation%;
   PRINT TAB(0,1);CHR$(133);"<M>enu      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
   PRINT SPC(8-FNdigits(port%));"Port: ";port%
@@ -217,8 +217,8 @@ DEF FNdigits(dg%)
 DEF PROCgetStationNumber
   X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
   sstation%=cblock%?1
-  IF PAGE>&8000 THEN A%=0 ELSE A%=1:X%=&70:Y%=0:CALL OSARGS
-  IF A%=5 THEN snetwork%=FNdoBridgeQuery ELSE snetwork%=FNgetNetworkNumber
+  A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
+  IF os%>2 THEN snetwork%=FNgetNetworkNumber ELSE snetwork%=FNdoBridgeQuery
 ENDPROC
 :
 DEF FNgetNetworkNumber
@@ -233,7 +233,9 @@ DEF FNdoBridgeQuery
   cblock%!3=0
   cblock%!5=rxbuffer%
   cblock%!9=rxbuffer%+20
-  X%=cblock%:Y%=cblock% DIV 256:A%=&11:CALL OSWORD
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=&11
+  CALL OSWORD
   rxcb_number%=?cblock%
   :
   REM Broadcast bridge query with control byte &82 to port &9C
@@ -246,29 +248,36 @@ DEF FNdoBridgeQuery
     $(tblock%+4)="BRIDGE"
     tblock%?10=&8A
     tblock%?11=0
-    X%=tblock%:Y%=tblock% DIV 256:A%=&10:CALL OSWORD
+    X%=tblock%:Y%=tblock% DIV 256
+    A%=&10
+    CALL OSWORD
     :
     REM Wait for broadcast to be sent
     A%=&32
-    REPEAT
-      U%=USR OSBYTE
-    UNTIL (U% AND &8000)<>0
-    X%=(U% AND &FF00) DIV &100
+    X%=FNpollTransmission
     attempts%=attempts%-1
   UNTIL attempts%=0 OR X%=&40 OR X%=&43 OR X%=&44 OR X%=0
-  IF X%>0 THEN =-1
-  :
+  IF X%>0 THEN R%=0 ELSE R%=FNgetResponse
+  PROCdeleteReceiveBlock
+=R%
+:
+DEF FNgetResponse
   REM Fetch network number from response
   attempts%=20
   REPEAT
-    REPEAT
-      U%=USR OSBYTE
-    UNTIL (U% AND &8000)<>0
-    X%=(U% AND &FF00) DIV &100
+    X%=FNpollTransmission
     attempts%=attempts%-1
   UNTIL attempts%=0 OR X%>0
-  IF X%>0 THEN result%=?rxbuffer% ELSE result%=-1
-  :
-  REM Delete control block
-  A%=&34:X%=cblock%?0:CALL OSBYTE
+  IF X%>0 THEN result%=?rxbuffer% ELSE result%=0
 =result%
+:
+DEF PROCdeleteReceiveBlock
+  A%=&34
+  X%=cblock%?0
+  CALL OSBYTE
+ENDPROC
+:
+DEF FNpollTransmission
+  REPEAT
+  UNTIL NOT ((USR OSBYTE) AND &8000)
+=(((USR OSBYTE) AND &FF00) DIV &100)
