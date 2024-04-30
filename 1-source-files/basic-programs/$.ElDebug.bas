@@ -3,6 +3,7 @@ REM By Mark Moxon
 :
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
+A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 *FX4,0
 *FX200,0
 :
@@ -52,7 +53,7 @@ DEF PROCreceive
 ENDPROC
 :
 DEFPROCprintData
-  PRINT '"Timestamp: ";TIME
+  IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
   PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
