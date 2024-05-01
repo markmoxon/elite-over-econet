@@ -68,18 +68,6 @@ DEF PROCreceive
   A%=&34:X%=cblock%?0:CALL OSBYTE
 ENDPROC
 :
-DEF PROCreceiveTest
-  REM <M>enu <S>ort <U>pdate <R>eceive
-  REPEAT
-    INPUT TAB(0,23)"Name",n$
-    IF n$="M" THEN PROCmenu:PROCprintHeader:PROCprintTable
-    IF n$="S" THEN PROCswapSort
-  UNTIL LEN(n$)>3 OR n$="R" OR n$="U"
-  IF n$="R" OR n$="U" THEN U%=RND(next%)-1:$rxbuffer%=name$(U%):cblock%?3=station%(U%):cblock%?4=network%(U%) ELSE $rxbuffer%=n$:cblock%?3=RND(256)-1:cblock%?4=RND(129)-1
-  IF n$="R" THEN rxbuffer%?8=legal%(U%):rxbuffer%?9=condition%(U%):rxbuffer%?10=kills%(U%):rxbuffer%?11=deaths%(U%):rxbuffer%!12=credits%(U%):rxbuffer%?16=machine%(U%)
-  IF n$<>"R" THEN rxbuffer%?8=RND(3)-1:rxbuffer%?9=RND(4)-1:rxbuffer%!10=RND(65536)-1:rxbuffer%!12=RND(&00CA9A3B):rxbuffer%?16=RND(4)-1
-ENDPROC
-:
 DEF PROCforward
   ?cblock%=&80:cblock%?1=fport%:cblock%?2=fstation%:cblock%?3=fnetwork%
   cblock%!4=rxbuffer%:cblock%!8=rxbuffer%+20
