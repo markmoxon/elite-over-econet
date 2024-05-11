@@ -12,10 +12,11 @@
 * BBC Micro with 6502 Second Processor
 * BBC Master 128, ET and Turbo
 
-To install Elite on your network, copy
-files from this disc to your server as
-follows (files have been grouped into
-DFS directories to make this easier):
+To install on a Level 3 fileserver,
+copy files from this disc to your
+server as follows (files have been
+grouped into DFS directories to make
+this process easier):
 
 1. Create a $.EliteGame directory on
 the server and copy all the files from
@@ -41,8 +42,8 @@
 If you want to restrict it to specific
 users, copy all the files from DFS
 directory L (on drive 2) into the
-EliteCmdrs folder that you created in
-the users' main directories
+EliteCmdrs directory that you created
+in the users' main directories
 
 5. Users can then play Elite by typing:
 
@@ -53,13 +54,13 @@
 
 If you restricted Elite to specific
 users, they will need to *DIR into
-their own EliteCmdrs folder first
+their own EliteCmdrs directory first
 
 6. Commander files are saved into each
-individual user's EliteCmdrs folder
+individual user's EliteCmdrs directory
 
 See www.bbcelite.com/hacks for details
 
-Build: 2024-05-11 13:20:54
+Build: 2024-05-11 14:28:18
 ---------------------------------------
 
