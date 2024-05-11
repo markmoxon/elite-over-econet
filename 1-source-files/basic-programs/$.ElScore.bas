@@ -42,36 +42,36 @@ DEF PROCend
 ENDPROC
 :
 DEF PROCreceive
-  REM Open RECEIVE block, read control block number
-  ?cblock%=0
-  cblock%?1=&7F
-  cblock%?2=port%
-  cblock%!3=0
-  cblock%!5=rxbuffer%
-  cblock%!9=rxbuffer%+20
-  X%=cblock%:Y%=cblock% DIV 256:A%=&11:CALL OSWORD
-  rxcb_number%=?cblock%
+  rxcb_number%=FNopenReceiveBlock(port%)
   :
   REM Wait for reception
-  A%=&33:X%=rxcb_number%
   REPEAT
+    A%=&33
+    X%=rxcb_number%
     U%=USR OSBYTE
     IF INKEY(-82) THEN PROCswapSort
     IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
   UNTIL (U% AND &8000)<>0
   :
   REM Read control block back
-  X%=cblock%:Y%=cblock% DIV 256:A%=&11
-  ?cblock%=rxcb_number%:CALL OSWORD
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=&11
+  ?cblock%=rxcb_number%
+  CALL OSWORD
   :
-  REM Delete control block
-  A%=&34:X%=cblock%?0:CALL OSBYTE
+  PROCdeleteReceiveBlock
 ENDPROC
 :
 DEF PROCforward
-  ?cblock%=&80:cblock%?1=fport%:cblock%?2=fstation%:cblock%?3=fnetwork%
-  cblock%!4=rxbuffer%:cblock%!8=rxbuffer%+20
-  X%=cblock%:Y%=cblock% DIV 256:A%=16:CALL OSWORD
+  ?cblock%=&80
+  cblock%?1=fport%
+  cblock%?2=fstation%
+  cblock%?3=fnetwork%
+  cblock%!4=rxbuffer%
+  cblock%!8=rxbuffer%+20
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=16
+  CALL OSWORD
 ENDPROC
 :
 DEF FNupdateCmdr(cm%)
@@ -163,7 +163,7 @@ DEF PROCmenu
     PRINT ''"<R>eturn to scoreboard"
     PRINT ''"<Q>uit"
     q$=GET$
-    IF q$="C" OR q$="c" THEN INPUT TAB(0,23);"Enter the new port number: " port%
+    IF q$="C" OR q$="c" THEN INPUT TAB(0,23);"Enter the new port number: " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
     IF q$="S" OR q$="s" THEN INPUT TAB(0,23);"Enter the station number to forward to: " fstation%
     IF q$="N" OR q$="n" THEN INPUT TAB(0,23);"Enter the network number to forward to: " fnetwork%
     IF q$="P" OR q$="p" THEN INPUT TAB(0,23);"Enter the port number to forward to: " fport%
@@ -203,28 +203,26 @@ DEF FNdigits(dg%)
   IF dg%=0 THEN =0 ELSE =INT(LOG(dg%))
 :
 DEF PROCgetStationNumber
-  X%=cblock%:Y%=cblock% DIV 256:A%=&13:!cblock%=8:CALL OSWORD
+  X%=cblock%:Y%=cblock% DIV 256
+  !cblock%=8
+  A%=&13
+  CALL OSWORD
   sstation%=cblock%?1
   A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
   IF os%>2 THEN snetwork%=FNgetNetworkNumber ELSE snetwork%=FNdoBridgeQuery
 ENDPROC
 :
 DEF FNgetNetworkNumber
-  X%=cblock%:Y%=cblock% DIV 256:A%=&13:?cblock%=17:cblock%!1=0:CALL OSWORD
+  X%=cblock%:Y%=cblock% DIV 256
+  ?cblock%=17
+  cblock%!1=0
+  A%=&13
+  CALL OSWORD
 =cblock%?1
 :
 DEF FNdoBridgeQuery
   REM Open RECEIVE block on port &8A, read control block number
-  ?cblock%=0
-  cblock%?1=&7F
-  cblock%?2=&8A
-  cblock%!3=0
-  cblock%!5=rxbuffer%
-  cblock%!9=rxbuffer%+20
-  X%=cblock%:Y%=cblock% DIV 256
-  A%=&11
-  CALL OSWORD
-  rxcb_number%=?cblock%
+  rxcb_number%=FNopenReceiveBlock(&8A)
   :
   REM Broadcast bridge query with control byte &82 to port &9C
   REM and receive response on port &8A
@@ -258,6 +256,18 @@ DEF FNgetResponse
   UNTIL attempts%=0 OR X%>0
   IF X%>0 THEN result%=?rxbuffer% ELSE result%=0
 =result%
+:
+DEF FNopenReceiveBlock(pt%)
+  ?cblock%=0
+  cblock%?1=&7F
+  cblock%?2=pt%
+  cblock%!3=0
+  cblock%!5=rxbuffer%
+  cblock%!9=rxbuffer%+20
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=&11
+  CALL OSWORD
+=?cblock%
 :
 DEF PROCdeleteReceiveBlock
   A%=&34
