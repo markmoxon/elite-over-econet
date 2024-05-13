@@ -116,63 +116,59 @@
 
 .ENTRY
 
+ LDA #1                 \ Set ZP(1 0) to the address of the argument to the
+ LDX #ZP                \ *EliteB command
+ LDY #0
+ JSR OSARGS
+
  LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
  LDY #HI(MESS1)
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
                         \ to the game folder
 
- LDA #1                 \ Set ZP(1 0) to the address of the argument to the
- LDX #ZP                \ *EliteB command
- LDY #0
- JSR OSARGS
-
                         \ We need to check for NFS 3.34 as this has a bug in it
-                        \ that points ZP(1 0) to the start of the command, so
-                        \ we now set Y to an additional index to the argument in
-                        \ the *EliteB command (which will be zero for all
-                        \ versions except NFS 3.34)
+                        \ that points ZP(1 0) to the start of the command rather
+                        \ than the argument
 
  LDA #0                 \ Fetch the filing system type into A
  LDY #0
  JSR OSARGS
 
- CMP #5                 \ If this is not NFS (type 5), jump to chek1 to set
- BNE chek1              \ Y = 0
+ CMP #5                 \ If this is not NFS (type 5), jump to chek1 to skip the
+ BNE chek1              \ bug fix, as the bug only applies to NFS
 
  LDA #2                 \ Fetch the version of NFS
  LDY #0
  JSR OSARGS
 
  CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
- BNE chek1              \ so if this is not NFS 3.34, jump to chek1 to set Y = 0
+ BNE chek1              \ so if this is not NFS 3.34, jump to chek1 to skip the
+                        \ bug fix
 
- LDY #7                 \ This is NFS 3.34, which contains the bug, so set Y = 7
-                        \ so adding it to the address in ZP(1 0) will point to
-                        \ the argument x in *EliteB x
+                        \ This is NFS 3.34, which contains the bug, so we add 7
+                        \ to the address in ZP(1 0) so that it points to the
+                        \ argument to the *EliteB command (as "EliteB " contains
+                        \ seven characters)
 
- BNE chek2              \ Jump to chek2 to skip the following (this BNE is
-                        \ effectively a JMP as Y is never zero)
+ LDY #6
+ LDA (ZP),Y
+ CMP #&0D
+ BEQ chek8
+
+ LDA ZP                 \ Set ZP(1 0) = ZP(1 0) + 7
+ CLC                    \
+ ADC #7                 \ So ZP(1 0) points to the correct address of the
+ STA ZP                 \ argument to the *EliteB command for NFS 3.34
+ BCC chek1
+ INC ZP+1
 
 .chek1
 
- LDY #0                 \ This is not NFS 3.34, so set Y = 0
-
-.chek2
-
- CLC                    \ Set ZP(1 0) = ZP(1 0) + Y
- TYA                    \
- ADC ZP+1               \ So ZP(1 0) points to the correct address of the
- STA ZP+1               \ argument to the *EliteB command, irrespective of the
- BCC chek3              \ version of NFS that's in use
- INC ZP
-
-.chek3
-
  LDY #0                 \ If the argument is not T (i.e. *EliteB T), jump to
- LDA (ZP),Y             \ chek4 to keep looking
+ LDA (ZP),Y             \ chek2 to keep looking
  CMP #'T'
- BNE chek4
+ BNE chek2
 
                         \ If we get here then the command is *EliteB T, which
                         \ loads the docked code for the sideways RAM version
@@ -187,10 +183,10 @@
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
                         \ which is a JMP DOBEGIN that restarts the game
 
-.chek4
+.chek2
 
  CMP #'R'               \ If the argument is not R (i.e. *EliteB R), jump to
- BNE chek5              \ chek5 to keep looking
+ BNE chek3              \ chek3 to keep looking
 
                         \ If we get here then the command is *EliteB R, which
                         \ runs the docked code for the sideways RAM version
@@ -205,10 +201,10 @@
                         \ at the station), returning from the subroutine using
                         \ a tail call
 
-.chek5
+.chek3
 
  CMP #'V'               \ If the argument is not V (i.e. *EliteB V), jump to
- BNE chek6              \ chek6 to keep looking
+ BNE chek4              \ chek4 to keep looking
 
                         \ If we get here then the command is *EliteB V, which
                         \ runs the flight code for the sideways RAM version
@@ -221,10 +217,10 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek6
+.chek4
 
  CMP #'S'               \ If the argument is not S (i.e. *EliteB S), jump to
- BNE chek7              \ chek7 to keep looking
+ BNE chek5              \ chek5 to keep looking
 
                         \ If we get here then the command is *EliteB S, which
                         \ loads the docked code for the standard version and
@@ -239,10 +235,10 @@
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
                         \ which is a JMP DOBEGIN that restarts the game
 
-.chek7
+.chek5
 
  CMP #'Q'               \ If the argument is not Q (i.e. *EliteB Q), jump to
- BNE chek8              \ chek8 to keep looking
+ BNE chek6              \ chek6 to keep looking
 
                         \ If we get here then the command is *EliteB Q, which
                         \ runs the docked code for the standard version and
@@ -256,10 +252,10 @@
                         \ at the station), returning from the subroutine using
                         \ a tail call
 
-.chek8
+.chek6
 
  CMP #'U'               \ If the argument is not U (i.e. *EliteB U), jump to
- BNE chek9              \ chek9 to keep looking
+ BNE chek7              \ chek7 to keep looking
 
                         \ If we get here then the command is *EliteB U, which
                         \ runs the flight code for the standard version
@@ -272,12 +268,12 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek9
+.chek7
 
  CMP #'A'               \ If the argument is not in the range A to P (so that's
- BCC chek10             \ *EliteB A to *EliteB P), jump to chek10 to keep
+ BCC chek8              \ *EliteB A to *EliteB P), jump to chek8 to keep
  CMP #'Q'               \ looking
- BCS chek10
+ BCS chek8
 
                         \ If we get here then the command is *EliteB A to P,
                         \ which loads a ship blueprints file for the standard
@@ -296,7 +292,7 @@
                         \ *LOADs the ship blueprints file, returning from the
                         \ subroutine using a tail call
 
-.chek10
+.chek8
 
                         \ There is no valid argument to *EliteB, so now we need
                         \ to load the game from the loading screen
@@ -317,7 +313,7 @@
 
  LDY #0                 \ We are now going to print the VDU commands from B%
 
-.chek11
+.chek9
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -325,7 +321,7 @@
  INY                    \ Increment the loop counter
 
  CPY #12                \ Loop back for the next byte until we have done them
- BNE chek11             \ all 12
+ BNE chek9              \ all 12
 
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTBS")
  LDY #HI(MESS5)
@@ -342,7 +338,7 @@
  JSR testbbc%           \ Test all the ROM banks for sideways RAM
 
  LDY eliterom%          \ If bit 7 of eliterom% is clear then the Elite ROM has
- BPL chek13             \ already been loaded, so jump to chek13 to skip the
+ BPL chek11             \ already been loaded, so jump to chek11 to skip the
                         \ ROM checks and load the game into this bank
 
  LDA #LO(sram%)         \ Set ZP(2 1) = &7400 = sram%
@@ -363,41 +359,41 @@
  LDY #15                \ We now loop through the ROM banks to check for
                         \ sideways RAM, so set a counter in Y
 
-.chek12
+.chek10
 
  LDA (ZP+1),Y           \ If sram% for this bank is not &FF, move on to the next
  CMP #&FF               \ bank
- BNE chek14
+ BNE chek12
 
  LDA (ZP+3),Y           \ If used% for this bank is not 0, move on to the next
- BNE chek14             \ bank
+ BNE chek12             \ bank
 
  LDA (ZP+5),Y           \ If dupl% for this bank is not the bank number itself,
  STY ZP                 \ move on to the next bank
  CMP ZP
- BNE chek14
+ BNE chek12
 
                         \ If we get here then this bank contains sideways RAM,
                         \ it doesn't already contain a ROM, and it is not a
                         \ duplicate of another ROM, so we can use this bank
 
-.chek13
+.chek11
 
  STY ZP                 \ Store the bank number in ZP
 
- JMP chek15             \ Jump to chek15 to load the ROM image
+ JMP chek13             \ Jump to chek13 to load the ROM image
 
-.chek14
+.chek12
 
  DEY                    \ Decrement the ROM counter
 
- BPL chek12             \ Loop back until we have checked all 16 ROM banks
+ BPL chek10             \ Loop back until we have checked all 16 ROM banks
 
- JMP chek16             \ If we get here then there is no sideways RAM that
-                        \ we can use, so jump to chek16 to print an error
+ JMP chek14             \ If we get here then there is no sideways RAM that
+                        \ we can use, so jump to chek14 to print an error
                         \ message and quit
 
-.chek15
+.chek13
 
  LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTBR 3400")
  LDY #HI(MESS7)
@@ -416,7 +412,7 @@
                         \ the game in ELTBI, returning from the subroutine using
                         \ a tail call
 
-.chek16
+.chek14
 
                         \ If we get here then there is no sideways RAM, so run
                         \ the standard version
