@@ -24,7 +24,7 @@
 \
 \ ******************************************************************************
 
- GUARD &6000            \ Guard against assembling over screen memory
+ GUARD &0D0             \ Guard against assembling over MOS space
 
 \ ******************************************************************************
 \
@@ -151,10 +151,13 @@
                         \ argument to the *EliteB command (as "EliteB " contains
                         \ seven characters)
 
- LDY #6
- LDA (ZP),Y
- CMP #&0D
+ LDY #6                 \ If the *EliteB has no parameter then the seventh
+ LDA (ZP),Y             \ character in the command string will be a carriage
+ CMP #&0D               \ return (&0D), so jump to chek8 to load the game
  BEQ chek8
+
+                        \ Otherwise the command has a parameter, so we now set
+                        \ ZP(1 0) to point to that parameter
 
  LDA ZP                 \ Set ZP(1 0) = ZP(1 0) + 7
  CLC                    \
@@ -297,6 +300,31 @@
                         \ There is no valid argument to *EliteB, so now we need
                         \ to load the game from the loading screen
 
+                        \ First we check the value of PAGE, and if it is bigger
+                        \ than &1200, we terminate with a message about FixPAGE
+
+ LDA #131               \ Call OSBYTE with A = 131 to read the value of OSHWM,
+ JSR OSBYTE             \ which is also known as PAGE, into (Y X)
+ 
+ CPY #&13               \ If (Y X) > &1200, jump to chek9 to display an error,
+ BCS chek9              \ otherwise jump to check10 to keep going
+ CPY #&12
+ BNE chek10
+ CPX #0
+ BEQ chek10
+
+.chek9
+
+ BRK                    \ Display an error (&49 is the error number)
+ EQUB &49
+ EQUS "PAGE too high"
+ EQUB 10, 13
+ EQUS "Press CTRL-BREAK "
+ EQUS "& run FixPAGE"
+ BRK
+
+.chek10
+
  LDA #4                 \ Call OSBYTE with A = 4, X = 1 and Y = 0 to disable
  LDX #1                 \ cursor editing, so the cursor keys return ASCII values
  JSR OSBYTE             \ and can therefore be used in-game
@@ -313,7 +341,7 @@
 
  LDY #0                 \ We are now going to print the VDU commands from B%
 
-.chek9
+.chek11
 
  LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
  JSR OSWRCH
@@ -321,7 +349,7 @@
  INY                    \ Increment the loop counter
 
  CPY #12                \ Loop back for the next byte until we have done them
- BNE chek9              \ all 12
+ BNE chek11             \ all 12
 
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTBS")
  LDY #HI(MESS5)
@@ -338,7 +366,7 @@
  JSR testbbc%           \ Test all the ROM banks for sideways RAM
 
  LDY eliterom%          \ If bit 7 of eliterom% is clear then the Elite ROM has
- BPL chek11             \ already been loaded, so jump to chek11 to skip the
+ BPL chek13             \ already been loaded, so jump to chek13 to skip the
                         \ ROM checks and load the game into this bank
 
  LDA #LO(sram%)         \ Set ZP(2 1) = &7400 = sram%
@@ -359,41 +387,41 @@
  LDY #15                \ We now loop through the ROM banks to check for
                         \ sideways RAM, so set a counter in Y
 
-.chek10
+.chek12
 
  LDA (ZP+1),Y           \ If sram% for this bank is not &FF, move on to the next
  CMP #&FF               \ bank
- BNE chek12
+ BNE chek14
 
  LDA (ZP+3),Y           \ If used% for this bank is not 0, move on to the next
- BNE chek12             \ bank
+ BNE chek14             \ bank
 
  LDA (ZP+5),Y           \ If dupl% for this bank is not the bank number itself,
  STY ZP                 \ move on to the next bank
  CMP ZP
- BNE chek12
+ BNE chek14
 
                         \ If we get here then this bank contains sideways RAM,
                         \ it doesn't already contain a ROM, and it is not a
                         \ duplicate of another ROM, so we can use this bank
 
-.chek11
+.chek13
 
  STY ZP                 \ Store the bank number in ZP
 
- JMP chek13             \ Jump to chek13 to load the ROM image
+ JMP chek15             \ Jump to chek15 to load the ROM image
 
-.chek12
+.chek14
 
  DEY                    \ Decrement the ROM counter
 
- BPL chek10             \ Loop back until we have checked all 16 ROM banks
+ BPL chek12             \ Loop back until we have checked all 16 ROM banks
 
- JMP chek14             \ If we get here then there is no sideways RAM that
-                        \ we can use, so jump to chek14 to print an error
+ JMP chek16             \ If we get here then there is no sideways RAM that
+                        \ we can use, so jump to chek16 to print an error
                         \ message and quit
 
-.chek13
+.chek15
 
  LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTBR 3400")
  LDY #HI(MESS7)
@@ -412,7 +440,7 @@
                         \ the game in ELTBI, returning from the subroutine using
                         \ a tail call
 
-.chek14
+.chek16
 
                         \ If we get here then there is no sideways RAM, so run
                         \ the standard version
@@ -439,9 +467,7 @@
 
  EQUB 23, 0, 10, 32     \ Set 6845 register R10 = 32
  EQUB 0, 0, 0           \
- EQUB 0, 0, 0           \ This is the "cursor start" register, so this sets the
-                        \ cursor start line at 0, effectively disabling the
-                        \ cursor
+ EQUB 0, 0, 0           \ This disbles the cursor
 
 \ ******************************************************************************
 \
