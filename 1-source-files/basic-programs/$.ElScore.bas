@@ -156,16 +156,16 @@ DEF PROCmenu
     PRINT TAB(15,1);CHR$(141);"Menu"
     PRINT ''"<C>hange this scoreboard's port (";port%;")"
     PRINT ''"Forward on all scores to this machine:"
-    PRINT '"  <S>tation number (";fstation%;")"
-    PRINT "  <N>etwork number (";fnetwork%;")"
+    PRINT '"  <N>etwork number (";fnetwork%;")"
+    PRINT "  <S>tation number (";fstation%;")"
     PRINT "  <P>ort number    (";fport%;")"
     IF fstation%>0 AND fport%>0 THEN PRINT '"To disable forwarding, set the port":PRINT"or station to zero" ELSE PRINT '"To enable forwarding, set the port":PRINT"and station to non-zero values"
     PRINT ''"<R>eturn to scoreboard"
     PRINT ''"<Q>uit"
     q$=GET$
     IF q$="C" OR q$="c" THEN INPUT TAB(0,23);"Enter the new port number: " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
-    IF q$="S" OR q$="s" THEN INPUT TAB(0,23);"Enter the station number to forward to: " fstation%
     IF q$="N" OR q$="n" THEN INPUT TAB(0,23);"Enter the network number to forward to: " fnetwork%
+    IF q$="S" OR q$="s" THEN INPUT TAB(0,23);"Enter the station number to forward to: " fstation%
     IF q$="P" OR q$="p" THEN INPUT TAB(0,23);"Enter the port number to forward to: " fport%
     IF q$="Q" OR q$="q" THEN PROCend
   UNTIL q$="R" OR q$="r"

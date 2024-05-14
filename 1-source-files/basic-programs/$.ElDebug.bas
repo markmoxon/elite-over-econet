@@ -25,12 +25,12 @@ DEF PROCstartMenu
   PRINT TAB(6,1);"----------------------------"
   PRINT '"Please enter the port number to monitor:"
   INPUT port%
-  PRINT '"Please enter the port number to"'"forward to (0 for no forwarding):"
-  INPUT fport%
   PRINT '"Please enter the network number to"'"forward to (0 for no forwarding):"
   INPUT fnetwork%
   PRINT '"Please enter the station number to"'"forward to (0 for no forwarding):"
   INPUT fstation%
+  PRINT '"Please enter the port number to"'"forward to (0 for no forwarding):"
+  INPUT fport%
 ENDPROC
 :
 DEF PROCreceive
@@ -61,9 +61,9 @@ DEFPROCprintData
   PRINT "Deaths: ";rxbuffer%?11
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
-  PRINT "Port: ";cblock%?2
-  PRINT "Player station: ";cblock%?3
   PRINT "Player network: ";cblock%?4
+  PRINT "Player station: ";cblock%?3
+  PRINT "Port: ";cblock%?2
 ENDPROC
 :
 DEF PROCforward
