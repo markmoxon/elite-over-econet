@@ -315,13 +315,7 @@
 
 .chek9
 
- BRK                    \ Display an error (&49 is the error number)
- EQUB &49
- EQUS "PAGE too high"
- EQUB 10, 13
- EQUS "Press CTRL-BREAK "
- EQUS "& run FixPAGE"
- BRK
+ JMP chek17             \ Jump to chek17 to print an error
 
 .chek10
 
@@ -451,6 +445,16 @@
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS12, which *RUNs
                         \ the game in ELTAI, returning from the subroutine using
                         \ a tail call
+
+.chek17
+
+ LDA #18                \ Reset the soft key buffer in page &B, so FixPAGE will
+ JSR OSBYTE             \ work correctly
+
+ BRK                    \ Display an error (&49 is the error number)
+ EQUB &49
+ EQUS "PAGE is too high, please run FixPAGE"
+ BRK
 
 \ ******************************************************************************
 \
