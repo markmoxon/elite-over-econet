@@ -200,9 +200,7 @@ DEF PROCprintCmdr(cm%,row%)
 ENDPROC
 :
 DEF FNdigits(dg%)
-  IF dg%=0 THEN =0
-  IF dg%=100 THEN =2
-=INT(LOG(dg%))
+=LEN(STR$(dg%))-1
 :
 DEF PROCgetStationNumber
   X%=cblock%:Y%=cblock% DIV 256
