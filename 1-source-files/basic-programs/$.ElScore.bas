@@ -98,7 +98,7 @@ DEF FNfindCmdr(nm$,nw%,st%)
 =match%
 :
 DEF PROCswapSort
-  REPEAT:UNTIL INKEY(1)=-1
+  REPEAT:UNTIL NOT(INKEY(-82))
   SOUND 3,241,188,1
   sort%=sort%EOR1
   PROChighlightSort
@@ -149,7 +149,7 @@ DEF PROCstartMenu
 ENDPROC
 :
 DEF PROCmenu
-  REPEAT:UNTIL INKEY(1)=-1
+  REPEAT:UNTIL NOT(INKEY(-102))
   REPEAT
     CLS:*FX15,1
     PRINT TAB(15,0);CHR$(141);"Menu"
