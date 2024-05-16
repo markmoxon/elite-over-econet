@@ -155,7 +155,7 @@ DEF PROCmenu
     PRINT TAB(15,0);CHR$(141);"Menu"
     PRINT TAB(15,1);CHR$(141);"Menu"
     PRINT ''"<C>hange this scoreboard's port (";port%;")"
-    PRINT ''"Forward on all scores to this machine:"
+    PRINT ''"Forward all scores to this machine:"
     PRINT '"  <N>etwork number (";fnetwork%;")"
     PRINT "  <S>tation number (";fstation%;")"
     PRINT "  <P>ort number    (";fport%;")"

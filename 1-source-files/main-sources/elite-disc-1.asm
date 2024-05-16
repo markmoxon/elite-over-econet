@@ -51,6 +51,7 @@
 
 \ BBC Micro Disc Elite (standard version) = *RUN EliteB
 
+ PUTFILE "2-assembled-output/ELTAB.bin", "G.ELTAB", &002400, &002400
  PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "G.ELTAI", &001900, &00197B
  PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "G.ELTAD", &0012E3, &0012E3
  PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "G.ELTAT", &0012E3, &0012E3
