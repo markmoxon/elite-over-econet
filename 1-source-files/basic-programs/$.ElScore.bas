@@ -266,7 +266,7 @@ DEF FNdoBridgeQuery
     attempts%=attempts%-1
     IF attempts%<>0 AND NOT(R%<>&41 AND R%<>&42) THEN PROCpause
   UNTIL attempts%=0 OR (R%<>&41 AND R%<>&42)
-  IF attempts%=0 OR R%<>0 THEN PRINT '"Bridge query broadcast failed"''"Press a key to continue":A=GET
+  REM IF attempts%=0 OR R%<>0 THEN PRINT '"Bridge query broadcast failed"''"Press a key to continue":A=GET
   IF attempts%=0 OR R%<>0 THEN PROCdeleteReceiveBlock:=0
   :
   REM Fetch network number from response
@@ -277,7 +277,7 @@ DEF FNdoBridgeQuery
     attempts%=attempts%-1
     IF attempts%<>0 AND R% AND &80=0 THEN PROCpause
   UNTIL attempts%=0 OR R% AND &80<>0
-  IF R% AND &80=0 THEN PRINT '"No response to bridge query"''"Press a key to continue":A=GET
+  REM IF R% AND &80=0 THEN PRINT '"No response to bridge query"''"Press a key to continue":A=GET
   IF R% AND &80=0 THEN =0
   :
   REM Read control block back

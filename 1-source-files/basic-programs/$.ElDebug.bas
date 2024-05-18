@@ -78,6 +78,24 @@ DEF PROCforward
   CALL OSWORD
 ENDPROC
 :
+DEF FNopenReceiveBlock(pt%)
+  ?cblock%=0
+  cblock%?1=&7F
+  cblock%?2=pt%
+  cblock%!3=0
+  cblock%!5=rxbuffer%
+  cblock%!9=rxbuffer%+20
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=&11
+  CALL OSWORD
+=?cblock%
+:
+DEF PROCdeleteReceiveBlock
+  A%=&34
+  X%=cblock%?0
+  CALL OSBYTE
+ENDPROC
+:
 DEF PROCgetStationNumber
   X%=cblock%:Y%=cblock% DIV 256
   !cblock%=8
@@ -97,61 +115,64 @@ DEF FNgetNetworkNumber
 =cblock%?1
 :
 DEF FNdoBridgeQuery
-  REM Open RECEIVE block on port &8A, read control block number
-  rxcb_number%=FNopenReceiveBlock(&8A)
+  REM Open RECEIVE block on port &57, read control block number
+  rxcb_number%=FNopenReceiveBlock(&57)
   :
   REM Broadcast bridge query with control byte &82 to port &9C
-  REM and receive response on port &8A
-  attempts%=5
+  REM and receive response on port &57
+  attempts%=10
+  tblock%?1=&9C
+  tblock%!2=&FFFF
+  $(tblock%+4)="BRIDGE"
+  tblock%?10=&57
+  tblock%?11=0
   REPEAT
-    tblock%?0=&82
-    tblock%?1=&9C
-    tblock%!2=&FFFF
-    $(tblock%+4)="BRIDGE"
-    tblock%?10=&8A
-    tblock%?11=0
-    X%=tblock%:Y%=tblock% DIV 256
-    A%=&10
-    CALL OSWORD
+    REM Broadcast bridge query
+    REPEAT
+      tblock%?0=&82
+      A%=&10
+      X%=tblock%:Y%=tblock% DIV 256
+      CALL OSWORD
+    UNTIL tblock%?0
     :
     REM Wait for broadcast to be sent
-    A%=&32
-    X%=FNpollTransmission
+    A%=&32:X%=0:Y%=0
+    R%=FNpollTransmission
+    :
     attempts%=attempts%-1
-  UNTIL attempts%=0 OR X%=&40 OR X%=&43 OR X%=&44 OR X%=0
-  IF X%>0 THEN R%=0 ELSE R%=FNgetResponse
+    IF attempts%<>0 AND NOT(R%<>&41 AND R%<>&42) THEN PROCpause
+  UNTIL attempts%=0 OR (R%<>&41 AND R%<>&42)
+  REM IF attempts%=0 OR R%<>0 THEN PRINT '"Bridge query broadcast failed"''"Press a key to continue":A=GET
+  IF attempts%=0 OR R%<>0 THEN PROCdeleteReceiveBlock:=0
+  :
+  REM Fetch network number from response
+  attempts%=50
+  REPEAT
+    A%=&33:X%=rxcb_number%:Y%=0
+    R%=FNpollTransmission
+    attempts%=attempts%-1
+    IF attempts%<>0 AND R% AND &80=0 THEN PROCpause
+  UNTIL attempts%=0 OR R% AND &80<>0
+  REM IF R% AND &80=0 THEN PRINT '"No response to bridge query"''"Press a key to continue":A=GET
+  IF R% AND &80=0 THEN =0
+  :
+  REM Read control block back
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=&11
+  ?cblock%=rxcb_number%
+  CALL OSWORD
+  R%=?rxbuffer%
   PROCdeleteReceiveBlock
 =R%
 :
-DEF FNgetResponse
-  REM Fetch network number from response
-  attempts%=20
-  REPEAT
-    X%=FNpollTransmission
-    attempts%=attempts%-1
-  UNTIL attempts%=0 OR X%>0
-  IF X%>0 THEN result%=?rxbuffer% ELSE result%=0
-=result%
-:
-DEF FNopenReceiveBlock(pt%)
-  ?cblock%=0
-  cblock%?1=&7F
-  cblock%?2=pt%
-  cblock%!3=0
-  cblock%!5=rxbuffer%
-  cblock%!9=rxbuffer%+20
-  X%=cblock%:Y%=cblock% DIV 256
-  A%=&11
-  CALL OSWORD
-=?cblock%
-:
-DEF PROCdeleteReceiveBlock
-  A%=&34
-  X%=cblock%?0
-  CALL OSBYTE
-ENDPROC
-:
 DEF FNpollTransmission
   REPEAT
-  UNTIL NOT ((USR OSBYTE) AND &8000)
-=(((USR OSBYTE) AND &FF00) DIV &100)
+    U%=USR OSBYTE
+  UNTIL NOT (U% AND &8000)
+=((U% AND &FF00) DIV &100)
+:
+DEF PROCpause
+  T%=TIME+50
+  REPEAT
+  UNTIL TIME>T%
+ENDPROC
