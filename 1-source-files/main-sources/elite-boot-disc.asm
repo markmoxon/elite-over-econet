@@ -35,6 +35,9 @@
  ZP = &32               \ Use the XX15 block for the loading code, so it doesn't
                         \ clash with any persistent variables
 
+ BRKV = &0202           \ The break vector that we intercept to enable us to
+                        \ load the configuration file, if there is one
+
  S% = &12E3             \ The address of the main entry point workspace in the
                         \ main game code
 
@@ -105,6 +108,40 @@
  LDY #0
  JSR OSARGS
 
+ LDA BRKV               \ Fetch the current value of the break vector
+ STA oldBRKV
+ LDA BRKV+1
+ STA oldBRKV+1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA #LO(chek1)         \ Set BRKV to point to chek1 below, so if there is no
+ STA BRKV               \ configuration file, we simply restore the break vector
+ LDA #HI(chek1)         \ and keep going
+ STA BRKV+1
+
+ CLI                    \ Enable interrupts again
+
+ LDX #LO(MESS10)        \ Set (Y X) to point to MESS10 ("LOAD EliteConf xxxx")
+ LDY #HI(MESS10)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS10 to load
+                        \ the game binary path from EliteConf into the OS
+                        \ command string in MESS1, so if there is a
+                        \ configuration file, we change directory to the
+                        \ configureed directory rather than $.EliteGame
+
+.chek1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA oldBRKV            \ Restore BRKV
+ STA BRKV
+ LDA oldBRKV+1
+ STA BRKV+1
+
+ CLI                    \ Enable interrupts again
+
  LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
  LDY #HI(MESS1)
 
@@ -119,15 +156,15 @@
  LDY #0
  JSR OSARGS
 
- CMP #5                 \ If this is not NFS (type 5), jump to chek1 to skip the
- BNE chek1              \ bug fix, as the bug only applies to NFS
+ CMP #5                 \ If this is not NFS (type 5), jump to chek2 to skip the
+ BNE chek2              \ bug fix, as the bug only applies to NFS
 
  LDA #2                 \ Fetch the version of NFS
  LDY #0
  JSR OSARGS
 
  CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
- BNE chek1              \ so if this is not NFS 3.34, jump to chek1 to skip the
+ BNE chek2              \ so if this is not NFS 3.34, jump to chek2 to skip the
                         \ bug fix
 
                         \ This is NFS 3.34, which contains the bug, so we add 7
@@ -137,8 +174,8 @@
 
  LDY #6                 \ If the *EliteB has no parameter then the seventh
  LDA (ZP),Y             \ character in the command string will be a carriage
- CMP #&0D               \ return (&0D), so jump to chek8 to load the game
- BEQ chek8
+ CMP #&0D               \ return (&0D), so jump to chek9 to load the game
+ BEQ chek9
 
                         \ Otherwise the command has a parameter, so we now set
                         \ ZP(1 0) to point to that parameter
@@ -147,15 +184,15 @@
  CLC                    \
  ADC #7                 \ So ZP(1 0) points to the correct address of the
  STA ZP                 \ argument to the *EliteB command for NFS 3.34
- BCC chek1
+ BCC chek2
  INC ZP+1
 
-.chek1
+.chek2
 
  LDY #0                 \ If the argument is not T (i.e. *EliteB T), jump to
- LDA (ZP),Y             \ chek2 to keep looking
+ LDA (ZP),Y             \ chek3 to keep looking
  CMP #'T'
- BNE chek2
+ BNE chek3
 
                         \ If we get here then the command is *EliteB T, which
                         \ loads the docked code for the sideways RAM version
@@ -170,10 +207,10 @@
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
                         \ which is a JMP DOBEGIN that restarts the game
 
-.chek2
+.chek3
 
  CMP #'R'               \ If the argument is not R (i.e. *EliteB R), jump to
- BNE chek3              \ chek3 to keep looking
+ BNE chek4              \ chek4 to keep looking
 
                         \ If we get here then the command is *EliteB R, which
                         \ runs the docked code for the sideways RAM version
@@ -188,10 +225,10 @@
                         \ at the station), returning from the subroutine using
                         \ a tail call
 
-.chek3
+.chek4
 
  CMP #'V'               \ If the argument is not V (i.e. *EliteB V), jump to
- BNE chek4              \ chek4 to keep looking
+ BNE chek5              \ chek5 to keep looking
 
                         \ If we get here then the command is *EliteB V, which
                         \ runs the flight code for the sideways RAM version
@@ -204,10 +241,10 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek4
+.chek5
 
  CMP #'S'               \ If the argument is not S (i.e. *EliteB S), jump to
- BNE chek5              \ chek5 to keep looking
+ BNE chek6              \ chek6 to keep looking
 
                         \ If we get here then the command is *EliteB S, which
                         \ loads the docked code for the standard version and
@@ -222,10 +259,10 @@
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
                         \ which is a JMP DOBEGIN that restarts the game
 
-.chek5
+.chek6
 
  CMP #'Q'               \ If the argument is not Q (i.e. *EliteB Q), jump to
- BNE chek6              \ chek6 to keep looking
+ BNE chek7              \ chek7 to keep looking
 
                         \ If we get here then the command is *EliteB Q, which
                         \ runs the docked code for the standard version and
@@ -239,10 +276,10 @@
                         \ at the station), returning from the subroutine using
                         \ a tail call
 
-.chek6
+.chek7
 
  CMP #'U'               \ If the argument is not U (i.e. *EliteB U), jump to
- BNE chek7              \ chek7 to keep looking
+ BNE chek8              \ chek8 to keep looking
 
                         \ If we get here then the command is *EliteB U, which
                         \ runs the flight code for the standard version
@@ -255,12 +292,12 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek7
+.chek8
 
  CMP #'A'               \ If the argument is not in the range A to P (so that's
- BCC chek8              \ *EliteB A to *EliteB P), jump to chek8 to keep
+ BCC chek9              \ *EliteB A to *EliteB P), jump to chek9 to keep
  CMP #'Q'               \ looking
- BCS chek8
+ BCS chek9
 
                         \ If we get here then the command is *EliteB A to P,
                         \ which loads a ship blueprints file for the standard
@@ -279,7 +316,7 @@
                         \ *LOADs the ship blueprints file, returning from the
                         \ subroutine using a tail call
 
-.chek8
+.chek9
 
                         \ If we get here then there is no valid argument to
                         \ *EliteB, so now we need to load the game from the
@@ -292,6 +329,19 @@
                         \ *RUNs the disc version loader, which checks PAGE and
                         \ sideways RAM and runs the correct game, returning from
                         \ the subroutine using a tail call
+
+\ ******************************************************************************
+\
+\       Name: oldBRKV
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the old break vector
+\
+\ ******************************************************************************
+
+.oldBRKV
+
+ EQUW 0
 
 \ ******************************************************************************
 \
@@ -418,6 +468,22 @@
 .MESS1
 
  EQUS "DIR $.EliteGame"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS10
+\       Type: Variable
+\   Category: Loader
+\    Summary: Load the Elite configuration file that contains the full path of
+\             the game binary directory, just after the *DIR in command MESS1
+\
+\ ******************************************************************************
+
+.MESS10
+
+ EQUS "LOAD EliteConf "
+ EQUS STR$~(MESS1 + 4)
  EQUB 13
 
 \ ******************************************************************************

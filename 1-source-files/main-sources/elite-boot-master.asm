@@ -33,6 +33,9 @@
 \
 \ ******************************************************************************
 
+ BRKV = &0202           \ The break vector that we intercept to enable us to
+                        \ load the configuration file, if there is one
+
  OSCLI = &FFF7          \ The address for the OSCLI routine
 
 \ ******************************************************************************
@@ -58,6 +61,40 @@
 
 .ENTRY
 
+ LDA BRKV               \ Fetch the current value of the break vector
+ STA oldBRKV
+ LDA BRKV+1
+ STA oldBRKV+1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA #LO(entr1)         \ Set BRKV to point to entr1 below, so if there is no
+ STA BRKV               \ configuration file, we simply restore the break vector
+ LDA #HI(entr1)         \ and keep going
+ STA BRKV+1
+
+ CLI                    \ Enable interrupts again
+
+ LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("LOAD EliteConf xxxx")
+ LDY #HI(MESS3)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS3 to load
+                        \ the game binary path from EliteConf into the OS
+                        \ command string in MESS1, so if there is a
+                        \ configuration file, we change directory to the
+                        \ configureed directory rather than $.EliteGame
+
+.entr1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA oldBRKV            \ Restore BRKV
+ STA BRKV
+ LDA oldBRKV+1
+ STA BRKV+1
+
+ CLI                    \ Enable interrupts again
+
  LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
  LDY #HI(MESS1)
 
@@ -70,6 +107,19 @@
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
                         \ the game in ELTME, returning from the subroutine using
                         \ a tail call
+
+\ ******************************************************************************
+\
+\       Name: oldBRKV
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the old break vector
+\
+\ ******************************************************************************
+
+.oldBRKV
+
+ EQUW 0
 
 \ ******************************************************************************
 \
@@ -97,6 +147,22 @@
 .MESS1
 
  EQUS "DIR $.EliteGame"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS3
+\       Type: Variable
+\   Category: Loader
+\    Summary: Load the Elite configuration file that contains the full path of
+\             the game binary directory, just after the *DIR in command MESS1
+\
+\ ******************************************************************************
+
+.MESS3
+
+ EQUS "LOAD EliteConf "
+ EQUS STR$~(MESS1 + 4)
  EQUB 13
 
 \ ******************************************************************************

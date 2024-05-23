@@ -3,110 +3,136 @@
      0B02   A2 32      LDX #&32
      0B04   A0 00      LDY #&00
      0B06   20 DA FF   JSR &FFDA
-     0B09   A2 F1      LDX #&F1
-     0B0B   A0 0B      LDY #&0B
-     0B0D   20 F7 FF   JSR &FFF7
-     0B10   A9 00      LDA #&00
-     0B12   A0 00      LDY #&00
-     0B14   20 DA FF   JSR &FFDA
-     0B17   C9 05      CMP #&05
-     0B19   D0 1E      BNE &0B39
-     0B1B   A9 02      LDA #&02
-     0B1D   A0 00      LDY #&00
-     0B1F   20 DA FF   JSR &FFDA
-     0B22   C9 02      CMP #&02
-     0B24   D0 13      BNE &0B39
-     0B26   A0 06      LDY #&06
-     0B28   B1 32      LDA (&32),Y
-     0B2A   C9 0D      CMP #&0D
-     0B2C   F0 69      BEQ &0B97
-     0B2E   A5 32      LDA &32
-     0B30   18         CLC
-     0B31   69 07      ADC #&07
-     0B33   85 32      STA &32
-     0B35   90 02      BCC &0B39
-     0B37   E6 33      INC &33
+     0B09   AD 02 02   LDA &0202
+     0B0C   8D CB 0B   STA &0BCB
+     0B0F   AD 03 02   LDA &0203
+     0B12   8D CC 0B   STA &0BCC
+     0B15   78         SEI
+     0B16   A9 28      LDA #&28
+     0B18   8D 02 02   STA &0202
+     0B1B   A9 0B      LDA #&0B
+     0B1D   8D 03 02   STA &0203
+     0B20   58         CLI
+     0B21   A2 30      LDX #&30
+     0B23   A0 0C      LDY #&0C
+     0B25   20 F7 FF   JSR &FFF7
 .chek1
-     0B39   A0 00      LDY #&00
-     0B3B   B1 32      LDA (&32),Y
-     0B3D   C9 54      CMP #&54
-     0B3F   D0 0A      BNE &0B4B
-     0B41   A2 D2      LDX #&D2
-     0B43   A0 0B      LDY #&0B
-     0B45   20 F7 FF   JSR &FFF7
-     0B48   4C E6 12   JMP &12E6
+     0B28   78         SEI
+     0B29   AD CB 0B   LDA &0BCB
+     0B2C   8D 02 02   STA &0202
+     0B2F   AD CC 0B   LDA &0BCC
+     0B32   8D 03 02   STA &0203
+     0B35   58         CLI
+     0B36   A2 20      LDX #&20
+     0B38   A0 0C      LDY #&0C
+     0B3A   20 F7 FF   JSR &FFF7
+     0B3D   A9 00      LDA #&00
+     0B3F   A0 00      LDY #&00
+     0B41   20 DA FF   JSR &FFDA
+     0B44   C9 05      CMP #&05
+     0B46   D0 1E      BNE &0B66
+     0B48   A9 02      LDA #&02
+     0B4A   A0 00      LDY #&00
+     0B4C   20 DA FF   JSR &FFDA
+     0B4F   C9 02      CMP #&02
+     0B51   D0 13      BNE &0B66
+     0B53   A0 06      LDY #&06
+     0B55   B1 32      LDA (&32),Y
+     0B57   C9 0D      CMP #&0D
+     0B59   F0 69      BEQ &0BC4
+     0B5B   A5 32      LDA &32
+     0B5D   18         CLC
+     0B5E   69 07      ADC #&07
+     0B60   85 32      STA &32
+     0B62   90 02      BCC &0B66
+     0B64   E6 33      INC &33
 .chek2
-     0B4B   C9 52      CMP #&52
-     0B4D   D0 07      BNE &0B56
-     0B4F   A2 DD      LDX #&DD
-     0B51   A0 0B      LDY #&0B
-     0B53   4C F7 FF   JMP &FFF7
+     0B66   A0 00      LDY #&00
+     0B68   B1 32      LDA (&32),Y
+     0B6A   C9 54      CMP #&54
+     0B6C   D0 0A      BNE &0B78
+     0B6E   A2 01      LDX #&01
+     0B70   A0 0C      LDY #&0C
+     0B72   20 F7 FF   JSR &FFF7
+     0B75   4C E6 12   JMP &12E6
 .chek3
-     0B56   C9 56      CMP #&56
-     0B58   D0 07      BNE &0B61
-     0B5A   A2 E7      LDX #&E7
-     0B5C   A0 0B      LDY #&0B
-     0B5E   4C F7 FF   JMP &FFF7
+     0B78   C9 52      CMP #&52
+     0B7A   D0 07      BNE &0B83
+     0B7C   A2 0C      LDX #&0C
+     0B7E   A0 0C      LDY #&0C
+     0B80   4C F7 FF   JMP &FFF7
 .chek4
-     0B61   C9 53      CMP #&53
-     0B63   D0 0A      BNE &0B6F
-     0B65   A2 B3      LDX #&B3
-     0B67   A0 0B      LDY #&0B
-     0B69   20 F7 FF   JSR &FFF7
-     0B6C   4C E6 12   JMP &12E6
+     0B83   C9 56      CMP #&56
+     0B85   D0 07      BNE &0B8E
+     0B87   A2 16      LDX #&16
+     0B89   A0 0C      LDY #&0C
+     0B8B   4C F7 FF   JMP &FFF7
 .chek5
-     0B6F   C9 51      CMP #&51
-     0B71   D0 07      BNE &0B7A
-     0B73   A2 BE      LDX #&BE
-     0B75   A0 0B      LDY #&0B
-     0B77   4C F7 FF   JMP &FFF7
+     0B8E   C9 53      CMP #&53
+     0B90   D0 0A      BNE &0B9C
+     0B92   A2 E2      LDX #&E2
+     0B94   A0 0B      LDY #&0B
+     0B96   20 F7 FF   JSR &FFF7
+     0B99   4C E6 12   JMP &12E6
 .chek6
-     0B7A   C9 55      CMP #&55
-     0B7C   D0 07      BNE &0B85
-     0B7E   A2 C8      LDX #&C8
-     0B80   A0 0B      LDY #&0B
-     0B82   4C F7 FF   JMP &FFF7
+     0B9C   C9 51      CMP #&51
+     0B9E   D0 07      BNE &0BA7
+     0BA0   A2 ED      LDX #&ED
+     0BA2   A0 0B      LDY #&0B
+     0BA4   4C F7 FF   JMP &FFF7
 .chek7
-     0B85   C9 41      CMP #&41
-     0B87   90 0E      BCC &0B97
-     0B89   C9 51      CMP #&51
-     0B8B   B0 0A      BCS &0B97
-     0B8D   8D A7 0B   STA &0BA7
-     0B90   A2 9E      LDX #&9E
-     0B92   A0 0B      LDY #&0B
-     0B94   4C F7 FF   JMP &FFF7
+     0BA7   C9 55      CMP #&55
+     0BA9   D0 07      BNE &0BB2
+     0BAB   A2 F7      LDX #&F7
+     0BAD   A0 0B      LDY #&0B
+     0BAF   4C F7 FF   JMP &FFF7
 .chek8
-     0B97   A2 A9      LDX #&A9
-     0B99   A0 0B      LDY #&0B
-     0B9B   4C F7 FF   JMP &FFF7
+     0BB2   C9 41      CMP #&41
+     0BB4   90 0E      BCC &0BC4
+     0BB6   C9 51      CMP #&51
+     0BB8   B0 0A      BCS &0BC4
+     0BBA   8D D6 0B   STA &0BD6
+     0BBD   A2 CD      LDX #&CD
+     0BBF   A0 0B      LDY #&0B
+     0BC1   4C F7 FF   JMP &FFF7
+.chek9
+     0BC4   A2 D8      LDX #&D8
+     0BC6   A0 0B      LDY #&0B
+     0BC8   4C F7 FF   JMP &FFF7
+.oldBRKV
+     0BCB   00 00
 .MESS9
-     0B9E   4C 4F 41 ...
-     0BA8   0D
+     0BCD   4C 4F 41 ...
+     0BD7   0D
 .MESS8
-     0BA9   52 55 4E ...
-     0BB2   0D
+     0BD8   52 55 4E ...
+     0BE1   0D
 .MESS7
-     0BB3   4C 4F 41 ...
-     0BBD   0D
+     0BE2   4C 4F 41 ...
+     0BEC   0D
 .MESS6
-     0BBE   52 55 4E ...
-     0BC7   0D
+     0BED   52 55 4E ...
+     0BF6   0D
 .MESS5
-     0BC8   52 55 4E ...
-     0BD1   0D
-.MESS4
-     0BD2   4C 4F 41 ...
-     0BDC   0D
-.MESS3
-     0BDD   52 55 4E ...
-     0BE6   0D
-.MESS2
-     0BE7   52 55 4E ...
-     0BF0   0D
-.MESS1
-     0BF1   44 49 52 ...
+     0BF7   52 55 4E ...
      0C00   0D
-S.EliteB &B00  &C01  &B00  &B00 
+.MESS4
+     0C01   4C 4F 41 ...
+     0C0B   0D
+.MESS3
+     0C0C   52 55 4E ...
+     0C15   0D
+.MESS2
+     0C16   52 55 4E ...
+     0C1F   0D
+.MESS1
+     0C20   44 49 52 ...
+     0C2F   0D
+.MESS10
+     0C30   4C 4F 41 ...
+     0C3F   43 32 34 
+     0C42   0D
+S.EliteB &B00  &C43  &B00  &B00 
 Saving file '2-assembled-output/EliteB.bin'
 .ENTRY
      2400   A9 83      LDA #&83
