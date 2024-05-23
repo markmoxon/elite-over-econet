@@ -3,6 +3,7 @@ REM By Mark Moxon
 :
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
+ostation%=0:onetwork%=0
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 *FX4,0
 *FX200,0
@@ -25,11 +26,11 @@ DEF PROCstartMenu
   PRINT TAB(6,1);"----------------------------"
   PRINT '"Please enter the port number to monitor:"
   INPUT port%
-  PRINT '"Please enter the network number to"'"forward to (0 for no forwarding):"
+  PRINT '"Please enter the network number to"'"forward to (press Return to skip):"
   INPUT fnetwork%
-  PRINT '"Please enter the station number to"'"forward to (0 for no forwarding):"
+  PRINT '"Please enter the station number to"'"forward to (press Return to skip):"
   INPUT fstation%
-  PRINT '"Please enter the port number to"'"forward to (0 for no forwarding):"
+  PRINT '"Please enter the port number to"'"forward to (press Return to skip):"
   INPUT fport%
 ENDPROC
 :
@@ -53,10 +54,17 @@ DEF PROCreceive
   :
   REM Update originating network address when it is set to zero
   IF cblock%?4=0 THEN cblock%?4=snetwork%
+  :
+  REM If this is a forwarded packet, set the player address
+  onetwork%=cblock%?4:ostation%=cblock%?3
+  IF rxbuffer%?17>0 THEN cblock%?3=rxbuffer%?17:cblock%?4=rxbuffer%?18
 ENDPROC
 :
 DEFPROCprintData
   IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
+  IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";ostation%
+  PRINT "Data received on port: ";cblock%?2
+  PRINT "Player address: ";cblock%?4;".";cblock%?3
   PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
@@ -64,12 +72,14 @@ DEFPROCprintData
   PRINT "Deaths: ";rxbuffer%?11
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
-  PRINT "Player network: ";cblock%?4
-  PRINT "Player station: ";cblock%?3
-  PRINT "Port: ";cblock%?2
 ENDPROC
 :
 DEF PROCforward
+  REM Set bytes 17 and 18 of forwarded data to player address
+  rxbuffer%?17=cblock%?3
+  rxbuffer%?18=cblock%?4
+  :
+  REM Send forwarded data
   ?cblock%=&80
   cblock%?1=fport%
   cblock%?2=fstation%

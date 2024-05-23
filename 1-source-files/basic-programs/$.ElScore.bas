@@ -8,7 +8,8 @@ DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA
-port%=0:fstation%=0:fnetwork%=0:fport%=0:next%=0:sort%=0:cmdr%=-1:quit%=FALSE
+port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0
+next%=0:sort%=0:cmdr%=-1:quit%=FALSE
 PROCgetStationNumber
 :
 ON ERROR PROCerror
@@ -63,9 +64,18 @@ DEF PROCreceive
   :
   REM Update originating network address when it is set to zero
   IF cblock%?4=0 THEN cblock%?4=snetwork%
+  :
+  REM If this is a forwarded packet, set the player address
+  onetwork%=cblock%?4:ostation%=cblock%?3
+  IF rxbuffer%?17>0 THEN cblock%?3=rxbuffer%?17:cblock%?4=rxbuffer%?18
 ENDPROC
 :
 DEF PROCforward
+  REM Set bytes 17 and 18 of forwarded data to player address
+  rxbuffer%?17=cblock%?3
+  rxbuffer%?18=cblock%?4
+  :
+  REM Send forwarded data
   ?cblock%=&80
   cblock%?1=fport%
   cblock%?2=fstation%
