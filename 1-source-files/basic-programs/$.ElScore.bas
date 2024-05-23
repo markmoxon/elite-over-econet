@@ -60,6 +60,9 @@ DEF PROCreceive
   CALL OSWORD
   :
   PROCdeleteReceiveBlock
+  :
+  REM Update originating network address when it is set to zero
+  IF cblock%?4=0 THEN cblock%?4=snetwork%
 ENDPROC
 :
 DEF PROCforward
