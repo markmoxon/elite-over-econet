@@ -228,10 +228,12 @@
  LDA #18                \ Reset the soft key buffer in page &B, so FixPAGE will
  JSR OSBYTE             \ work correctly
 
- BRK                    \ Display an error (&49 is the error number)
- EQUB &49
- EQUS "PAGE is too high, please run *FixPAGE"
- BRK
+ LDX #LO(MESS6)         \ Set (Y X) to point to MESS6 ("RUN FixPAGE")
+ LDY #HI(MESS6)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS6, which *RUNs
+                        \ FixPAGE, returning from the subroutine using a tail
+                        \ call
 
 \ ******************************************************************************
 \
@@ -319,6 +321,20 @@
 .MESS5
 
  EQUS "RUN ELTAI"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS6
+\       Type: Variable
+\   Category: Loader
+\    Summary: Run FixPAGE
+\
+\ ******************************************************************************
+
+.MESS6
+
+ EQUS "RUN FixPAGE"
  EQUB 13
 
 \ ******************************************************************************

@@ -152,7 +152,7 @@ Saving file '2-assembled-output/EliteB.bin'
      241B   A9 C8      LDA #&C8
      241D   A2 01      LDX #&01
      241F   20 F4 FF   JSR &FFF4
-     2422   A9 CA      LDA #&CA
+     2422   A9 A9      LDA #&A9
      2424   85 32      STA &32
      2426   A9 24      LDA #&24
      2428   85 33      STA &33
@@ -163,10 +163,10 @@ Saving file '2-assembled-output/EliteB.bin'
      2431   C8         INY
      2432   C0 0C      CPY #&0C
      2434   D0 F6      BNE &242C
-     2436   A2 D6      LDX #&D6
+     2436   A2 B5      LDX #&B5
      2438   A0 24      LDY #&24
      243A   20 F7 FF   JSR &FFF7
-     243D   A2 E0      LDX #&E0
+     243D   A2 BF      LDX #&BF
      243F   A0 24      LDY #&24
      2441   20 F7 FF   JSR &FFF7
      2444   20 32 74   JSR &7432
@@ -203,52 +203,54 @@ Saving file '2-assembled-output/EliteB.bin'
      247E   10 E6      BPL &2466
      2480   4C 96 24   JMP &2496
 .load7
-     2483   A2 EB      LDX #&EB
+     2483   A2 CA      LDX #&CA
      2485   A0 24      LDY #&24
      2487   20 F7 FF   JSR &FFF7
      248A   A6 32      LDX &32
      248C   20 38 74   JSR &7438
-     248F   A2 FB      LDX #&FB
+     248F   A2 DA      LDX #&DA
      2491   A0 24      LDY #&24
      2493   4C F7 FF   JMP &FFF7
 .load8
-     2496   A2 05      LDX #&05
-     2498   A0 25      LDY #&25
+     2496   A2 E4      LDX #&E4
+     2498   A0 24      LDY #&24
      249A   4C F7 FF   JMP &FFF7
 .load9
      249D   A9 12      LDA #&12
      249F   20 F4 FF   JSR &FFF4
-     24A2   00         BRK
-     24A3   49
-     24A4   50 41 47 ...
-     24C9   00         BRK
+     24A2   A2 EE      LDX #&EE
+     24A4   A0 24      LDY #&24
+     24A6   4C F7 FF   JMP &FFF7
 .B%
-     24CA   16
-     24CB   07
-     24CC   17
-     24CD   00
-     24CE   0A
-     24CF   20
-     24D0   00
-     24D1   00
-     24D2   00
-     24D3   00
-     24D4   00
-     24D5   00
+     24A9   16
+     24AA   07
+     24AB   17
+     24AC   00
+     24AD   0A
+     24AE   20
+     24AF   00
+     24B0   00
+     24B1   00
+     24B2   00
+     24B3   00
+     24B4   00
 .MESS1
-     24D6   52 55 4E ...
-     24DF   0D
+     24B5   52 55 4E ...
+     24BE   0D
 .MESS2
-     24E0   4C 4F 41 ...
-     24EA   0D
+     24BF   4C 4F 41 ...
+     24C9   0D
 .MESS3
-     24EB   4C 4F 41 ...
-     24FA   0D
+     24CA   4C 4F 41 ...
+     24D9   0D
 .MESS4
-     24FB   52 55 4E ...
-     2504   0D
+     24DA   52 55 4E ...
+     24E3   0D
 .MESS5
-     2505   52 55 4E ...
-     250E   0D
-S.ELTAB &2400  &250F  &2400  &2400 
+     24E4   52 55 4E ...
+     24ED   0D
+.MESS6
+     24EE   52 55 4E ...
+     24F9   0D
+S.ELTAB &2400  &24FA  &2400  &2400 
 Saving file '2-assembled-output/ELTAB.bin'
