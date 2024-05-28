@@ -211,7 +211,7 @@
  EQUB 10
  EQUS "Library directory into the EliteCmdrs"
  EQUB 10
- EQUS "directorythat you created in each of"
+ EQUS "directory that you created in each of"
  EQUB 10
  EQUS "the users' main directories"
  EQUB 10

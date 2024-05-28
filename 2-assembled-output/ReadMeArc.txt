@@ -35,7 +35,7 @@ their library set accordingly
 If you want to restrict it to specific
 users, copy all the files from the
 Library directory into the EliteCmdrs
-directorythat you created in each of
+directory that you created in each of
 the users' main directories
 
 4. Users can then play Elite by typing:
