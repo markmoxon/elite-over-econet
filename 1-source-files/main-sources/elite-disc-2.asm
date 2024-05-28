@@ -46,10 +46,18 @@
  PUTFILE "disc-elite-beebasm/3-assembled-output/D.MOO.bin", "D.MOO", &005600, &005600
  PUTFILE "disc-elite-beebasm/3-assembled-output/D.MOP.bin", "D.MOP", &005600, &005600
 
+\ 6502SP Executive Elite (Econet version) = *RUN EliteSX
+
+ PUTFILE "6502sp-elite-beebasm/4-reference-binaries/executive/ELITE.bin", "G.ELTXE", &FF1FDC, &FF2085
+ PUTFILE "6502sp-elite-beebasm/4-reference-binaries/executive/ELITEa.bin", "G.ELTXA", &FF2000, &FF2000
+ PUTFILE "6502sp-elite-beebasm/4-reference-binaries/executive/I.CODE.bin", "G.ELTXI", &FF2400, &FF2C89
+ PUTFILE "6502sp-elite-beebasm/4-reference-binaries/executive/P.CODE.bin", "G.ELTXP", &001000, &0010D3
+
 \ Boot files
 
  PUTFILE "2-assembled-output/EliteM.bin", "L.EliteM", &002000, &002000
  PUTFILE "2-assembled-output/EliteSP.bin", "L.EliteSP", &FF2000, &FF2000
+ PUTFILE "2-assembled-output/EliteX.bin", "L.EliteX", &FF2000, &FF2000
  PUTFILE "2-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00
  PUTFILE "2-assembled-output/Elite.bin", "L.Elite", &002400, &002400
 

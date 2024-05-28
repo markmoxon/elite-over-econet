@@ -6,6 +6,7 @@ all:
 	$(BEEBASM) -i 1-source-files/main-sources/elite-version.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-master.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-6502sp.asm
+	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-6502sp-executive.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-disc.asm -v > 2-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-disc-loader.asm -v >> 2-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot.asm
