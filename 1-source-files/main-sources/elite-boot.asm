@@ -145,21 +145,21 @@
  LDY #0                 \ We are now going to print the characters at ZP(1 0),
                         \ so set a byte counter in Y
 
-.chek7
+.prin1
 
  LDA (ZP),Y             \ Fetch the Y-th byte of the string
 
- BEQ prin1              \ If A is null then we have reached the end of the
+ BEQ prin2              \ If A is null then we have reached the end of the
                         \ string, so jump to prin1 to return from the subroutine
 
  JSR OSWRCH             \ Print the character in A
 
  INY                    \ Increment the byte counter
 
- BNE chek7              \ Loop back for the next byte (this BNE is effectively a
+ BNE prin1              \ Loop back for the next byte (this BNE is effectively a
                         \ JMP as Y is never zero
 
-.prin1
+.prin2
 
  RTS                    \ Return from the subroutine
 
