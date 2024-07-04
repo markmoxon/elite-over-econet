@@ -157,7 +157,7 @@
  INY                    \ Increment the byte counter
 
  BNE prin1              \ Loop back for the next byte (this BNE is effectively a
-                        \ JMP as Y is never zero
+                        \ JMP as Y is never zero)
 
 .prin2
 
