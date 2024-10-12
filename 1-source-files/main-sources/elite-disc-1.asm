@@ -29,32 +29,32 @@
 
 \ BBC Master Elite (Econet version) = *RUN EliteM
 
- PUTFILE "master-elite-beebasm/3-assembled-output/M128Elt.bin", "G.ELTME", &000E00, &000E43
- PUTFILE "master-elite-beebasm/3-assembled-output/BDATA.bin", "G.ELTMD", &001300, &001300
- PUTFILE "master-elite-beebasm/3-assembled-output/BCODE.bin", "G.ELTMC", &001300, &002C6C
+ PUTFILE "elite-source-code-bbc-master/3-assembled-output/M128Elt.bin", "G.ELTME", &000E00, &000E43
+ PUTFILE "elite-source-code-bbc-master/3-assembled-output/BDATA.bin", "G.ELTMD", &001300, &001300
+ PUTFILE "elite-source-code-bbc-master/3-assembled-output/BCODE.bin", "G.ELTMC", &001300, &002C6C
 
 \ 6502SP Elite (Econet version) = *RUN EliteSP
 
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITE.bin", "G.ELTSE", &FF1FDC, &FF2085
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/ELITEa.bin", "G.ELTSA", &FF2000, &FF2000
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/I.CODE.bin", "G.ELTSI", &FF2400, &FF2C89
- PUTFILE "6502sp-elite-beebasm/3-assembled-output/P.CODE.bin", "G.ELTSP", &001000, &0010D1
+ PUTFILE "elite-source-code-6502-second-processor/3-assembled-output/ELITE.bin", "G.ELTSE", &FF1FDC, &FF2085
+ PUTFILE "elite-source-code-6502-second-processor/3-assembled-output/ELITEa.bin", "G.ELTSA", &FF2000, &FF2000
+ PUTFILE "elite-source-code-6502-second-processor/3-assembled-output/I.CODE.bin", "G.ELTSI", &FF2400, &FF2C89
+ PUTFILE "elite-source-code-6502-second-processor/3-assembled-output/P.CODE.bin", "G.ELTSP", &001000, &0010D1
 
 \ BBC Micro Disc Elite (Econet Sideways RAM version) = *RUN EliteB
 
- PUTFILE "disc-elite-beebasm/1-source-files/boot-files/$.SCREEN.bin", "G.ELTBS", &007800, &007BE8
- PUTFILE "disc-elite-beebasm/3-assembled-output/ELTROM.bin", "G.ELTBR", &003400, &003400
- PUTFILE "disc-elite-beebasm/3-assembled-output/MNUCODE.bin", "G.ELTBM", &007400, &00743B
- PUTFILE "disc-elite-beebasm/3-assembled-output/sELITE4.bin", "G.ELTBI", &001900, &00197B
- PUTFILE "disc-elite-beebasm/3-assembled-output/sD.CODE.bin", "G.ELTBD", &0012E3, &0012E3
- PUTFILE "disc-elite-beebasm/3-assembled-output/sT.CODE.bin", "G.ELTBT", &0012E3, &0012E3
+ PUTFILE "elite-source-code-bbc-micro-disc/1-source-files/boot-files/$.SCREEN.bin", "G.ELTBS", &007800, &007BE8
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/ELTROM.bin", "G.ELTBR", &003400, &003400
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/MNUCODE.bin", "G.ELTBM", &007400, &00743B
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/sELITE4.bin", "G.ELTBI", &001900, &00197B
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/sD.CODE.bin", "G.ELTBD", &0012E3, &0012E3
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/sT.CODE.bin", "G.ELTBT", &0012E3, &0012E3
 
 \ BBC Micro Disc Elite (standard version) = *RUN EliteB
 
  PUTFILE "2-assembled-output/ELTAB.bin", "G.ELTAB", &002400, &002400
- PUTFILE "disc-elite-beebasm/3-assembled-output/ELITE4.bin", "G.ELTAI", &001900, &00197B
- PUTFILE "disc-elite-beebasm/3-assembled-output/D.CODE.bin", "G.ELTAD", &0012E3, &0012E3
- PUTFILE "disc-elite-beebasm/3-assembled-output/T.CODE.bin", "G.ELTAT", &0012E3, &0012E3
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/ELITE4.bin", "G.ELTAI", &001900, &00197B
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/D.CODE.bin", "G.ELTAD", &0012E3, &0012E3
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/T.CODE.bin", "G.ELTAT", &0012E3, &0012E3
 
 \ ReadMe files
 

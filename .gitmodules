@@ -1,12 +1,12 @@
-[submodule "6502sp-elite-beebasm"]
-	path = 6502sp-elite-beebasm
-	url = https://github.com/markmoxon/6502sp-elite-beebasm.git
-[submodule "master-elite-beebasm"]
-	path = master-elite-beebasm
-	url = https://github.com/markmoxon/master-elite-beebasm.git
-[submodule "disc-elite-beebasm"]
-	path = disc-elite-beebasm
-	url = https://github.com/markmoxon/disc-elite-beebasm.git
+[submodule "elite-source-code-6502-second-processor"]
+	path = elite-source-code-6502-second-processor
+	url = https://github.com/markmoxon/elite-source-code-6502-second-processor.git
+[submodule "elite-source-code-bbc-master"]
+	path = elite-source-code-bbc-master
+	url = https://github.com/markmoxon/elite-source-code-bbc-master.git
+[submodule "elite-source-code-bbc-micro-disc"]
+	path = elite-source-code-bbc-micro-disc
+	url = https://github.com/markmoxon/elite-source-code-bbc-micro-disc.git
 [submodule "dfsimage"]
 	path = dfsimage
 	url = https://github.com/monkeyman79/dfsimage.git
