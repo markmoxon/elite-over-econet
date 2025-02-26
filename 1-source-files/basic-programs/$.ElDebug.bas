@@ -11,7 +11,7 @@ A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 PROCstartMenu
 PROCgetStationNumber
 PRINT '"This machine's network: ";snetwork%
-PRINT "This machine's station: ";sstation%
+PRINT "This machine's station: ";FNpad0(sstation%);sstation%
 PRINT "Port number: ";port%
 :
 REPEAT
@@ -62,9 +62,9 @@ ENDPROC
 :
 DEFPROCprintData
   IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
-  IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";ostation%
+  IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
   PRINT "Data received on port: ";cblock%?2
-  PRINT "Player address: ";cblock%?4;".";cblock%?3
+  PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
   PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
@@ -73,6 +73,12 @@ DEFPROCprintData
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
 ENDPROC
+:
+DEF FNdigits(dg%)
+=LEN(STR$(dg%))-1
+:
+DEF FNpad0(st%)
+=STRING$(2-FNdigits(st%),"0")
 :
 DEF PROCforward
   REM Set bytes 17 and 18 of forwarded data to player address
