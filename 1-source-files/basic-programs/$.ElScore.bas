@@ -145,12 +145,12 @@ ENDPROC
 DEF PROCprintHeader
   PRINT TAB(0,0);CHR$(132);"<S>ort      ";
   PRINT CHR$(147);CHR$(188);CHR$(164);CHR$(232);" ";CHR$(232);" ";CHR$(236);CHR$(164);CHR$(232);CHR$(172);CHR$(129);
-  PRINT SPC(7-FNdigits(snetwork%)-FNdigits(sstation%));"Stn: ";snetwork%;".";sstation%;
+  PRINT SPC(6-FNdigits(snetwork%));"Stn ";snetwork%;".";STRING$(2-FNdigits(sstation%),"0");sstation%;
   PRINT TAB(0,1);CHR$(133);"<M>enu      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
-  PRINT SPC(8-FNdigits(port%));"Port: ";port%
+  PRINT SPC(9-FNdigits(port%));"Port ";port%
   PRINT TAB(13,2);CHR$(131);"SCOREBOARD"
-  PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Net Stn C Lgl Player  Kills Credits"
+  PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
 ENDPROC
 :
 DEF PROCstartMenu
@@ -201,8 +201,8 @@ ENDPROC
 DEF PROCprintCmdr(cm%,row%)
   PRINT TAB(0,row%);SPC(40);
   IF cmdr%=cm% THEN flag$="*" ELSE flag$=" "
-  N%=network%(cm%):L%=legal%(cm%)
-  PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";station%(cm%);
+  N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
+  PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";STRING$(2-FNdigits(S%),"0");S%;
   PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
   K%=kills%(cm%):D%=deaths%(cm%)
   PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
