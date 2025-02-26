@@ -157,7 +157,7 @@ DEF PROCstartMenu
   PRINT TAB(10,0);CHR$(141);"Elite Scoreboard"
   PRINT TAB(10,1);CHR$(141);"Elite Scoreboard"
   PRINT '"Please enter the port number for this"
-  INPUT "scoreboard: " port%
+  INPUT "scoreboard (1-255): " port%
   CLS
 ENDPROC
 :
@@ -176,7 +176,7 @@ DEF PROCmenu
     PRINT ''"<R>eturn to scoreboard"
     PRINT ''"<Q>uit"
     q$=GET$
-    IF q$="C" OR q$="c" THEN INPUT TAB(0,23);"Enter the new port number: " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
+    IF q$="C" OR q$="c" THEN INPUT TAB(0,23);"Enter the new port number (1-255): " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
     IF q$="N" OR q$="n" THEN INPUT TAB(0,23);"Enter the network number to forward to: " fnetwork%
     IF q$="S" OR q$="s" THEN INPUT TAB(0,23);"Enter the station number to forward to: " fstation%
     IF q$="P" OR q$="p" THEN INPUT TAB(0,23);"Enter the port number to forward to: " fport%
