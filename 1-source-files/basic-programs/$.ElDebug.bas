@@ -38,7 +38,7 @@ DEF PROCprocessKeys
   REM No key presses supported during debug (yet)
 ENDPROC
 :
-DEFPROCprintData
+DEF PROCprintData
   IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
   IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
   PRINT "Data received on port: ";cblock%?2
