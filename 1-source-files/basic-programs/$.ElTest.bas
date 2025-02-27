@@ -40,6 +40,7 @@ DEF PROCstartMenu
   INPUT fport%
   PRINT '"Please enter the max player count:"
   INPUT max%
+  max%=max%-1
 ENDPROC
 :
 DEF PROCprocessKeys
