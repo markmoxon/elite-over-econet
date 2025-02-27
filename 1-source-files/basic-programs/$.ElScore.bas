@@ -43,8 +43,9 @@ DEF PROCend
 ENDPROC
 :
 DEF PROCprocessKeys
-  IF INKEY(-82) THEN PROCswapSort
-  IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
+  K%=INKEY(0)
+  IF K%=ASC("S") THEN PROCswapSort
+  IF K%=ASC("M") THEN PROCmenu:PROCprintHeader:PROCprintTable
 ENDPROC
 :
 DEF FNupdateCmdr(cm%)
@@ -71,11 +72,11 @@ DEF FNfindCmdr(nm$,nw%,st%)
 =match%
 :
 DEF PROCswapSort
+  *FX15,1
   SOUND 3,241,188,1
   sort%=sort%EOR1
   PROChighlightSort
   IF cmdrs%>1 THEN PROCsort:PROCprintTable
-  REPEAT:UNTIL NOT(INKEY(-82))
 ENDPROC
 :
 DEF PROCsort
