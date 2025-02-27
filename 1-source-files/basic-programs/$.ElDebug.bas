@@ -5,9 +5,9 @@ DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
 ostation%=0:onetwork%=0
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
+:
 *FX4,0
 *FX200,0
-:
 PROCstartMenu
 PROCgetStationNumber
 PRINT '"This machine's network: ";snetwork%
@@ -34,6 +34,26 @@ DEF PROCstartMenu
   INPUT fport%
 ENDPROC
 :
+DEF PROCprocessKeys
+  REM No key presses supported during debug (yet)
+ENDPROC
+:
+DEFPROCprintData
+  IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
+  IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
+  PRINT "Data received on port: ";cblock%?2
+  PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
+  PRINT "Player name: ";$rxbuffer%
+  PRINT "Legal status: ";rxbuffer%?8
+  PRINT "Condition: ";rxbuffer%?9
+  PRINT "Kills: ";rxbuffer%?10
+  PRINT "Deaths: ";rxbuffer%?11
+  PRINT "Credits: ";(rxbuffer%!12)/10
+  PRINT "Machine type: ";rxbuffer%?16
+ENDPROC
+:
+: REM Econet library
+:
 DEF PROCreceive
   rxcb_number%=FNopenReceiveBlock(port%)
   :
@@ -42,6 +62,7 @@ DEF PROCreceive
     A%=&33
     X%=rxcb_number%
     U%=USR OSBYTE
+    PROCprocessKeys
   UNTIL (U% AND &8000)<>0
   :
   REM Read control block back
@@ -58,20 +79,6 @@ DEF PROCreceive
   REM If this is a forwarded packet, set the player address
   onetwork%=cblock%?4:ostation%=cblock%?3
   IF rxbuffer%?17>0 THEN cblock%?3=rxbuffer%?17:cblock%?4=rxbuffer%?18
-ENDPROC
-:
-DEFPROCprintData
-  IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
-  IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
-  PRINT "Data received on port: ";cblock%?2
-  PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
-  PRINT "Player name: ";$rxbuffer%
-  PRINT "Legal status: ";rxbuffer%?8
-  PRINT "Condition: ";rxbuffer%?9
-  PRINT "Kills: ";rxbuffer%?10
-  PRINT "Deaths: ";rxbuffer%?11
-  PRINT "Credits: ";(rxbuffer%!12)/10
-  PRINT "Machine type: ";rxbuffer%?16
 ENDPROC
 :
 DEF FNdigits(dg%)

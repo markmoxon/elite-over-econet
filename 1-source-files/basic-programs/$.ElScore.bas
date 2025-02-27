@@ -42,49 +42,9 @@ DEF PROCend
   END
 ENDPROC
 :
-DEF PROCreceive
-  rxcb_number%=FNopenReceiveBlock(port%)
-  :
-  REM Wait for reception
-  REPEAT
-    A%=&33
-    X%=rxcb_number%
-    U%=USR OSBYTE
-    IF INKEY(-82) THEN PROCswapSort
-    IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
-  UNTIL (U% AND &8000)<>0
-  :
-  REM Read control block back
-  X%=cblock%:Y%=cblock% DIV 256
-  A%=&11
-  ?cblock%=rxcb_number%
-  CALL OSWORD
-  :
-  PROCdeleteReceiveBlock
-  :
-  REM Update originating network address when it is set to zero
-  IF cblock%?4=0 THEN cblock%?4=snetwork%
-  :
-  REM If this is a forwarded packet, set the player address
-  onetwork%=cblock%?4:ostation%=cblock%?3
-  IF rxbuffer%?17>0 THEN cblock%?3=rxbuffer%?17:cblock%?4=rxbuffer%?18
-ENDPROC
-:
-DEF PROCforward
-  REM Set bytes 17 and 18 of forwarded data to player address
-  rxbuffer%?17=cblock%?3
-  rxbuffer%?18=cblock%?4
-  :
-  REM Send forwarded data
-  ?cblock%=&80
-  cblock%?1=fport%
-  cblock%?2=fstation%
-  cblock%?3=fnetwork%
-  cblock%!4=rxbuffer%
-  cblock%!8=rxbuffer%+20
-  X%=cblock%:Y%=cblock% DIV 256
-  A%=16
-  CALL OSWORD
+DEF PROCprocessKeys
+  IF INKEY(-82) THEN PROCswapSort
+  IF INKEY(-102) THEN PROCmenu:PROCprintHeader:PROCprintTable
 ENDPROC
 :
 DEF FNupdateCmdr(cm%)
@@ -212,11 +172,57 @@ DEF PROCprintCmdr(cm%,row%)
   @%=&2010A:PRINT TAB(37-FNdigits(R%),row%);R%/10;K$;:@%=10
 ENDPROC
 :
+: REM Econet library
+:
+DEF PROCreceive
+  rxcb_number%=FNopenReceiveBlock(port%)
+  :
+  REM Wait for reception
+  REPEAT
+    A%=&33
+    X%=rxcb_number%
+    U%=USR OSBYTE
+    PROCprocessKeys
+  UNTIL (U% AND &8000)<>0
+  :
+  REM Read control block back
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=&11
+  ?cblock%=rxcb_number%
+  CALL OSWORD
+  :
+  PROCdeleteReceiveBlock
+  :
+  REM Update originating network address when it is set to zero
+  IF cblock%?4=0 THEN cblock%?4=snetwork%
+  :
+  REM If this is a forwarded packet, set the player address
+  onetwork%=cblock%?4:ostation%=cblock%?3
+  IF rxbuffer%?17>0 THEN cblock%?3=rxbuffer%?17:cblock%?4=rxbuffer%?18
+ENDPROC
+:
 DEF FNdigits(dg%)
 =LEN(STR$(dg%))-1
 :
 DEF FNpad0(st%)
 =STRING$(2-FNdigits(st%),"0")
+:
+DEF PROCforward
+  REM Set bytes 17 and 18 of forwarded data to player address
+  rxbuffer%?17=cblock%?3
+  rxbuffer%?18=cblock%?4
+  :
+  REM Send forwarded data
+  ?cblock%=&80
+  cblock%?1=fport%
+  cblock%?2=fstation%
+  cblock%?3=fnetwork%
+  cblock%!4=rxbuffer%
+  cblock%!8=rxbuffer%+20
+  X%=cblock%:Y%=cblock% DIV 256
+  A%=16
+  CALL OSWORD
+ENDPROC
 :
 DEF FNopenReceiveBlock(pt%)
   ?cblock%=0
