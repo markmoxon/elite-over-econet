@@ -128,21 +128,51 @@ DEF PROCmenu
     PRINT TAB(15,0);CHR$(141);"Menu"
     PRINT TAB(15,1);CHR$(141);"Menu"
     PRINT ''"<C>hange this scoreboard's port (";port%;")"
-    PRINT ''"Forward all scores to this machine:"
+    PRINT '"Forward all scores to:"
     PRINT '"  <N>etwork number (";fnetwork%;")"
     PRINT "  <S>tation number (";fstation%;")"
     PRINT "  <P>ort number    (";fport%;")"
     IF fstation%>0 AND fport%>0 THEN PRINT '"To disable forwarding, set the port":PRINT"or station to zero" ELSE PRINT '"To enable forwarding, set the port":PRINT"and station to non-zero values"
-    PRINT ''"<R>eturn to scoreboard"
-    PRINT ''"<Q>uit"
+    PRINT '"<D>elete a score"
+    PRINT '"<R>eturn to scoreboard"
+    PRINT '"<Q>uit"
     q$=GET$
-    IF q$="C" OR q$="c" THEN INPUT TAB(0,23);"Enter the new port number (1-255): " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
-    IF q$="N" OR q$="n" THEN INPUT TAB(0,23);"Enter the network number to forward to: " fnetwork%
-    IF q$="S" OR q$="s" THEN INPUT TAB(0,23);"Enter the station number to forward to: " fstation%
-    IF q$="P" OR q$="p" THEN INPUT TAB(0,23);"Enter the port number to forward to: " fport%
+    IF q$="C" OR q$="c" THEN INPUT TAB(0,22);"Enter the new port number (1-255): " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
+    IF q$="N" OR q$="n" THEN INPUT TAB(0,22);"Enter the network number to forward to: " fnetwork%
+    IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the station number to forward to: " fstation%
+    IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the port number to forward to: " fport%
+    IF q$="D" OR q$="d" THEN INPUT TAB(0,22);"Enter the network number to delete: " dn%:INPUT TAB(0,23);"Enter the station number to delete: " ds%:PROCdelete(dn%,ds%)
     IF q$="Q" OR q$="q" THEN PROCend
   UNTIL q$="R" OR q$="r"
   CLS
+ENDPROC
+:
+DEF PROCdelete(dn%,ds%)
+  FOR I%=cmdrs%-1 TO 0 STEP -1
+    IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCdeleteCmdr(I%)
+  NEXT
+ENDPROC
+:
+DEF PROCdeleteCmdr(cm%)
+  IF cmdrs%>1 THEN PROCmoveCmdr(cm%)
+  IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
+ENDPROC
+:
+DEF PROCmoveCmdr(cm%)
+  oldorder%=order%(cm%)
+  name$(cm%)=name$(cmdrs%-1)
+  legal%(cm%)=legal%(cmdrs%-1)
+  condition%(cm%)=condition%(cmdrs%-1)
+  kills%(cm%)=kills%(cmdrs%-1)
+  deaths%(cm%)=deaths%(cmdrs%-1)
+  credits%(cm%)=credits%(cmdrs%-1)
+  machine%(cm%)=machine%(cmdrs%-1)
+  station%(cm%)=station%(cmdrs%-1)
+  network%(cm%)=network%(cmdrs%-1)
+  order%(cm%)=order%(cmdrs%-1)
+  FOR I%=0 TO cmdrs%-2
+    IF order%(I%) > oldorder% THEN order%(I%)=order%(I%)-1
+  NEXT
 ENDPROC
 :
 DEF PROCupdateTable
