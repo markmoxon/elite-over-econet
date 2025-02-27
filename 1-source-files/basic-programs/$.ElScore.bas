@@ -71,11 +71,11 @@ DEF FNfindCmdr(nm$,nw%,st%)
 =match%
 :
 DEF PROCswapSort
-  REPEAT:UNTIL NOT(INKEY(-82))
   SOUND 3,241,188,1
   sort%=sort%EOR1
   PROChighlightSort
   IF cmdrs%>1 THEN PROCsort:PROCprintTable
+  REPEAT:UNTIL NOT(INKEY(-82))
 ENDPROC
 :
 DEF PROCsort
@@ -122,7 +122,6 @@ DEF PROCstartMenu
 ENDPROC
 :
 DEF PROCmenu
-  REPEAT:UNTIL NOT(INKEY(-102))
   REPEAT
     CLS:*FX15,1
     PRINT TAB(15,0);CHR$(141);"Menu"
