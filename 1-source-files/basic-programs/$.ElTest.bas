@@ -25,6 +25,7 @@ PROCinitCmdrs
 REPEAT
   I%=RND(max%+1)-1
   PROCupdateCmdr(I%)
+  PROCprocessKeys
   PROCpause
 UNTIL FALSE
 :
@@ -44,7 +45,8 @@ DEF PROCstartMenu
 ENDPROC
 :
 DEF PROCprocessKeys
-  REM No key presses supported during debug (yet)
+  K%=INKEY(0)
+  IF K%=ASC("P") THEN PRINT'"Paused - press R to resume":REPEAT:UNTIL INKEY(0)=ASC("R")
 ENDPROC
 :
 DEF PROCinitCmdrs
@@ -59,6 +61,7 @@ DEF PROCinitCmdrs
     network%(I%)=RND(127)
     station%(I%)=RND(250)
     PROCsendCmdr(I%)
+    PROCprocessKeys
     PROCpause
   NEXT
 ENDPROC
