@@ -1,8 +1,7 @@
 REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
-max%=19:cmdrs%=0:sort%=0:page%=0:pages%=0:start%=0:size%=0
-star%=-1:cmrec%=-1:quit%=FALSE
+max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:quit%=FALSE
 DIM order%(max%),update%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
 DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
 DIM M$(4):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb":M$(4)="Ar"
@@ -24,7 +23,7 @@ REPEAT
   PROCreceive
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
-  IF cmrec%=-1 AND cmdrs%<=max% THEN cmrec%=cmdrs%:order%(cmdrs%)=cmrec%:cmdrs%=cmdrs%+1
+  IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
   IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%):update%(cmrec%)=1 ELSE dosort%=FALSE
   IF cmdrs%>1 AND dosort% THEN PROCsort
   PROCupdateTable(0)
@@ -48,6 +47,22 @@ DEF PROCprocessKeys
   K%=INKEY(0)
   IF K%=ASC("S") THEN PROCswapSort
   IF K%=ASC("M") THEN PROCmenu:PROCprintHeader:IF cmdrs%>0 THEN PROCupdateTable(1)
+  IF K%=ASC("P") THEN PROCnextPage
+ENDPROC
+:
+DEF PROCaddCmdr
+  cmrec%=cmdrs%
+  order%(cmrec%)=cmrec%
+  cmdrs%=cmdrs%+1
+  PROCprintHeader
+ENDPROC
+:
+DEF PROCnextPage
+  *FX15,1
+  SOUND 3,241,188,1
+  page%=page%+1
+  IF page%>INT(cmdrs%/20) THEN page%=0
+  CLS:PROCprintHeader:PROCupdateTable(1)
 ENDPROC
 :
 DEF FNupdateCmdr(cm%)
@@ -112,7 +127,7 @@ DEF PROCprintHeader
   PRINT TAB(0,1);CHR$(133);"<M>enu      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
   PRINT SPC(9-FNdigits(port%));"Port ";port%
-  PRINT TAB(13,2);CHR$(131);"SCOREBOARD"
+  PRINT TAB(0,2);CHR$(134);"<P>age      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";INT(cmdrs%/20)+1
   PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
   PROChighlightSort
 ENDPROC
@@ -193,14 +208,16 @@ DEF PROCmoveCmdr(cm%)
 ENDPROC
 :
 DEF PROCupdateTable(all%)
+  start%=page%*20
+  IF start%+19>cmdrs%-1 THEN end%=cmdrs%-1 ELSE end%=start%+19
   FOR I%=0 TO cmdrs%-1
     C%=order%(I%)
-    IF update%(C%)=1 OR all%=1 THEN PROCprintCmdr(C%,I%):update%(C%)=0
+    IF (update%(C%)=1 OR all%=1) AND I%>=start% AND I%<=end% THEN PROCprintCmdr(C%,I%+4-start%)
+    update%(C%)=0
   NEXT
 ENDPROC
 :
-DEF PROCprintCmdr(cm%,rank%)
-  row%=rank%+4
+DEF PROCprintCmdr(cm%,row%)
   PRINT TAB(0,row%);SPC(40);
   IF cmrec%=cm% THEN flag$="*":star%=row% ELSE flag$=" "
   N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
