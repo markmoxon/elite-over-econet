@@ -1,8 +1,8 @@
 REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
-max%=19:cmdrs%=0:sort%=0:cmdr%=-1:quit%=FALSE
-DIM order%(max%),update%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
+max%=19:cmdrs%=0:sort%=0:cmrec%=-1:quit%=FALSE
+DIM rank%(max%),update%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
 DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
 DIM M$(4):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb":M$(4)="Ar"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
@@ -22,10 +22,10 @@ PROCprintHeader
 PROChighlightSort
 REPEAT
   PROCreceive
-  IF cmdrs%>0 THEN cmdr%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmdr%=-1
-  IF cmdr%=-1 AND cmdrs%<=max% THEN cmdr%=cmdrs%:order%(cmdrs%)=cmdr%:cmdrs%=cmdrs%+1
-  IF cmdr%<>-1 THEN dosort%=FNupdateCmdr(cmdr%) ELSE dosort%=FALSE
-  IF cmdrs%>1 AND dosort% THEN PROCsort:PROCupdateTable ELSE PROCprintRow(cmdr%)
+  IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
+  IF cmrec%=-1 AND cmdrs%<=max% THEN cmrec%=cmdrs%:rank%(cmdrs%)=cmrec%:cmdrs%=cmdrs%+1
+  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
+  IF cmdrs%>1 AND dosort% THEN PROCsort:PROCupdateTable ELSE PROCprintRow(cmrec%)
   IF fstation%>0 AND fport%>0 THEN PROCforward
 UNTIL FALSE
 END
@@ -86,7 +86,7 @@ ENDPROC
 DEF PROCsortByCr
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
-      IF credits%(order%(J%))<credits%(order%(J%+1)) THEN T%=order%(J%):order%(J%)=order%(J%+1):order%(J%+1)=T%:update%(J%)=1:update%(J%+1)=1
+      IF credits%(rank%(J%))<credits%(rank%(J%+1)) THEN T%=rank%(J%):rank%(J%)=rank%(J%+1):rank%(J%+1)=T%:update%(J%)=1:update%(J%+1)=1
     NEXT
   NEXT
 ENDPROC
@@ -94,7 +94,7 @@ ENDPROC
 DEF PROCsortByKills
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
-      IF kills%(order%(J%))<kills%(order%(J%+1)) THEN T%=order%(J%):order%(J%)=order%(J%+1):order%(J%+1)=T%:update%(J%)=1:update%(J%+1)=1
+      IF kills%(rank%(J%))<kills%(rank%(J%+1)) THEN T%=rank%(J%):rank%(J%)=rank%(J%+1):rank%(J%+1)=T%:update%(J%)=1:update%(J%+1)=1
     NEXT
   NEXT
 ENDPROC
@@ -159,7 +159,7 @@ DEF PROCdeleteCmdr(cm%)
 ENDPROC
 :
 DEF PROCmoveCmdr(cm%)
-  oldorder%=order%(cm%)
+  oldorder%=rank%(cm%)
   name$(cm%)=name$(cmdrs%-1)
   legal%(cm%)=legal%(cmdrs%-1)
   condition%(cm%)=condition%(cmdrs%-1)
@@ -169,9 +169,9 @@ DEF PROCmoveCmdr(cm%)
   machine%(cm%)=machine%(cmdrs%-1)
   station%(cm%)=station%(cmdrs%-1)
   network%(cm%)=network%(cmdrs%-1)
-  order%(cm%)=order%(cmdrs%-1)
+  rank%(cm%)=rank%(cmdrs%-1)
   FOR I%=0 TO cmdrs%-2
-    IF order%(I%) > oldorder% THEN order%(I%)=order%(I%)-1
+    IF rank%(I%) > oldorder% THEN rank%(I%)=rank%(I%)-1
   NEXT
 ENDPROC
 :
@@ -182,26 +182,26 @@ ENDPROC
 :
 DEF PROCupdateCmdr
   FOR I%=0 TO cmdrs%-1
-    IF update%(I%)=1 THEN PROCprintCmdr(order%(I%),4+I%):update%(I%)=0 ELSE PRINT TAB(0,4+I%);" "
+    IF update%(I%)=1 THEN PROCprintCmdr(rank%(I%),4+I%):update%(I%)=0 ELSE PRINT TAB(0,4+I%);" "
   NEXT
 ENDPROC
 :
 DEF PROCprintTable
   PROChighlightSort
-  IF cmdrs%>0 THEN FOR I%=0 TO cmdrs%-1:PROCprintCmdr(order%(I%),4+I%):NEXT
+  IF cmdrs%>0 THEN FOR I%=0 TO cmdrs%-1:PROCprintCmdr(rank%(I%),4+I%):NEXT
   IF cmdrs%<=max% THEN FOR I%=cmdrs% TO max%:PRINT TAB(0,4+I%);SPC(40);:NEXT
 ENDPROC
 :
 DEF PROCprintRow(cm%)
   FOR I%=0 TO cmdrs%-1
     PRINT TAB(0,4+I%);" ";
-    IF cm%=order%(I%) THEN PROCprintCmdr(cm%,4+I%)
+    IF cm%=rank%(I%) THEN PROCprintCmdr(cm%,4+I%)
   NEXT
 ENDPROC
 :
 DEF PROCprintCmdr(cm%,row%)
   PRINT TAB(0,row%);SPC(40);
-  IF cmdr%=cm% THEN flag$="*" ELSE flag$=" "
+  IF cmrec%=cm% THEN flag$="*" ELSE flag$=" "
   N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
   PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";FNpad0(S%);S%;
   PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
