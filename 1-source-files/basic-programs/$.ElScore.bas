@@ -1,7 +1,8 @@
 REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
-max%=19:cmdrs%=0:sort%=0:cmrec%=-1:quit%=FALSE
+max%=19:cmdrs%=0:sort%=0:page%=0:pages%=0:start%=0:size%=0
+star%=-1:cmrec%=-1:quit%=FALSE
 DIM rank%(max%),update%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
 DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
 DIM M$(4):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb":M$(4)="Ar"
@@ -22,6 +23,7 @@ PROCprintHeader
 PROChighlightSort
 REPEAT
   PROCreceive
+  IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<=max% THEN cmrec%=cmdrs%:rank%(cmdrs%)=cmrec%:cmdrs%=cmdrs%+1
   IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
@@ -182,7 +184,7 @@ ENDPROC
 :
 DEF PROCupdateCmdr
   FOR I%=0 TO cmdrs%-1
-    IF update%(I%)=1 THEN PROCprintCmdr(rank%(I%),4+I%):update%(I%)=0 ELSE PRINT TAB(0,4+I%);" "
+    IF update%(I%)=1 THEN PROCprintCmdr(rank%(I%),4+I%):update%(I%)=0
   NEXT
 ENDPROC
 :
@@ -194,14 +196,13 @@ ENDPROC
 :
 DEF PROCprintRow(cm%)
   FOR I%=0 TO cmdrs%-1
-    PRINT TAB(0,4+I%);" ";
     IF cm%=rank%(I%) THEN PROCprintCmdr(cm%,4+I%)
   NEXT
 ENDPROC
 :
 DEF PROCprintCmdr(cm%,row%)
   PRINT TAB(0,row%);SPC(40);
-  IF cmrec%=cm% THEN flag$="*" ELSE flag$=" "
+  IF cmrec%=cm% THEN flag$="*":star%=row% ELSE flag$=" "
   N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
   PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";FNpad0(S%);S%;
   PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
