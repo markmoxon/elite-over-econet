@@ -151,14 +151,28 @@ DEF PROCmenu
 ENDPROC
 :
 DEF PROCdelete(dn%,ds%)
+  PRINT TAB(0,22);SPC(40);TAB(0,23);SPC(40);
+  nomatch%=TRUE
   FOR I%=cmdrs%-1 TO 0 STEP -1
-    IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCdeleteCmdr(I%)
+    IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCdeleteCmdr(I%):nomatch%=FALSE
   NEXT
+  IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
 ENDPROC
 :
 DEF PROCdeleteCmdr(cm%)
+  S%=station%(cm%)
+  PRINT TAB(0,22);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
+  d$=GET$
+  IF d$<>"Y" AND d$<>"y" THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
   IF cmdrs%>1 THEN PROCmoveCmdr(cm%)
   IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
+  PRINT TAB(0,23);"Player deleted"
+  PROCbeep(1)
+ENDPROC
+:
+DEF PROCbeep(high%)
+  IF high%=1 THEN SOUND 3,241,188,1 ELSE SOUND 3,244,12,8
+  PROCpause:PROCpause:PROCpause
 ENDPROC
 :
 DEF PROCmoveCmdr(cm%)
