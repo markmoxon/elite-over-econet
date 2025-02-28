@@ -20,7 +20,6 @@ MODE 7
 PROCstartMenu
 VDU23;8202;0;0;0;
 PROCprintHeader
-PROChighlightSort
 REPEAT
   PROCreceive
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
@@ -115,6 +114,7 @@ DEF PROCprintHeader
   PRINT SPC(9-FNdigits(port%));"Port ";port%
   PRINT TAB(13,2);CHR$(131);"SCOREBOARD"
   PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
+  PROChighlightSort
 ENDPROC
 :
 DEF PROCstartMenu
@@ -193,13 +193,14 @@ DEF PROCmoveCmdr(cm%)
 ENDPROC
 :
 DEF PROCupdateTable(all%)
-  IF all%=1 THEN PROChighlightSort
   FOR I%=0 TO cmdrs%-1
-    IF update%(I%)=1 OR all%=1 THEN PROCprintCmdr(order%(I%),4+I%):update%(I%)=0
+    C%=order%(I%)
+    IF update%(C%)=1 OR all%=1 THEN PROCprintCmdr(C%,I%):update%(C%)=0
   NEXT
 ENDPROC
 :
-DEF PROCprintCmdr(cm%,row%)
+DEF PROCprintCmdr(cm%,rank%)
+  row%=rank%+4
   PRINT TAB(0,row%);SPC(40);
   IF cmrec%=cm% THEN flag$="*":star%=row% ELSE flag$=" "
   N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
