@@ -1,10 +1,10 @@
 REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
-max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:quit%=FALSE
+max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0:quit%=FALSE
 DIM rowCmdr%(max%),rowUpdt%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
 DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
-DIM M$(4):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb":M$(4)="Ar"
+DIM M$(4):M$(0)="B+":M$(1)="M":M$(2)="SP":M$(3)="B":M$(4)="A"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
 DIM cblock% 40,tblock% 40,rxbuffer% 40
@@ -24,7 +24,7 @@ REPEAT
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
   IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
-  IF cmdrs%>1 AND dosort% THEN PROCsort
+  IF cmdrs%>1 AND dosort% THEN PROCsort(cmrec%)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
   IF fstation%>0 AND fport%>0 THEN PROCforward
@@ -83,10 +83,19 @@ DEF FNupdateCmdr(cm%)
 =ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
-  match%=-1
-  FOR I%=0 TO cmdrs%-1
-    IF match%=-1 AND station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN match%=I%
-  NEXT
+  match%=-1:I%=0
+  REPEAT
+    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN match%=I%
+    I%=I%+1
+  UNTIL match%<>-1 OR I%=cmdrs%
+=match%
+:
+DEF FNfindCmdrRow(cm%)
+  match%=-1:I%=0
+  REPEAT
+    IF rowCmdr%(R%)=cm% THEN match%=R%
+    I%=I%+1
+  UNTIL match%<>-1 OR I%=cmdrs%
 =match%
 :
 DEF PROCswapSort
@@ -94,27 +103,38 @@ DEF PROCswapSort
   SOUND 3,241,188,1
   sort%=sort%EOR1
   PROChighlightSort
-  IF cmdrs%>1 THEN PROCsort:PROCupdateTable(1)
+  IF cmdrs%>1 THEN PROCfullSort:PROCupdateTable(1)
 ENDPROC
 :
-DEF PROCsort
-  IF sort%=0 THEN PROCsortByKills ELSE PROCsortByCr
+DEF PROCsort(cm%)
+  thisRow%=FNfindCmdrRow(cm%)
+  REPEAT
+    sorted%=TRUE
+    IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1)
+    IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1)
+    IF sort%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(cm%),kills%(prevCm%),-1)
+    IF sorted% AND sort%=0 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(nextCm%),kills%(cm%),1)
+    IF sorted% AND sort%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1)
+    IF sorted% AND sort%=1 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1)
+  UNTIL sorted%
 ENDPROC
 :
-DEF PROCsortByCr
+DEF FNswapIfNeeded(v1%,v2%,dir%)
+  IF v1%>v2% THEN PROCswap(thisRow%,thisRow%+dir%):thisRow%=thisRow%+dir%:=FALSE
+=TRUE
+:
+DEF PROCfullSort
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
-      IF credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN T%=rowCmdr%(J%):rowCmdr%(J%)=rowCmdr%(J%+1):rowCmdr%(J%+1)=T%:rowUpdt%(J%)=1:rowUpdt%(J%+1)=1
+      IF sort%=0 AND kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
+      IF sort%=1 AND credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
     NEXT
   NEXT
 ENDPROC
 :
-DEF PROCsortByKills
-  FOR I%=cmdrs%-1 TO 0 STEP -1
-    FOR J%=0 TO I%-1
-      IF kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN T%=rowCmdr%(J%):rowCmdr%(J%)=rowCmdr%(J%+1):rowCmdr%(J%+1)=T%:rowUpdt%(J%)=1:rowUpdt%(J%+1)=1
-    NEXT
-  NEXT
+DEF PROCswap(A%,B%)
+  T%=rowCmdr%(A%):rowCmdr%(A%)=rowCmdr%(B%):rowCmdr%(B%)=T%
+  rowUpdt%(A%)=1:rowUpdt%(B%)=1
 ENDPROC
 :
 DEF PROChighlightSort
