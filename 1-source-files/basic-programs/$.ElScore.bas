@@ -2,7 +2,7 @@ REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
 max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:quit%=FALSE
-DIM order%(max%),update%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
+DIM rowCmdr%(max%),rowUpdt%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
 DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
 DIM M$(4):M$(0)="B+":M$(1)="Ma":M$(2)="Sp":M$(3)="Bb":M$(4)="Ar"
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
@@ -21,11 +21,11 @@ VDU23;8202;0;0;0;
 PROCprintHeader
 REPEAT
   PROCreceive
-  IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
-  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%):update%(cmrec%)=1 ELSE dosort%=FALSE
+  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
   IF cmdrs%>1 AND dosort% THEN PROCsort
+  IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
   IF fstation%>0 AND fport%>0 THEN PROCforward
 UNTIL FALSE
@@ -52,7 +52,8 @@ ENDPROC
 :
 DEF PROCaddCmdr
   cmrec%=cmdrs%
-  order%(cmrec%)=cmrec%
+  rowCmdr%(cmrec%)=cmrec%
+  rowUpdt%(cmrec%)=1
   cmdrs%=cmdrs%+1
   PROCprintHeader
 ENDPROC
@@ -103,7 +104,7 @@ ENDPROC
 DEF PROCsortByCr
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
-      IF credits%(order%(J%))<credits%(order%(J%+1)) THEN T%=order%(J%):order%(J%)=order%(J%+1):order%(J%+1)=T%:update%(J%)=1:update%(J%+1)=1
+      IF credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN T%=rowCmdr%(J%):rowCmdr%(J%)=rowCmdr%(J%+1):rowCmdr%(J%+1)=T%:rowUpdt%(J%)=1:rowUpdt%(J%+1)=1
     NEXT
   NEXT
 ENDPROC
@@ -111,7 +112,7 @@ ENDPROC
 DEF PROCsortByKills
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
-      IF kills%(order%(J%))<kills%(order%(J%+1)) THEN T%=order%(J%):order%(J%)=order%(J%+1):order%(J%+1)=T%:update%(J%)=1:update%(J%+1)=1
+      IF kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN T%=rowCmdr%(J%):rowCmdr%(J%)=rowCmdr%(J%+1):rowCmdr%(J%+1)=T%:rowUpdt%(J%)=1:rowUpdt%(J%+1)=1
     NEXT
   NEXT
 ENDPROC
@@ -191,7 +192,7 @@ DEF PROCbeep(high%)
 ENDPROC
 :
 DEF PROCmoveCmdr(cm%)
-  oldorder%=order%(cm%)
+  oldrow%=rowCmdr%(cm%)
   name$(cm%)=name$(cmdrs%-1)
   legal%(cm%)=legal%(cmdrs%-1)
   condition%(cm%)=condition%(cmdrs%-1)
@@ -201,19 +202,19 @@ DEF PROCmoveCmdr(cm%)
   machine%(cm%)=machine%(cmdrs%-1)
   station%(cm%)=station%(cmdrs%-1)
   network%(cm%)=network%(cmdrs%-1)
-  order%(cm%)=order%(cmdrs%-1)
+  rowCmdr%(cm%)=rowCmdr%(cmdrs%-1)
   FOR I%=0 TO cmdrs%-2
-    IF order%(I%) > oldorder% THEN order%(I%)=order%(I%)-1
+    IF rowCmdr%(I%) > oldrow% THEN rowCmdr%(I%)=rowCmdr%(I%)-1
   NEXT
 ENDPROC
 :
 DEF PROCupdateTable(all%)
   start%=page%*20
   IF start%+19>cmdrs%-1 THEN end%=cmdrs%-1 ELSE end%=start%+19
-  FOR I%=0 TO cmdrs%-1
-    C%=order%(I%)
-    IF (update%(C%)=1 OR all%=1) AND I%>=start% AND I%<=end% THEN PROCprintCmdr(C%,I%+4-start%)
-    update%(C%)=0
+  FOR R%=start% TO end%
+    C%=rowCmdr%(R%)
+    IF (rowUpdt%(R%)=1 OR all%=1) AND R%>=start% AND R%<=end% THEN PROCprintCmdr(C%,R%+4-start%)
+    rowUpdt%(R%)=0
   NEXT
 ENDPROC
 :
@@ -225,10 +226,10 @@ DEF PROCprintCmdr(cm%,row%)
   PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
   K%=kills%(cm%):D%=deaths%(cm%)
   PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
-  K$=" ":R%=credits%(cm%)
-  IF R%>99999 AND R%<=99999999 THEN K$="k":R%=R%/1000
-  IF R%>99999999 THEN K$="m":R%=R%/1000000
-  @%=&2010A:PRINT TAB(37-FNdigits(R%),row%);R%/10;K$;:@%=10
+  K$=" ":M%=credits%(cm%)
+  IF M%>99999 AND M%<=99999999 THEN K$="k":M%=M%/1000
+  IF M%>99999999 THEN K$="m":M%=M%/1000000
+  @%=&2010A:PRINT TAB(37-FNdigits(M%),row%);M%/10;K$;:@%=10
 ENDPROC
 :
 : REM Econet library

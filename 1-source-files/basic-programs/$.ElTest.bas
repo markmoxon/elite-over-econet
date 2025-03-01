@@ -20,6 +20,7 @@ PROCgetStationNumber
 PRINT '"Send test data to network: ";fnetwork%
 PRINT "Send data to station: ";FNpad0(fstation%);fstation%
 PRINT "Send data to port: ";fport%
+PRINT '"Press P to pause"'
 :
 PROCinitCmdrs
 REPEAT
