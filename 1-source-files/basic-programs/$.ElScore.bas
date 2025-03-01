@@ -4,7 +4,7 @@ REM By Mark Moxon
 max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0:quit%=FALSE
 DIM rowCmdr%(max%),rowUpdt%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
 DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
-DIM M$(4):M$(0)="B+":M$(1)="M":M$(2)="SP":M$(3)="B":M$(4)="A"
+DIM M$(4):M$(0)="B+":M$(1)="M ":M$(2)="SP":M$(3)="B ":M$(4)="A "
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
 DIM cblock% 40,tblock% 40,rxbuffer% 40
@@ -93,7 +93,7 @@ DEF FNfindCmdr(nm$,nw%,st%)
 DEF FNfindCmdrRow(cm%)
   match%=-1:I%=0
   REPEAT
-    IF rowCmdr%(R%)=cm% THEN match%=R%
+    IF rowCmdr%(I%)=cm% THEN match%=I%
     I%=I%+1
   UNTIL match%<>-1 OR I%=cmdrs%
 =match%
@@ -108,6 +108,7 @@ ENDPROC
 :
 DEF PROCsort(cm%)
   thisRow%=FNfindCmdrRow(cm%)
+  IF thisRow%=-1 THEN ENDPROC
   REPEAT
     sorted%=TRUE
     IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1)
@@ -233,7 +234,7 @@ DEF PROCupdateTable(all%)
   IF start%+19>cmdrs%-1 THEN end%=cmdrs%-1 ELSE end%=start%+19
   FOR R%=start% TO end%
     C%=rowCmdr%(R%)
-    IF (rowUpdt%(R%)=1 OR all%=1) AND R%>=start% AND R%<=end% THEN PROCprintCmdr(C%,R%+4-start%)
+    IF all%=1 OR rowUpdt%(R%)=1 THEN PROCprintCmdr(C%,R%+4-start%)
     rowUpdt%(R%)=0
   NEXT
 ENDPROC
