@@ -124,8 +124,8 @@ DEF PROCsort(cm%)
     sorted%=TRUE
     IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1)
     IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1)
-    IF sort%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(cm%),kills%(prevCm%),-1)
-    IF sorted% AND sort%=0 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(nextCm%),kills%(cm%),1)
+    IF sort%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(cm%),FNkillScore(prevCm%),-1)
+    IF sorted% AND sort%=0 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(nextCm%),FNkillScore(cm%),1)
     IF sorted% AND sort%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1)
     IF sorted% AND sort%=1 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1)
   UNTIL sorted%
@@ -134,6 +134,9 @@ ENDPROC
 DEF FNswapIfNeeded(v1%,v2%,dir%)
   IF v1%>v2% THEN PROCswap(thisRow%,thisRow%+dir%):thisRow%=thisRow%+dir%:=FALSE
 =TRUE
+:
+DEF FNkillScore(cm%)
+=1000*kills%(cm%)-deaths%(cm%)
 :
 DEF PROCfullSort
   FOR I%=4 TO 23
@@ -149,14 +152,14 @@ DEF PROCquicksort(start%,size%)
   IF size%<2 THEN ENDPROC
   end%=start%+size%-1
   left%=start%:right%=end%:P%=(left%+right%)DIV2
-  IF sort%=0 THEN pivot%=kills%(rowCmdr%(P%)) ELSE pivot%=credits%(rowCmdr%(P%))
+  IF sort%=0 THEN pivot%=FNkillScoreRow(P%) ELSE pivot%=credits%(rowCmdr%(P%))
   REPEAT
     REPEAT
-      IF sort%=0 THEN V%=kills%(rowCmdr%(left%)) ELSE V%=credits%(rowCmdr%(left%))
+      IF sort%=0 THEN V%=FNkillScoreRow(left%) ELSE V%=credits%(rowCmdr%(left%))
       IF V%>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
     UNTIL done%
     REPEAT
-      IF sort%=0 THEN V%=kills%(rowCmdr%(right%)) ELSE V%=credits%(rowCmdr%(right%))
+      IF sort%=0 THEN V%=FNkillScoreRow(right%) ELSE V%=credits%(rowCmdr%(right%))
       IF V%<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
     UNTIL done%
     IF left%<=right% THEN PROCswap(left%,right%):left%=left%+1:right%=right%-1
@@ -164,6 +167,9 @@ DEF PROCquicksort(start%,size%)
   IF start%<right% THEN PROCquicksort(start%,right%-start%+1)
   IF left%<end% THEN PROCquicksort(left%,end%-left%+1)
 ENDPROC
+:
+DEF FNkillScoreRow(cm%)
+=1000*kills%(rowCmdr%(cm%))-deaths%(rowCmdr%(cm%))
 :
 DEF PROCswap(A%,B%)
   T%=rowCmdr%(A%):rowCmdr%(A%)=rowCmdr%(B%):rowCmdr%(B%)=T%
