@@ -108,7 +108,6 @@ ENDPROC
 :
 DEF PROCsort(cm%)
   thisRow%=FNfindCmdrRow(cm%)
-  IF thisRow%=-1 THEN ENDPROC
   REPEAT
     sorted%=TRUE
     IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1)
