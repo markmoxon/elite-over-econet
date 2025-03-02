@@ -140,19 +140,8 @@ DEF PROCfullSort
     PRINT TAB(0,I%);SPC(40);
   NEXT
   PRINT TAB(14,5);"Sorting..."
-  REM PROCbubbleSort
   PROCquicksort(0,cmdrs%)
   PRINT TAB(0,5);SPC(40)
-ENDPROC
-:
-DEF PROCbubbleSort
-  FOR I%=cmdrs%-1 TO 0 STEP -1
-    PRINT TAB(23,5);INT(100*(cmdrs%-1-I%)/(cmdrs%-1));"%"
-    FOR J%=0 TO I%-1
-      IF sort%=0 AND kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
-      IF sort%=1 AND credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
-    NEXT
-  NEXT
 ENDPROC
 :
 DEF PROCquicksort(start%,size%)
