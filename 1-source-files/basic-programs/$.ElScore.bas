@@ -83,19 +83,17 @@ DEF FNupdateCmdr(cm%)
 =ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
-  match%=-1:I%=0
-  REPEAT
-    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN match%=I%
-    I%=I%+1
-  UNTIL match%<>-1 OR I%=cmdrs%
+  match%=-1
+  FOR I%=0 TO cmdrs%-1
+    IF station%(I%)=st% THEN IF network%(I%)=nw% THEN IF name$(I%)=nm$ THEN match%=I%:I%=cmdrs%-1
+  NEXT
 =match%
 :
 DEF FNfindCmdrRow(cm%)
-  match%=-1:I%=0
-  REPEAT
-    IF rowCmdr%(I%)=cm% THEN match%=I%
-    I%=I%+1
-  UNTIL match%<>-1 OR I%=cmdrs%
+  match%=-1
+  FOR I%=0 TO cmdrs%-1
+    IF rowCmdr%(I%)=cm% THEN match%=I%:I%=cmdrs%-1
+  NEXT
 =match%
 :
 DEF PROCswapSort
