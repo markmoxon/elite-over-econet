@@ -141,6 +141,7 @@ DEF PROCfullSort
   NEXT
   PRINT TAB(15,5);"Sorting..."
   PROCbubbleSort
+  REM PROCquicksort(0,cmdrs%)
   PRINT TAB(0,5);SPC(40);
 ENDPROC
 :
@@ -151,6 +152,29 @@ DEF PROCbubbleSort
       IF sort%=1 THEN IF credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
     NEXT
   NEXT
+ENDPROC
+:
+DEF PROCquicksort(start%,size%)
+  LOCAL pivot%,left%,right%,end%
+  IF size%<2 THEN ENDPROC
+  end%=start%+size%-1
+  left%=start%
+  right%=end%
+  IF sort%=0 THEN pivot%=kills%(rowCmdr%((left%+right%) DIV 2))
+  IF sort%=1 THEN pivot%=credits%(rowCmdr%((left%+right%) DIV 2))
+  REPEAT
+    REPEAT
+      IF sort%=0 THEN IF kills%(rowCmdr%(left%))>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
+      IF sort%=1 THEN IF credits%(rowCmdr%(left%))>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
+    UNTIL done%
+    REPEAT
+      IF sort%=0 THEN IF kills%(rowCmdr%(right%))<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
+      IF sort%=1 THEN IF credits%(rowCmdr%(right%))<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
+    UNTIL done%
+    IF left%<=right% THEN PROCswap(left%,right%):left%=left%+1:right%=right%-1
+  UNTIL left%>right%
+  IF start%<right% THEN PROCquicksort(start%,right%-start%+1)
+  IF left%<end% THEN PROCquicksort(left%,end%-left%+1)
 ENDPROC
 :
 DEF PROCswap(A%,B%)
