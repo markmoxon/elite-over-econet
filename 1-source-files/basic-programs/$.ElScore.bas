@@ -22,12 +22,12 @@ PROCprintHeader
 REPEAT
   PROCreceive
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
-  IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
+  IF cmrec%=-1 THEN IF cmdrs%<max% THEN PROCaddCmdr
   IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
-  IF cmdrs%>1 AND dosort% THEN PROCsort(cmrec%)
+  IF dosort% THEN IF cmdrs%>1 THEN PROCsort(cmrec%)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
-  IF fstation%>0 AND fport%>0 THEN PROCforward
+  IF fstation%>0 THEN IF fport%>0 THEN PROCforward
 UNTIL FALSE
 END
 :
@@ -72,9 +72,9 @@ DEF FNupdateCmdr(cm%)
   legal%(cm%)=rxbuffer%?8
   condition%(cm%)=rxbuffer%?9
   newkills%=rxbuffer%?10
-  IF sort%=0 AND newkills%<>kills%(cm%) THEN ch%=TRUE
+  IF sort%=0 THEN IF newkills%<>kills%(cm%) THEN ch%=TRUE
   kills%(cm%)=newkills%
-  IF sort%=1 AND credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
+  IF sort%=1 THEN IF credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
   deaths%(cm%)=rxbuffer%?11
   credits%(cm%)=rxbuffer%!12
   machine%(cm%)=rxbuffer%?16
@@ -113,10 +113,10 @@ DEF PROCsort(cm%)
     sorted%=TRUE
     IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1)
     IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1)
-    IF sort%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(cm%),kills%(prevCm%),-1)
-    IF sorted% AND sort%=0 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(nextCm%),kills%(cm%),1)
-    IF sorted% AND sort%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1)
-    IF sorted% AND sort%=1 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1)
+    IF sort%=0 THEN IF prevCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(cm%),kills%(prevCm%),-1)
+    IF sorted% THEN IF sort%=0 THEN IF nextCm%>=0 THEN sorted%=FNswapIfNeeded(kills%(nextCm%),kills%(cm%),1)
+    IF sorted% THEN IF sort%=1 THEN IF prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1)
+    IF sorted% THEN IF sort%=1 THEN IF nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1)
   UNTIL sorted%
 ENDPROC
 :
@@ -127,8 +127,8 @@ DEF FNswapIfNeeded(v1%,v2%,dir%)
 DEF PROCfullSort
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
-      IF sort%=0 AND kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
-      IF sort%=1 AND credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
+      IF sort%=0 THEN IF kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
+      IF sort%=1 THEN IF credits%(rowCmdr%(J%))<credits%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
     NEXT
   NEXT
 ENDPROC
@@ -172,7 +172,7 @@ DEF PROCmenu
     PRINT '"  <N>etwork number (";fnetwork%;")"
     PRINT "  <S>tation number (";fstation%;")"
     PRINT "  <P>ort number    (";fport%;")"
-    IF fstation%>0 AND fport%>0 THEN PRINT '"To disable forwarding, set the port":PRINT"or station to zero" ELSE PRINT '"To enable forwarding, set the port":PRINT"and station to non-zero values"
+    IF fstation%>0 THEN IF fport%>0 THEN PRINT '"To disable forwarding, set the port":PRINT"or station to zero" ELSE PRINT '"To enable forwarding, set the port":PRINT"and station to non-zero values"
     PRINT '"<D>elete a score"
     PRINT '"<R>eturn to scoreboard"
     PRINT '"<Q>uit"
@@ -191,7 +191,7 @@ DEF PROCdelete(dn%,ds%)
   PRINT TAB(0,22);SPC(40);TAB(0,23);SPC(40);
   nomatch%=TRUE
   FOR I%=cmdrs%-1 TO 0 STEP -1
-    IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCdeleteCmdr(I%):nomatch%=FALSE
+    IF network%(I%)=dn% THEN IF station%(I%)=ds% THEN PROCdeleteCmdr(I%):nomatch%=FALSE
   NEXT
   IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
 ENDPROC
@@ -200,7 +200,7 @@ DEF PROCdeleteCmdr(cm%)
   S%=station%(cm%)
   PRINT TAB(0,22);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
   d$=GET$
-  IF d$<>"Y" AND d$<>"y" THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
+  IF d$<>"Y" THEN IF d$<>"y" THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
   IF cmdrs%>1 THEN PROCmoveCmdr(cm%)
   IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
   PRINT TAB(0,23);"Player deleted"
@@ -248,7 +248,7 @@ DEF PROCprintCmdr(cm%,row%)
   K%=kills%(cm%):D%=deaths%(cm%)
   PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
   K$=" ":M%=credits%(cm%)
-  IF M%>99999 AND M%<=99999999 THEN K$="k":M%=M%/1000
+  IF M%>99999 THEN IF M%<=99999999 THEN K$="k":M%=M%/1000
   IF M%>99999999 THEN K$="m":M%=M%/1000000
   @%=&2010A:PRINT TAB(37-FNdigits(M%),row%);M%/10;K$;:@%=10
 ENDPROC
