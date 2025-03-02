@@ -139,9 +139,9 @@ DEF PROCfullSort
   FOR I%=4 TO 23
     PRINT TAB(0,I%);SPC(40);
   NEXT
-  PRINT TAB(12,5);"Sorting..."
-  PROCbubbleSort
-  REM PROCquicksort(0,cmdrs%)
+  PRINT TAB(14,5);"Sorting..."
+  REM PROCbubbleSort
+  PROCquicksort(0,cmdrs%)
   PRINT TAB(0,5);SPC(40)
 ENDPROC
 :
@@ -159,18 +159,16 @@ DEF PROCquicksort(start%,size%)
   LOCAL pivot%,left%,right%,end%
   IF size%<2 THEN ENDPROC
   end%=start%+size%-1
-  left%=start%
-  right%=end%
-  IF sort%=0 THEN pivot%=kills%(rowCmdr%((left%+right%) DIV 2))
-  IF sort%=1 THEN pivot%=credits%(rowCmdr%((left%+right%) DIV 2))
+  left%=start%:right%=end%:P%=(left%+right%)DIV2
+  IF sort%=0 THEN pivot%=kills%(rowCmdr%(P%)) ELSE pivot%=credits%(rowCmdr%(P%))
   REPEAT
     REPEAT
-      IF sort%=0 THEN IF kills%(rowCmdr%(left%))>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
-      IF sort%=1 THEN IF credits%(rowCmdr%(left%))>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
+      IF sort%=0 THEN V%=kills%(rowCmdr%(left%)) ELSE V%=credits%(rowCmdr%(left%))
+      IF V%>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
     UNTIL done%
     REPEAT
-      IF sort%=0 THEN IF kills%(rowCmdr%(right%))<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
-      IF sort%=1 THEN IF credits%(rowCmdr%(right%))<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
+      IF sort%=0 THEN V%=kills%(rowCmdr%(right%)) ELSE V%=credits%(rowCmdr%(right%))
+      IF V%<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
     UNTIL done%
     IF left%<=right% THEN PROCswap(left%,right%):left%=left%+1:right%=right%-1
   UNTIL left%>right%
@@ -245,7 +243,7 @@ DEF PROCdeleteCmdr(cm%)
   S%=station%(cm%)
   PRINT TAB(0,22);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
   d$=GET$
-  IF d$<>"Y" THEN IF d$<>"y" THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
+  IF NOT(d$="Y" OR d$="y") THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
   IF cmdrs%>1 THEN PROCmoveCmdr(cm%)
   IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
   PRINT TAB(0,23);"Player deleted"
@@ -293,7 +291,7 @@ DEF PROCprintCmdr(cm%,row%)
   K%=kills%(cm%):D%=deaths%(cm%)
   PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
   K$=" ":M%=credits%(cm%)
-  IF M%>99999 THEN IF M%<=99999999 THEN K$="k":M%=M%/1000
+  IF M%>99999 AND M%<=99999999 THEN K$="k":M%=M%/1000
   IF M%>99999999 THEN K$="m":M%=M%/1000000
   @%=&2010A:PRINT TAB(37-FNdigits(M%),row%);M%/10;K$;:@%=10
 ENDPROC
