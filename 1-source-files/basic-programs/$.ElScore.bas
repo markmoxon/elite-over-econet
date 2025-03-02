@@ -47,7 +47,9 @@ DEF PROCprocessKeys
   K%=INKEY(0)
   IF K%=ASC("S") THEN PROCswapSort
   IF K%=ASC("M") THEN PROCmenu:PROCprintHeader:IF cmdrs%>0 THEN PROCupdateTable(1)
-  IF K%=ASC("P") THEN PROCnextPage
+  IF K%=ASC("R") THEN PROCrefresh
+  IF K%=136 THEN PROCprevPage
+  IF K%=137 THEN PROCnextPage
 ENDPROC
 :
 DEF PROCaddCmdr
@@ -58,11 +60,23 @@ DEF PROCaddCmdr
   PROCprintHeader
 ENDPROC
 :
+DEF PROCprevPage
+  *FX15,1
+  PROCbeep(1)
+  page%=page%-1
+  IF page%<0 THEN page%=INT(cmdrs%/20)
+  PROCrefresh
+ENDPROC
+:
 DEF PROCnextPage
   *FX15,1
-  SOUND 3,241,188,1
+  PROCbeep(1)
   page%=page%+1
   IF page%>INT(cmdrs%/20) THEN page%=0
+  PROCrefresh
+ENDPROC
+:
+DEF PROCrefresh
   CLS:PROCprintHeader:PROCupdateTable(1)
 ENDPROC
 :
@@ -99,7 +113,7 @@ DEF FNfindCmdrRow(cm%)
 DEF PROCswapSort
   *FX15,1
   SOUND 3,241,188,1
-  sort%=sort%EOR1
+  IF sort%=0 THEN sort%=1 ELSE sort%=0
   PROChighlightSort
   IF cmdrs%>1 THEN PROCfullSort:PROCupdateTable(1)
 ENDPROC
@@ -122,6 +136,15 @@ DEF FNswapIfNeeded(v1%,v2%,dir%)
 =TRUE
 :
 DEF PROCfullSort
+  FOR I%=4 TO 23
+    PRINT TAB(0,I%);SPC(40);
+  NEXT
+  PRINT TAB(15,5);"Sorting..."
+  PROCbubbleSort
+  PRINT TAB(0,5);SPC(40);
+ENDPROC
+:
+DEF PROCbubbleSort
   FOR I%=cmdrs%-1 TO 0 STEP -1
     FOR J%=0 TO I%-1
       IF sort%=0 THEN IF kills%(rowCmdr%(J%))<kills%(rowCmdr%(J%+1)) THEN PROCswap(J%,J%+1)
@@ -146,7 +169,7 @@ DEF PROCprintHeader
   PRINT TAB(0,1);CHR$(133);"<M>enu      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
   PRINT SPC(9-FNdigits(port%));"Port ";port%
-  PRINT TAB(0,2);CHR$(134);"<P>age      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";INT(cmdrs%/20)+1
+  PRINT TAB(0,2);CHR$(134);"[]Page      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";INT(cmdrs%/20)+1
   PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
   PROChighlightSort
 ENDPROC
