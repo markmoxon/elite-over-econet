@@ -24,7 +24,7 @@ REPEAT
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
   IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
-  IF dosort% AND cmdrs%>1 THEN PROCsort(cmrec%)
+  IF dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
   IF fstation%>0 AND fport%>0 THEN PROCforward
@@ -45,9 +45,9 @@ ENDPROC
 :
 DEF PROCprocessKeys
   K%=INKEY(0)
-  IF K%=ASC("S") THEN PROCswapSort
+  IF K%=ASC("S") THEN PROCchangeSort
   IF K%=ASC("M") THEN PROCmenu:PROCprintHeader:IF cmdrs%>0 THEN PROCupdateTable(1)
-  IF K%=ASC("R") THEN PROCrefresh
+  IF K%=ASC("R") THEN PROCupdateScreen
   IF K%=136 THEN PROCprevPage
   IF K%=137 THEN PROCnextPage
 ENDPROC
@@ -65,7 +65,7 @@ DEF PROCprevPage
   PROCbeep(1)
   page%=page%-1
   IF page%<0 THEN page%=INT(cmdrs%/20)
-  PROCrefresh
+  PROCupdateScreen
 ENDPROC
 :
 DEF PROCnextPage
@@ -73,10 +73,10 @@ DEF PROCnextPage
   PROCbeep(1)
   page%=page%+1
   IF page%>INT(cmdrs%/20) THEN page%=0
-  PROCrefresh
+  PROCupdateScreen
 ENDPROC
 :
-DEF PROCrefresh
+DEF PROCupdateScreen
   CLS:PROCprintHeader:PROCupdateTable(1)
 ENDPROC
 :
@@ -110,7 +110,7 @@ DEF FNfindCmdrRow(cm%)
   NEXT
 =match%
 :
-DEF PROCswapSort
+DEF PROCchangeSort
   *FX15,1
   SOUND 3,241,188,1
   IF sort%=0 THEN sort%=1 ELSE sort%=0
@@ -118,7 +118,7 @@ DEF PROCswapSort
   IF cmdrs%>1 THEN PROCfullSort:PROCupdateTable(1)
 ENDPROC
 :
-DEF PROCsort(cm%)
+DEF PROCsortCmdr(cm%)
   thisRow%=FNfindCmdrRow(cm%)
   REPEAT
     sorted%=TRUE
@@ -132,7 +132,7 @@ DEF PROCsort(cm%)
 ENDPROC
 :
 DEF FNswapIfNeeded(v1%,v2%,dir%)
-  IF v1%>v2% THEN PROCswap(thisRow%,thisRow%+dir%):thisRow%=thisRow%+dir%:=FALSE
+  IF v1%>v2% THEN PROCswapRow(thisRow%,thisRow%+dir%):thisRow%=thisRow%+dir%:=FALSE
 =TRUE
 :
 DEF FNkillScore(cm%)
@@ -142,36 +142,34 @@ DEF PROCfullSort
   FOR I%=4 TO 23
     PRINT TAB(0,I%);SPC(40);
   NEXT
-  PRINT TAB(14,5);"Sorting..."
-  PROCquicksort(0,cmdrs%)
-  PRINT TAB(0,5);SPC(40)
+  IF sort%=0 THEN by$="kills" ELSE by$="credits"
+  PRINT TAB(10-sort%,10);"Sorting by ";by$;"..."
+  PROCquickSort(0,cmdrs%)
+  PRINT TAB(0,10);SPC(40)
 ENDPROC
 :
-DEF PROCquicksort(start%,size%)
+DEF PROCquickSort(start%,size%)
   LOCAL pivot%,left%,right%,end%
   IF size%<2 THEN ENDPROC
   end%=start%+size%-1
   left%=start%:right%=end%:P%=(left%+right%)DIV2
-  IF sort%=0 THEN pivot%=FNkillScoreRow(P%) ELSE pivot%=credits%(rowCmdr%(P%))
+  IF sort%=0 THEN pivot%=FNkillScore(rowCmdr%(P%)) ELSE pivot%=credits%(rowCmdr%(P%))
   REPEAT
     REPEAT
-      IF sort%=0 THEN V%=FNkillScoreRow(left%) ELSE V%=credits%(rowCmdr%(left%))
+      IF sort%=0 THEN V%=FNkillScore(rowCmdr%(left%)) ELSE V%=credits%(rowCmdr%(left%))
       IF V%>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
     UNTIL done%
     REPEAT
-      IF sort%=0 THEN V%=FNkillScoreRow(right%) ELSE V%=credits%(rowCmdr%(right%))
+      IF sort%=0 THEN V%=FNkillScore(rowCmdr%(right%)) ELSE V%=credits%(rowCmdr%(right%))
       IF V%<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
     UNTIL done%
-    IF left%<=right% THEN PROCswap(left%,right%):left%=left%+1:right%=right%-1
+    IF left%<=right% THEN PROCswapRow(left%,right%):left%=left%+1:right%=right%-1
   UNTIL left%>right%
-  IF start%<right% THEN PROCquicksort(start%,right%-start%+1)
-  IF left%<end% THEN PROCquicksort(left%,end%-left%+1)
+  IF start%<right% THEN PROCquickSort(start%,right%-start%+1)
+  IF left%<end% THEN PROCquickSort(left%,end%-left%+1)
 ENDPROC
 :
-DEF FNkillScoreRow(cm%)
-=1000*kills%(rowCmdr%(cm%))-deaths%(rowCmdr%(cm%))
-:
-DEF PROCswap(A%,B%)
+DEF PROCswapRow(A%,B%)
   T%=rowCmdr%(A%):rowCmdr%(A%)=rowCmdr%(B%):rowCmdr%(B%)=T%
   rowUpdt%(A%)=1:rowUpdt%(B%)=1
 ENDPROC
