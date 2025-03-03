@@ -2,10 +2,14 @@ REM ElDebug - Traffic monitor for Elite over Econet
 REM By Mark Moxon
 :
 DIM cblock% 40,tblock% 40,rxbuffer% 40
+DIM M$(4):M$(0)="BBC B+":M$(1)="Master":M$(2)="6502SP":M$(3)="BBC B":M$(4)="Archimedes"
+DIM C$(3):C$(0)="Docked":C$(1)="Green":C$(2)="Yellow":C$(3)="Red"
+DIM L$(2):L$(0)="Clean":L$(1)="Offender":L$(2)="Fugitive"
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
 ostation%=0:onetwork%=0
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 :
+ON ERROR PROCerror
 *FX4,0
 *FX200,0
 PROCstartMenu
@@ -13,12 +17,21 @@ PROCgetStationNumber
 PRINT '"This machine's network: ";snetwork%
 PRINT "This machine's station: ";FNpad0(sstation%);sstation%
 PRINT "Port number: ";port%
+PRINT '"Press P to pause"'
+IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader
 :
 REPEAT
   PROCreceive
-  PROCprintData
+  IF file$<>"" THEN PROClogData ELSE PROCprintData
   IF fstation%>0 AND fport%>0 THEN PROCforward
 UNTIL FALSE
+:
+DEF PROCerror
+  REPORT
+  PRINT " at line ";ERL
+  IF file$<>"" THEN PRINT "Closing log file":CLOSE#F%
+  END
+ENDPROC
 :
 DEF PROCstartMenu
   CLS
@@ -26,6 +39,8 @@ DEF PROCstartMenu
   PRINT TAB(6,1);"----------------------------"
   PRINT '"Please enter the port number to monitor:"
   INPUT port%
+  PRINT '"Please enter the name of the log file"'"(press Return to skip):"
+  INPUT file$
   PRINT '"Please enter the network number to"'"forward to (press Return to skip):"
   INPUT fnetwork%
   PRINT '"Please enter the station number to"'"forward to (press Return to skip):"
@@ -35,7 +50,8 @@ DEF PROCstartMenu
 ENDPROC
 :
 DEF PROCprocessKeys
-  REM No key presses supported during debug (yet)
+  K%=INKEY(0)
+  IF K%=ASC("P") THEN PRINT'"Paused - press R to resume":REPEAT:UNTIL INKEY(0)=ASC("R")
 ENDPROC
 :
 DEF PROCprintData
@@ -50,6 +66,59 @@ DEF PROCprintData
   PRINT "Deaths: ";rxbuffer%?11
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
+ENDPROC
+:
+DEF PROClogHeader
+  PRINT "Logging to: ";file$
+  PROClogStringTab("Time")
+  PROClogStringTab("Port")
+  PROClogStringTab("Player network")
+  PROClogStringTab("Player station")
+  PROClogStringTab("Player name")
+  PROClogStringTab("Legal status")
+  PROClogStringTab("Condition")
+  PROClogStringTab("Kills")
+  PROClogStringTab("Deaths")
+  PROClogStringTab("Credits")
+  PROClogStringTab("Machine type")
+  PROClogStringTab("Forwarded from network")
+  PROClogString("Forwarded from station")
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROClogData
+  IF os%>2 THEN PRINT "Timestamp: ";TIME$:PROClogStringTab(TIME$) ELSE PRINT "Timestamp: ";TIME:PROClogStringTab(STR$(TIME))
+  PROClogNumber(cblock%?2):REM Port
+  PROClogNumber(cblock%?4):REM Player network
+  PROClogNumber(cblock%?3):REM Player station
+  PROClogStringTab($rxbuffer%):REM Player name
+  PROClogStringTab(L$(rxbuffer%?8)):REM Legal status
+  PROClogStringTab(C$(rxbuffer%?9)):REM Condition
+  PROClogNumber(rxbuffer%?10):REM Kills
+  PROClogNumber(rxbuffer%?11):REM Deaths
+  PROClogNumber((rxbuffer%!12)/10):REM Credits
+  PROClogStringTab(M$(rxbuffer%?16)):REM Machine type
+  IF rxbuffer%?17>0 THEN PROClogNumber(onetwork%):PROClogString(STR$(ostation%)) ELSE BPUT#F%,9
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROClogNumber(n)
+  PROClogString(STR$(n))
+  BPUT#F%,9
+ENDPROC
+:
+DEF PROClogStringTab(s$)
+  PROClogString(s$)
+  BPUT#F%,9
+ENDPROC
+:
+DEF PROClogString(s$)
+  IF s$="" THEN ENDPROC
+  FOR I%=1 TO LEN(s$)
+    BPUT#F%,ASC(MID$(s$,I%,1))
+  NEXT
 ENDPROC
 :
 : REM Econet library
