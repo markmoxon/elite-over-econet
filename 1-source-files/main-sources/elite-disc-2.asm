@@ -46,7 +46,7 @@
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/D.MOO.bin", "D.MOO", &005600, &005600
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/D.MOP.bin", "D.MOP", &005600, &005600
 
-\ 6502SP Executive Elite (Econet version) = *RUN EliteSX
+\ 6502SP Executive Elite (Econet version) = *RUN EliteX
 
  PUTFILE "elite-source-code-6502-second-processor/4-reference-binaries/executive/ELITE.bin", "G.ELTXE", &FF1FDC, &FF2085
  PUTFILE "elite-source-code-6502-second-processor/4-reference-binaries/executive/ELITEa.bin", "G.ELTXA", &FF2000, &FF2000
