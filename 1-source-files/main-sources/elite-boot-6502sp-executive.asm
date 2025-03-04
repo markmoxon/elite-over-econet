@@ -83,7 +83,7 @@
                         \ the game binary path from EliteConf into the OS
                         \ command string in MESS1, so if there is a
                         \ configuration file, we change directory to the
-                        \ configureed directory rather than $.EliteGame
+                        \ configured directory rather than $.EliteGame
 
 .entr1
 
