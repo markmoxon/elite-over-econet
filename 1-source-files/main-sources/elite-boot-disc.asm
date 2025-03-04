@@ -115,10 +115,10 @@
 
  SEI                    \ Disable interrupts while we update the break vector
 
- LDA #LO(chek1)         \ Set BRKV to point to chek1 below, so if there is no
- STA BRKV               \ configuration file, we simply restore the break vector
- LDA #HI(chek1)         \ and keep going
- STA BRKV+1
+ LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
+ STA BRKV               \ configuration file, we jump to NoConfFile where we
+ LDA #HI(NoConfFile)    \ clear the break condition and return to chek1 to
+ STA BRKV+1             \ restore the break vector and keep going
 
  CLI                    \ Enable interrupts again
 
@@ -329,6 +329,33 @@
                         \ *RUNs the disc version loader, which checks PAGE and
                         \ sideways RAM and runs the correct game, returning from
                         \ the subroutine using a tail call
+
+\ ******************************************************************************
+\
+\       Name: NoConfFile
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: A break handler for when there is no EliteConf file
+\
+\ ******************************************************************************
+
+.NoConfFile
+
+                        \ If we get here then the *LOAD EliteConf file returned
+                        \ an error and this routine was called as the break
+                        \ handler, so we now need to tidy things up and return
+                        \ to the main program above
+                        \
+                        \ This lets us load the EliteConf file if there is one,
+                        \ while handling things cleanly if there isn't
+
+ PLP                    \ Restore the status register from the stack
+
+ PLA                    \ Remove the return address from the stack
+ PLA
+
+ JMP chek1              \ Return to just after the failed load command to
+                        \ continue with the loader
 
 \ ******************************************************************************
 \
