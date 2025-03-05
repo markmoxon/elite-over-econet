@@ -12,11 +12,11 @@ OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA
 port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0
 PROCgetStationNumber
 :
-ON ERROR PROCerror
 MODE 7
+PROCstartMenu
+ON ERROR PROCerror
 *FX4,1
 *FX200,1
-PROCstartMenu
 VDU23;8202;0;0;0;
 PROCprintHeader
 REPEAT
@@ -38,7 +38,7 @@ DEF PROCerror
 ENDPROC
 :
 DEF PROCend
-  *FX200,1
+  *FX200,0
   *FX4,0
   END
 ENDPROC

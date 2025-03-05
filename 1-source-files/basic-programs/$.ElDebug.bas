@@ -6,12 +6,12 @@ DIM M$(4):M$(0)="BBC B+":M$(1)="Master":M$(2)="6502SP":M$(3)="BBC B":M$(4)="Arch
 DIM C$(3):C$(0)="Docked":C$(1)="Green":C$(2)="Yellow":C$(3)="Red"
 DIM L$(2):L$(0)="Clean":L$(1)="Offender":L$(2)="Fugitive"
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
-ostation%=0:onetwork%=0
+ostation%=0:onetwork%=0:file$=""
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 :
-ON ERROR PROCerror
 *FX4,0
 *FX200,0
+ON ERROR PROCerror
 PROCstartMenu
 PROCgetStationNumber
 PRINT '"This machine's network: ";snetwork%
