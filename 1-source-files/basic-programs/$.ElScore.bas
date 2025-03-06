@@ -191,8 +191,8 @@ DEF PROCprintHeader
 ENDPROC
 :
 DEF PROCstartMenu
-  PRINT TAB(10,0);CHR$(141);"Elite Scoreboard"
-  PRINT TAB(10,1);CHR$(141);"Elite Scoreboard"
+  PRINT TAB(5,0);CHR$(141);"Elite over Econet Scoreboard"
+  PRINT TAB(5,1);CHR$(141);"Elite over Econet Scoreboard"
   PRINT '"Please enter the port number for this"
   INPUT "scoreboard (1-255): " port%
   CLS

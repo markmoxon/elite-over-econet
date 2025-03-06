@@ -35,8 +35,8 @@ ENDPROC
 :
 DEF PROCstartMenu
   CLS
-  PRINT TAB(6,0);"Elite over Econet Debug Tool"
-  PRINT TAB(6,1);"----------------------------"
+  PRINT TAB(5,0);CHR$(141);"Elite over Econet Debug Tool"
+  PRINT TAB(5,1);CHR$(141);"Elite over Econet Debug Tool"
   PRINT '"Please enter the port number to monitor:"
   INPUT port%
   PRINT '"Please enter the name of the log file"'"(press Return to skip):"
