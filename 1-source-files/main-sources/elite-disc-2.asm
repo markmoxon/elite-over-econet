@@ -65,6 +65,7 @@
 
  PUTBASIC "1-source-files/basic-programs/$.ElScore.bas", "G.ElScore"
  PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElDebug"
+ PUTBASIC "1-source-files/basic-programs/$.ElDebug.bas", "G.ElTest"
 
 \ Utility programs
 

@@ -32,8 +32,8 @@ UNTIL FALSE
 :
 DEF PROCstartMenu
   CLS
-  PRINT TAB(6,0);"Elite over Econet Test Tool"
-  PRINT TAB(6,1);"---------------------------"
+  PRINT TAB(6,0);CHR$(141);"Elite over Econet Test Tool"
+  PRINT TAB(6,1);CHR$(141);"Elite over Econet Test Tool"
   PRINT '"Please enter the network number to hit:"
   INPUT fnetwork%
   PRINT '"Please enter the station number to hit:"
