@@ -23,8 +23,8 @@ REPEAT
   PROCreceive
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
-  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
-  IF dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%)
+  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%):rowUpdt%(cmrec%)=1 ELSE dosort%=FALSE
+  IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
   IF fstation%>0 AND fport%>0 THEN PROCforward
@@ -55,7 +55,6 @@ ENDPROC
 DEF PROCaddCmdr
   cmrec%=cmdrs%
   rowCmdr%(cmrec%)=cmrec%
-  rowUpdt%(cmrec%)=1
   cmdrs%=cmdrs%+1
   PROCprintHeader
 ENDPROC
