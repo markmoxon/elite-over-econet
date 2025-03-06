@@ -24,9 +24,6 @@
 \
 \ ******************************************************************************
 
- CPU 1                  \ Switch to 65SC12 assembly, as this code contains a
-                        \ 6502 Second Processor DEC A instruction
-
  GUARD &6000            \ Guard against assembling over screen memory
 
 \ ******************************************************************************
