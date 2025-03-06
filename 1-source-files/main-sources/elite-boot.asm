@@ -87,6 +87,11 @@
 
 .ENTRY
 
+ LDA #1                 \ Set ZP(1 0) to the address of the argument to the
+ LDX #ZP                \ *Elite command
+ LDY #0
+ JSR OSARGS
+
  TSX                    \ Store the stack pointer in stack so we can restore it
  STX stack              \ if there's an error
 
@@ -99,7 +104,7 @@
 
  LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
  STA BRKV               \ configuration file, we jump to NoConfFile where we
- LDA #HI(NoConfFile)    \ clear the break condition and return to chek1 to
+ LDA #HI(NoConfFile)    \ clear the break condition and return to entr1 to
  STA BRKV+1             \ restore the break vector and keep going
 
  CLI                    \ Enable interrupts again
@@ -113,7 +118,7 @@
                         \ configuration file, we change directory to the
                         \ configured directory rather than $.EliteGame
 
-.chek1
+.entr1
 
  SEI                    \ Disable interrupts while we update the break vector
 
@@ -132,15 +137,15 @@
  LDY #0
  JSR OSARGS
 
- CMP #5                 \ If this is not NFS (type 5), jump to chek2 to skip the
- BNE chek2              \ bug fix, as the bug only applies to NFS
+ CMP #5                 \ If this is not NFS (type 5), jump to entr2 to skip the
+ BNE entr2              \ bug fix, as the bug only applies to NFS
 
  LDA #2                 \ Fetch the version of NFS
  LDY #0
  JSR OSARGS
 
  CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
- BNE chek2              \ so if this is not NFS 3.34, jump to chek2 to skip the
+ BNE entr2              \ so if this is not NFS 3.34, jump to entr2 to skip the
                         \ bug fix
 
                         \ This is NFS 3.34, which contains the bug, so we add 6
@@ -150,9 +155,9 @@
 
  LDY #5                 \ If the *Elite has no parameter then the sixth
  LDA (ZP),Y             \ character in the command string will be a carriage
- CMP #&0D               \ return (&0D), so jump to chek6 to load the game
+ CMP #&0D               \ return (&0D), so jump to entr6 to load the game
  BNE P%+5
- JMP chek6
+ JMP entr6
 
                         \ Otherwise the command has a parameter, so we now set
                         \ ZP(1 0) to point to that parameter
@@ -161,20 +166,15 @@
  CLC                    \
  ADC #6                 \ So ZP(1 0) points to the correct address of the
  STA ZP                 \ argument to the *Elite command for NFS 3.34
- BCC chek2
+ BCC entr2
  INC ZP+1
 
-.chek2
-
- LDA #1                 \ Set ZP(1 0) to the address of the argument to the
- LDX #ZP                \ *Elite command
- LDY #0
- JSR OSARGS
+.entr2
 
  LDY #0                 \ If the argument is not X (i.e. *Elite X), jump to
- LDA (ZP),Y             \ chek3 to keep looking
+ LDA (ZP),Y             \ entr3 to keep looking
  CMP #'X'
- BNE chek3
+ BNE entr3
 
                         \ If we get here then the command is *Elite X, which
                         \ loads the Executive version
@@ -192,10 +192,10 @@
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS5 to run the
                         \ Executive version of Elite over Econet
 
-.chek3
+.entr3
 
  CMP #'S'               \ If the argument is not S (i.e. *Elite S), jump to
- BNE chek4              \ chek4 to keep looking
+ BNE entr4              \ entr4 to keep looking
 
                         \ If we get here then the command is *Elite S, which
                         \ loads the scoreboard
@@ -241,10 +241,10 @@
                         \ to BASIC and return from the subroutine using a tail
                         \ call
 
-.chek4
+.entr4
 
  CMP #'D'               \ If the argument is not D (i.e. *Elite D), jump to
- BNE chek5              \ chek5 to keep looking
+ BNE entr5              \ entr5 to keep looking
 
                         \ If we get here then the command is *Elite D, which
                         \ loads the debugger
@@ -272,10 +272,10 @@
  BNE runBasic           \ Jump up to switch to BASIC and "press" f0 (this BNE is
                         \ effectively a JMP as Y is never zero)
 
-.chek5
+.entr5
 
  CMP #'V'               \ If the argument is not V (i.e. *Elite V), jump to
- BNE chek6              \ chek6 to keep looking
+ BNE entr6              \ entr6 to keep looking
 
                         \ If we get here then the command is *Elite V, which
                         \ prints the version
@@ -298,7 +298,7 @@
 
  RTS                    \ Return from the subroutine
 
-.chek6
+.entr6
 
  LDA #234               \ Call OSBYTE with A = 234, X = 0 and Y= 255 to read the
  LDX #0                 \ Tube present flag into X
@@ -386,7 +386,7 @@
  LDX stack              \ Restore the value of the stack pointer from when we
  TXS                    \ started
 
- JMP chek1              \ Return to just after the failed load command to
+ JMP entr1              \ Return to just after the failed load command to
                         \ continue with the loader
 
 \ ******************************************************************************

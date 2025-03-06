@@ -103,6 +103,9 @@
 
 .ENTRY
 
+ TSX                    \ Store the stack pointer in stack so we can restore it
+ STX stack              \ if there's an error
+
  LDA #1                 \ Set ZP(1 0) to the address of the argument to the
  LDX #ZP                \ *EliteB command
  LDY #0
@@ -117,7 +120,7 @@
 
  LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
  STA BRKV               \ configuration file, we jump to NoConfFile where we
- LDA #HI(NoConfFile)    \ clear the break condition and return to chek1 to
+ LDA #HI(NoConfFile)    \ clear the break condition and return to entr1 to
  STA BRKV+1             \ restore the break vector and keep going
 
  CLI                    \ Enable interrupts again
@@ -131,7 +134,7 @@
                         \ configuration file, we change directory to the
                         \ configured directory rather than $.EliteGame
 
-.chek1
+.entr1
 
  SEI                    \ Disable interrupts while we update the break vector
 
@@ -156,15 +159,15 @@
  LDY #0
  JSR OSARGS
 
- CMP #5                 \ If this is not NFS (type 5), jump to chek2 to skip the
- BNE chek2              \ bug fix, as the bug only applies to NFS
+ CMP #5                 \ If this is not NFS (type 5), jump to entr2 to skip the
+ BNE entr2              \ bug fix, as the bug only applies to NFS
 
  LDA #2                 \ Fetch the version of NFS
  LDY #0
  JSR OSARGS
 
  CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
- BNE chek2              \ so if this is not NFS 3.34, jump to chek2 to skip the
+ BNE entr2              \ so if this is not NFS 3.34, jump to entr2 to skip the
                         \ bug fix
 
                         \ This is NFS 3.34, which contains the bug, so we add 7
@@ -174,8 +177,8 @@
 
  LDY #6                 \ If the *EliteB has no parameter then the seventh
  LDA (ZP),Y             \ character in the command string will be a carriage
- CMP #&0D               \ return (&0D), so jump to chek9 to load the game
- BEQ chek9
+ CMP #&0D               \ return (&0D), so jump to entr9 to load the game
+ BEQ entr9
 
                         \ Otherwise the command has a parameter, so we now set
                         \ ZP(1 0) to point to that parameter
@@ -184,15 +187,15 @@
  CLC                    \
  ADC #7                 \ So ZP(1 0) points to the correct address of the
  STA ZP                 \ argument to the *EliteB command for NFS 3.34
- BCC chek2
+ BCC entr2
  INC ZP+1
 
-.chek2
+.entr2
 
  LDY #0                 \ If the argument is not T (i.e. *EliteB T), jump to
- LDA (ZP),Y             \ chek3 to keep looking
+ LDA (ZP),Y             \ entr3 to keep looking
  CMP #'T'
- BNE chek3
+ BNE entr3
 
                         \ If we get here then the command is *EliteB T, which
                         \ loads the docked code for the sideways RAM version
@@ -207,10 +210,10 @@
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
                         \ which is a JMP DOBEGIN that restarts the game
 
-.chek3
+.entr3
 
  CMP #'R'               \ If the argument is not R (i.e. *EliteB R), jump to
- BNE chek4              \ chek4 to keep looking
+ BNE entr4              \ entr4 to keep looking
 
                         \ If we get here then the command is *EliteB R, which
                         \ runs the docked code for the sideways RAM version
@@ -225,10 +228,10 @@
                         \ at the station), returning from the subroutine using
                         \ a tail call
 
-.chek4
+.entr4
 
  CMP #'V'               \ If the argument is not V (i.e. *EliteB V), jump to
- BNE chek5              \ chek5 to keep looking
+ BNE entr5              \ entr5 to keep looking
 
                         \ If we get here then the command is *EliteB V, which
                         \ runs the flight code for the sideways RAM version
@@ -241,10 +244,10 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek5
+.entr5
 
  CMP #'S'               \ If the argument is not S (i.e. *EliteB S), jump to
- BNE chek6              \ chek6 to keep looking
+ BNE entr6              \ entr6 to keep looking
 
                         \ If we get here then the command is *EliteB S, which
                         \ loads the docked code for the standard version and
@@ -259,10 +262,10 @@
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
                         \ which is a JMP DOBEGIN that restarts the game
 
-.chek6
+.entr6
 
  CMP #'Q'               \ If the argument is not Q (i.e. *EliteB Q), jump to
- BNE chek7              \ chek7 to keep looking
+ BNE entr7              \ entr7 to keep looking
 
                         \ If we get here then the command is *EliteB Q, which
                         \ runs the docked code for the standard version and
@@ -276,10 +279,10 @@
                         \ at the station), returning from the subroutine using
                         \ a tail call
 
-.chek7
+.entr7
 
  CMP #'U'               \ If the argument is not U (i.e. *EliteB U), jump to
- BNE chek8              \ chek8 to keep looking
+ BNE entr8              \ entr8 to keep looking
 
                         \ If we get here then the command is *EliteB U, which
                         \ runs the flight code for the standard version
@@ -292,12 +295,12 @@
                         \ the flight code, returning from the subroutine using
                         \ a tail call
 
-.chek8
+.entr8
 
  CMP #'A'               \ If the argument is not in the range A to P (so that's
- BCC chek9              \ *EliteB A to *EliteB P), jump to chek9 to keep
+ BCC entr9              \ *EliteB A to *EliteB P), jump to entr9 to keep
  CMP #'Q'               \ looking
- BCS chek9
+ BCS entr9
 
                         \ If we get here then the command is *EliteB A to P,
                         \ which loads a ship blueprints file for the standard
@@ -316,7 +319,7 @@
                         \ *LOADs the ship blueprints file, returning from the
                         \ subroutine using a tail call
 
-.chek9
+.entr9
 
                         \ If we get here then there is no valid argument to
                         \ *EliteB, so now we need to load the game from the
@@ -349,13 +352,24 @@
                         \ This lets us load the EliteConf file if there is one,
                         \ while handling things cleanly if there isn't
 
- PLP                    \ Restore the status register from the stack
+ LDX stack              \ Restore the value of the stack pointer from when we
+ TXS                    \ started
 
- PLA                    \ Remove the return address from the stack
- PLA
-
- JMP chek1              \ Return to just after the failed load command to
+ JMP entr1              \ Return to just after the failed load command to
                         \ continue with the loader
+
+\ ******************************************************************************
+\
+\       Name: stack
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the stack pointer
+\
+\ ******************************************************************************
+
+.stack
+
+ EQUW 0
 
 \ ******************************************************************************
 \

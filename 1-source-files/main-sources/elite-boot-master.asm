@@ -61,6 +61,9 @@
 
 .ENTRY
 
+ TSX                    \ Store the stack pointer in stack so we can restore it
+ STX stack              \ if there's an error
+
  LDA BRKV               \ Fetch the current value of the break vector
  STA oldBRKV
  LDA BRKV+1
@@ -127,13 +130,24 @@
                         \ This lets us load the EliteConf file if there is one,
                         \ while handling things cleanly if there isn't
 
- PLP                    \ Restore the status register from the stack
-
- PLA                    \ Remove the return address from the stack
- PLA
+ LDX stack              \ Restore the value of the stack pointer from when we
+ TXS                    \ started
 
  JMP entr1              \ Return to just after the failed load command to
                         \ continue with the loader
+
+\ ******************************************************************************
+\
+\       Name: stack
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the stack pointer
+\
+\ ******************************************************************************
+
+.stack
+
+ EQUW 0
 
 \ ******************************************************************************
 \
