@@ -44,6 +44,8 @@
 
  OSBYTE = &FFF4         \ The address for the OSBYTE routine
 
+ OSWORD = &FFF1         \ The address for the OSWORD routine
+
  OSCLI = &FFF7          \ The address for the OSCLI routine
 
 \ ******************************************************************************
@@ -84,10 +86,81 @@
 
 .ENTRY
 
+ LDA #234               \ Call OSBYTE with A = 234, X = 0 and Y= 255 to read the
+ LDX #0                 \ Tube present flag into X
+ LDY #255
+ JSR OSBYTE
+
+ STX tube               \ Store the Tube present flag in tube
+
  LDA #1                 \ Set ZP(1 0) to the address of the argument to the
  LDX #ZP                \ *Elite command
  LDY #0
  JSR OSARGS
+
+                        \ We need to check for NFS 3.34 as this has a bug in it
+                        \ that points ZP(1 0) to the start of the command rather
+                        \ than the argument
+
+ LDA #0                 \ Fetch the filing system type into A
+ LDY #0
+ JSR OSARGS
+
+ CMP #5                 \ If this is not NFS (type 5), jump to entr1 to skip the
+ BNE entr1              \ bug fix, as the bug only applies to NFS
+
+ LDA #2                 \ Fetch the version of NFS
+ LDY #0
+ JSR OSARGS
+
+ CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
+ BNE entr1              \ so if this is not NFS 3.34, jump to entr1 to skip the
+                        \ bug fix
+
+                        \ This is NFS 3.34, which contains the bug, so we add 6
+                        \ to the address in ZP(1 0) so that it points to the
+                        \ argument to the *Elite command (as "Elite " contains
+                        \ six characters)
+
+ LDY #5                 \ If the *Elite has no parameter then the sixth
+ LDA (ZP),Y             \ character in the command string will be a carriage
+ STA argument           \ return (&0D), so store this in argument and jump to
+ CMP #&0D               \ entr3 to move on to the next step
+ BEQ entr3
+
+                        \ Otherwise the command has a parameter, so we now set
+                        \ ZP(1 0) to point to that parameter
+
+ LDA ZP                 \ Set ZP(1 0) = ZP(1 0) + 6
+ CLC                    \
+ ADC #6                 \ So ZP(1 0) points to the correct address of the
+ STA ZP                 \ argument to the *Elite command for NFS 3.34
+ BCC entr1
+ INC ZP+1
+
+.entr1
+
+ LDX tube               \ If the Tube is not active, jump to entr2 to skip the
+ CPX #&FF               \ following
+ BNE entr2
+
+ LDX #ZP                \ Fetch the byte at address ZP(1 0), which contain the
+ LDY #0                 \ command agrument, from the I/O Processor into byte #4
+ LDA #5                 \ of the ZP block
+ JSR OSWORD
+
+ LDA ZP+4               \ Store the command argument
+ STA argument
+
+ JMP entr3              \ Skip the following
+
+.entr2
+
+ LDY #0                 \ Store the command argument (or &0D if there is no
+ LDA (ZP),Y             \ argument)
+ STA argument
+
+.entr3
 
  TSX                    \ Store the stack pointer in stack so we can restore it
  STX stack              \ if there's an error
@@ -101,7 +174,7 @@
 
  LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
  STA BRKV               \ configuration file, we jump to NoConfFile where we
- LDA #HI(NoConfFile)    \ clear the break condition and return to entr1 to
+ LDA #HI(NoConfFile)    \ clear the break condition and return to entr4 to
  STA BRKV+1             \ restore the break vector and keep going
 
  CLI                    \ Enable interrupts again
@@ -115,7 +188,7 @@
                         \ configuration file, we change directory to the
                         \ configured directory rather than $.EliteGame
 
-.entr1
+.entr4
 
  SEI                    \ Disable interrupts while we update the break vector
 
@@ -126,52 +199,10 @@
 
  CLI                    \ Enable interrupts again
 
-                        \ We need to check for NFS 3.34 as this has a bug in it
-                        \ that points ZP(1 0) to the start of the command rather
-                        \ than the argument
+ LDA argument           \ Fetch the command argument
 
- LDA #0                 \ Fetch the filing system type into A
- LDY #0
- JSR OSARGS
-
- CMP #5                 \ If this is not NFS (type 5), jump to entr2 to skip the
- BNE entr2              \ bug fix, as the bug only applies to NFS
-
- LDA #2                 \ Fetch the version of NFS
- LDY #0
- JSR OSARGS
-
- CMP #2                 \ If this is NFS 3.34, then the version returned is 2,
- BNE entr2              \ so if this is not NFS 3.34, jump to entr2 to skip the
-                        \ bug fix
-
-                        \ This is NFS 3.34, which contains the bug, so we add 6
-                        \ to the address in ZP(1 0) so that it points to the
-                        \ argument to the *Elite command (as "Elite " contains
-                        \ six characters)
-
- LDY #5                 \ If the *Elite has no parameter then the sixth
- LDA (ZP),Y             \ character in the command string will be a carriage
- CMP #&0D               \ return (&0D), so jump to entr6 to load the game
- BNE P%+5
- JMP entr6
-
-                        \ Otherwise the command has a parameter, so we now set
-                        \ ZP(1 0) to point to that parameter
-
- LDA ZP                 \ Set ZP(1 0) = ZP(1 0) + 6
- CLC                    \
- ADC #6                 \ So ZP(1 0) points to the correct address of the
- STA ZP                 \ argument to the *Elite command for NFS 3.34
- BCC entr2
- INC ZP+1
-
-.entr2
-
- LDY #0                 \ If the argument is not X (i.e. *Elite X), jump to
- LDA (ZP),Y             \ entr3 to keep looking
- CMP #'X'
- BNE entr3
+ CMP #'X'               \ If the argument is not X (i.e. *Elite X), jump to
+ BNE entr5              \ entr5 to keep looking
 
                         \ If we get here then the command is *Elite X, which
                         \ loads the Executive version
@@ -189,10 +220,10 @@
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS5 to run the
                         \ Executive version of Elite over Econet
 
-.entr3
+.entr5
 
  CMP #'S'               \ If the argument is not S (i.e. *Elite S), jump to
- BNE entr4              \ entr4 to keep looking
+ BNE entr6              \ entr6 to keep looking
 
                         \ If we get here then the command is *Elite S, which
                         \ loads the scoreboard
@@ -238,10 +269,10 @@
                         \ to BASIC and return from the subroutine using a tail
                         \ call
 
-.entr4
+.entr6
 
  CMP #'D'               \ If the argument is not D (i.e. *Elite D), jump to
- BNE entr5              \ entr5 to keep looking
+ BNE entr7              \ entr7 to keep looking
 
                         \ If we get here then the command is *Elite D, which
                         \ loads the debugger
@@ -269,10 +300,10 @@
  BNE runBasic           \ Jump up to switch to BASIC and "press" f0 (this BNE is
                         \ effectively a JMP as Y is never zero)
 
-.entr5
+.entr7
 
  CMP #'V'               \ If the argument is not V (i.e. *Elite V), jump to
- BNE entr6              \ entr6 to keep looking
+ BNE entr8              \ entr8 to keep looking
 
                         \ If we get here then the command is *Elite V, which
                         \ prints the version
@@ -295,12 +326,9 @@
 
  RTS                    \ Return from the subroutine
 
-.entr6
+.entr8
 
- LDA #234               \ Call OSBYTE with A = 234, X = 0 and Y= 255 to read the
- LDX #0                 \ Tube present flag into X
- LDY #255
- JSR OSBYTE
+ LDX tube               \ Fetch the Tube present flag from tube into X
 
  CPX #&FF               \ X will be &FF if this is a co-processor, so jump to
  BEQ copro              \ copro if this is the case
@@ -383,7 +411,7 @@
  LDX stack              \ Restore the value of the stack pointer from when we
  TXS                    \ started
 
- JMP entr1              \ Return to just after the failed load command to
+ JMP entr4              \ Return to just after the failed load command to
                         \ continue with the loader
 
 \ ******************************************************************************
@@ -398,6 +426,32 @@
 .stack
 
  EQUW 0
+
+\ ******************************************************************************
+\
+\       Name: argument
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the command's single-letter argument
+\
+\ ******************************************************************************
+
+.argument
+
+ EQUB 0
+
+\ ******************************************************************************
+\
+\       Name: tube
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the Tube status
+\
+\ ******************************************************************************
+
+.tube
+
+ EQUB 0
 
 \ ******************************************************************************
 \
