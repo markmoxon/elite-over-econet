@@ -33,6 +33,9 @@
  EQUS "Acornsoft Elite (Econet version)"
  EQUB 10, 13
  EQUB 10, 13
+ EQUS "With flicker-free ships and planets"
+ EQUB 10, 13
+ EQUB 10, 13
  EQUS "Econet conversion by Mark Moxon"
  EQUB 10, 13
  EQUB 10, 13
@@ -148,6 +151,9 @@
  EQUS "---------------------------------------"
  EQUB 10
  EQUS "Acornsoft Elite (Econet version)"
+ EQUB 10
+ EQUB 10
+ EQUS "With flicker-free ships and planets"
  EQUB 10
  EQUB 10
  EQUS "Econet conversion by Mark Moxon"

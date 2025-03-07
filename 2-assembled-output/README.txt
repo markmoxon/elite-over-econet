@@ -2,6 +2,8 @@
 ---------------------------------------
 Acornsoft Elite (Econet version)
 
+With flicker-free ships and planets
+
 Econet conversion by Mark Moxon
 
 For the following networked machines:
@@ -61,6 +63,6 @@
 
 See www.bbcelite.com/hacks for details
 
-Build: 2025-03-06 16:10:08
+Build: 2025-03-07 13:35:55
 ---------------------------------------
 
