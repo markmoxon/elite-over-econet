@@ -23,7 +23,7 @@ REPEAT
   PROCreceive
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
-  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%):rowUpdt%(cmrec%)=1 ELSE dosort%=FALSE
+  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
   IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
@@ -93,6 +93,7 @@ DEF FNupdateCmdr(cm%)
   machine%(cm%)=rxbuffer%?16
   station%(cm%)=cblock%?3
   network%(cm%)=cblock%?4
+  rowUpdt%(rowCmdr%(cm%))=1
 =ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
