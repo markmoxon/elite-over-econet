@@ -78,7 +78,7 @@ DEF PROCsendCmdr(cm%)
   rxbuffer%?16=machine%(cm%)
   cblock%?3=station%(cm%)
   cblock%?4=network%(cm%)
-  PROCforward
+  PROCforward(fstation%,fnetwork%,fport%)
 ENDPROC
 :
 DEF PROCupdateCmdr(cm%)
@@ -125,16 +125,16 @@ DEF FNdigits(dg%)
 DEF FNpad0(st%)
 =STRING$(2-FNdigits(st%),"0")
 :
-DEF PROCforward
+DEF PROCforward(fs%,fn%,fp%)
   REM Set bytes 17 and 18 of forwarded data to player address
   rxbuffer%?17=cblock%?3
   rxbuffer%?18=cblock%?4
   :
   REM Send forwarded data
   ?cblock%=&80
-  cblock%?1=fport%
-  cblock%?2=fstation%
-  cblock%?3=fnetwork%
+  cblock%?1=fp%
+  cblock%?2=fs%
+  cblock%?3=fn%
   cblock%!4=rxbuffer%
   cblock%!8=rxbuffer%+20
   X%=cblock%:Y%=cblock% DIV 256
