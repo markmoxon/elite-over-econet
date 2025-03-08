@@ -2,15 +2,16 @@ REM ElDebug - Traffic monitor for Elite over Econet
 REM By Mark Moxon
 :
 DIM cblock% 40,tblock% 40,rxbuffer% 40
-DIM M$(4):M$(0)="BBC B+":M$(1)="Master":M$(2)="6502SP":M$(3)="BBC B":M$(4)="Archimedes"
-DIM C$(3):C$(0)="Docked":C$(1)="Green":C$(2)="Yellow":C$(3)="Red"
-DIM L$(2):L$(0)="Clean":L$(1)="Offender":L$(2)="Fugitive"
+DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
+DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
+DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
 ostation%=0:onetwork%=0:file$=""
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 :
 *FX4,0
 *FX200,0
+MODE 7
 ON ERROR PROCerror
 PROCstartMenu
 PROCgetStationNumber
@@ -19,12 +20,15 @@ PRINT "This machine's station: ";FNpad0(sstation%);sstation%
 PRINT "Port number: ";port%
 PRINT '"Press P to pause"'
 IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader
+IF fstation1%>0 AND fport1%>0 THEN f$=fnetwork1%+"."+FNpad0(fstation1%)+fstation1%
+IF fstation2%>0 AND fport2%>0 THEN f2$=fnetwork2%+"."+FNpad0(fstation2%)+fstation2%
 :
 REPEAT
   PROCreceive
-  PROCprintData
-  IF file$<>"" THEN PROClogData
-  IF fstation%>0 AND fport%>0 THEN PROCforward
+  t$=FNprintData
+  IF file$<>"" THEN PROClogData(t$)
+  IF fstation1%>0 AND fport1%>0 THEN PRINT "Forwarding to: ";f$:PROCforward(fstation1%,fnetwork1%,fport1%)
+  IF fstation2%>0 AND fport2%>0 THEN PRINT "Forwarding to: ";f2$:PROCforward(fstation2%,fnetwork2%,fport2%)
 UNTIL FALSE
 :
 DEF PROCerror
@@ -35,19 +39,17 @@ DEF PROCerror
 ENDPROC
 :
 DEF PROCstartMenu
-  CLS
   PRINT TAB(5,0);CHR$(141);"Elite over Econet Debug Tool"
   PRINT TAB(5,1);CHR$(141);"Elite over Econet Debug Tool"
-  PRINT '"Please enter the port number to monitor:"
-  INPUT port%
-  PRINT '"Please enter the name of the log file"'"(press Return to skip):"
-  INPUT file$
-  PRINT '"Please enter the network number to"'"forward to (press Return to skip):"
-  INPUT fnetwork%
-  PRINT '"Please enter the station number to"'"forward to (press Return to skip):"
-  INPUT fstation%
-  PRINT '"Please enter the port number to"'"forward to (press Return to skip):"
-  INPUT fport%
+  INPUT '"Enter the port number to monitor: " port%
+  PRINT '"Press Return to skip the following"'"options"
+  INPUT '"Enter the full filename of the log file"'"(e.g. &.SCORES): " file$
+  INPUT '"Enter the network number of the first"'"forwarding destination (of two): " fnetwork1%
+  INPUT '"Enter the station number of the first"'"forwarding destination (of two): " fstation1%
+  INPUT '"Enter the port number of the first"'"forwarding destination (of two): " fport1%
+  INPUT '"Enter the network number of the second"'"forwarding destination (of two): " fnetwork2%
+  INPUT '"Enter the station number of the second"'"forwarding destination (of two): " fstation2%
+  INPUT '"Enter the port number of the second"'"forwarding destination (of two): " fport2%
 ENDPROC
 :
 DEF PROCprocessKeys
@@ -55,8 +57,9 @@ DEF PROCprocessKeys
   IF K%=ASC("P") THEN PRINT'"Paused - press R to resume":REPEAT:UNTIL INKEY(0)=ASC("R")
 ENDPROC
 :
-DEF PROCprintData
-  IF os%>2 THEN PRINT '"Timestamp: ";TIME$ ELSE PRINT '"Timestamp: ";TIME
+DEF FNprintData
+  IF os%>2 THEN t$=TIME$ ELSE t$=STR$(TIME)
+  IF os%>2 THEN PRINT '"Timestamp: ";t$ ELSE PRINT '"Timestamp: ";t$
   IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
   PRINT "Data received on port: ";cblock%?2
   PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
@@ -67,10 +70,9 @@ DEF PROCprintData
   PRINT "Deaths: ";rxbuffer%?11
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
-ENDPROC
+=t$
 :
 DEF PROClogHeader
-  PRINT "Logging to: ";file$
   PROClogStringTab("Time")
   PROClogStringTab("Port")
   PROClogStringTab("Player network")
@@ -88,24 +90,25 @@ DEF PROClogHeader
   BPUT#F%,10
 ENDPROC
 :
-DEF PROClogData
-  IF os%>2 THEN PRINT "Timestamp: ";TIME$:PROClogStringTab(TIME$) ELSE PRINT "Timestamp: ";TIME:PROClogStringTab(STR$(TIME))
-  PROClogNumber(cblock%?2):REM Port
-  PROClogNumber(cblock%?4):REM Player network
-  PROClogNumber(cblock%?3):REM Player station
+DEF PROClogData(t$)
+  PRINT "Logging to: ";file$
+  PROClogStringTab(t$)
+  PROClogNumberTab(cblock%?2):REM Port
+  PROClogNumberTab(cblock%?4):REM Player network
+  PROClogNumberTab(cblock%?3):REM Player station
   PROClogStringTab($rxbuffer%):REM Player name
-  PROClogStringTab(L$(rxbuffer%?8)):REM Legal status
-  PROClogStringTab(C$(rxbuffer%?9)):REM Condition
-  PROClogNumber(rxbuffer%?10):REM Kills
-  PROClogNumber(rxbuffer%?11):REM Deaths
-  PROClogNumber((rxbuffer%!12)/10):REM Credits
-  PROClogStringTab(M$(rxbuffer%?16)):REM Machine type
-  IF rxbuffer%?17>0 THEN PROClogNumber(onetwork%):PROClogString(STR$(ostation%)) ELSE BPUT#F%,9
+  PROClogStringTab(dL$(rxbuffer%?8)):REM Legal status
+  PROClogStringTab(dC$(rxbuffer%?9)):REM Condition
+  PROClogNumberTab(rxbuffer%?10):REM Kills
+  PROClogNumberTab(rxbuffer%?11):REM Deaths
+  PROClogNumberTab((rxbuffer%!12)/10):REM Credits
+  PROClogStringTab(dM$(rxbuffer%?16)):REM Machine type
+  IF rxbuffer%?17>0 THEN PROClogNumberTab(onetwork%):PROClogString(STR$(ostation%)) ELSE BPUT#F%,9
   BPUT#F%,13
   BPUT#F%,10
 ENDPROC
 :
-DEF PROClogNumber(n)
+DEF PROClogNumberTab(n)
   PROClogString(STR$(n))
   BPUT#F%,9
 ENDPROC
@@ -157,16 +160,16 @@ DEF FNdigits(dg%)
 DEF FNpad0(st%)
 =STRING$(2-FNdigits(st%),"0")
 :
-DEF PROCforward
+DEF PROCforward(fs%,fn%,fp%)
   REM Set bytes 17 and 18 of forwarded data to player address
   rxbuffer%?17=cblock%?3
   rxbuffer%?18=cblock%?4
   :
   REM Send forwarded data
   ?cblock%=&80
-  cblock%?1=fport%
-  cblock%?2=fstation%
-  cblock%?3=fnetwork%
+  cblock%?1=fp%
+  cblock%?2=fs%
+  cblock%?3=fn%
   cblock%!4=rxbuffer%
   cblock%!8=rxbuffer%+20
   X%=cblock%:Y%=cblock% DIV 256
