@@ -22,7 +22,8 @@ IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader
 :
 REPEAT
   PROCreceive
-  IF file$<>"" THEN PROClogData ELSE PROCprintData
+  PROCprintData
+  IF file$<>"" THEN PROClogData
   IF fstation%>0 AND fport%>0 THEN PROCforward
 UNTIL FALSE
 :
