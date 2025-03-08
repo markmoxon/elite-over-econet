@@ -9,9 +9,12 @@ DIM machine%(max%),network%(max%),station%(max%)
 DIM M$(4):M$(0)="B+":M$(1)="M ":M$(2)="SP":M$(3)="B ":M$(4)="A "
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
+DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
+DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
+DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA
-port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0
+port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0:saving%=0
 PROCgetStationNumber
 :
 MODE 7
@@ -29,14 +32,14 @@ REPEAT
   IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%,0):PROCsortCmdr(cmrec%,1)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
-  IF fstation%>0 AND fport%>0 THEN PROCforward
+  IF fstation%>0 AND fport%>0 THEN PROCforward(fstation%,fnetwork%,fport%)
 UNTIL FALSE
 END
 :
 DEF PROCerror
   REPORT
   PRINT " at line ";ERL
-  PROCend
+  IF saving%=0 THEN PROCend ELSE PROCbeep(0):PROCmenu
 ENDPROC
 :
 DEF PROCend
@@ -180,13 +183,14 @@ DEF PROCmenu
     CLS:*FX15,1
     PRINT TAB(15,0);CHR$(141);"Menu"
     PRINT TAB(15,1);CHR$(141);"Menu"
-    PRINT ''"<C>hange this scoreboard's port (";port%;")"
+    PRINT '"<C>hange this scoreboard's port (";port%;")"
     PRINT '"Forward all scores to:"
     PRINT '"  <N>etwork number (";fnetwork%;")"
     PRINT "  <S>tation number (";fstation%;")"
     PRINT "  <P>ort number    (";fport%;")"
     IF fstation%>0 AND fport%>0 THEN PRINT '"To disable forwarding, set the port":PRINT"or station to zero" ELSE PRINT '"To enable forwarding, set the port":PRINT"and station to non-zero values"
     PRINT '"<D>elete a score"
+    PRINT '"<W>rite scores to a file"
     PRINT '"<R>eturn to scoreboard"
     PRINT '"<Q>uit"
     q$=GET$
@@ -195,7 +199,8 @@ DEF PROCmenu
     IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the station number to forward to: " fstation%
     IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the port number to forward to: " fport%
     IF q$="D" OR q$="d" THEN INPUT TAB(0,22);"Enter the network number to delete: " dn%:INPUT TAB(0,23);"Enter the station number to delete: " ds%:PROCdelete(dn%,ds%)
-    IF q$="Q" OR q$="q" THEN PROCend
+    IF q$="W" OR q$="w" THEN INPUT TAB(0,22);"Enter the full filename (e.g. &.SCORES):" file$:IF file$<>"" THEN PROCsave(file$)
+    IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":a$=GET$:IF a$="Y" OR a$="y" THEN PROCend
   UNTIL q$="R" OR q$="r"
   CLS
 ENDPROC
@@ -275,6 +280,66 @@ DEF PROCprintCmdr(cm%,row%)
   @%=&2010A:PRINT TAB(37-FNdigits(M%),row%);M%/10;K$;:@%=10
 ENDPROC
 :
+DEF PROCsave(file$)
+  saving%=1
+  PRINT TAB(0,23);"Saving file..."
+  F%=OPENOUT(file$)
+  PROClogHeader
+  FOR I%=0 TO cmdrs%-1
+    PROClogData(I%)
+  NEXT
+  PRINT TAB(0,23);"File saved    "
+  CLOSE#F%
+  PROCbeep(1)
+  saving%=0
+ENDPROC
+:
+DEF PROClogHeader
+  PROClogStringTab("Machine type")
+  PROClogStringTab("Player network")
+  PROClogStringTab("Player station")
+  PROClogStringTab("Condition")
+  PROClogStringTab("Legal status")
+  PROClogStringTab("Player name")
+  PROClogStringTab("Kills")
+  PROClogStringTab("Deaths")
+  PROClogStringTab("Credits")
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROClogData(row%)
+  cm%=rowCmdr%(row%,sort%)
+  PROClogStringTab(dM$(machine%(cm%)))
+  PROClogNumberTab(network%(cm%))
+  PROClogNumberTab(station%(cm%))
+  PROClogStringTab(dC$(condition%(cm%)))
+  PROClogStringTab(dL$(legal%(cm%)))
+  PROClogStringTab(name$(cm%))
+  PROClogNumberTab(kills%(cm%))
+  PROClogNumberTab(deaths%(cm%))
+  PROClogNumberTab(credits%(cm%)/10)
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROClogNumberTab(n)
+  PROClogString(STR$(n))
+  BPUT#F%,9
+ENDPROC
+:
+DEF PROClogStringTab(s$)
+  PROClogString(s$)
+  BPUT#F%,9
+ENDPROC
+:
+DEF PROClogString(s$)
+  IF s$="" THEN ENDPROC
+  FOR I%=1 TO LEN(s$)
+    BPUT#F%,ASC(MID$(s$,I%,1))
+  NEXT
+ENDPROC
+:
 : REM Econet library
 :
 DEF PROCreceive
@@ -310,16 +375,16 @@ DEF FNdigits(dg%)
 DEF FNpad0(st%)
 =STRING$(2-FNdigits(st%),"0")
 :
-DEF PROCforward
+DEF PROCforward(fs%,fn%,fp%)
   REM Set bytes 17 and 18 of forwarded data to player address
   rxbuffer%?17=cblock%?3
   rxbuffer%?18=cblock%?4
   :
   REM Send forwarded data
   ?cblock%=&80
-  cblock%?1=fport%
-  cblock%?2=fstation%
-  cblock%?3=fnetwork%
+  cblock%?1=fp%
+  cblock%?2=fs%
+  cblock%?3=fn%
   cblock%!4=rxbuffer%
   cblock%!8=rxbuffer%+20
   X%=cblock%:Y%=cblock% DIV 256
