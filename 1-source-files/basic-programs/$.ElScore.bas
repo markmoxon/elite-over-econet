@@ -200,7 +200,7 @@ DEF PROCmenu
     IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the port number to forward to: " fport%
     IF q$="D" OR q$="d" THEN INPUT TAB(0,22);"Enter the network number to delete: " dn%:INPUT TAB(0,23);"Enter the station number to delete: " ds%:PROCdelete(dn%,ds%)
     IF q$="W" OR q$="w" THEN INPUT TAB(0,22);"Enter the full filename (e.g. &.SCORES):" file$:IF file$<>"" THEN PROCsave(file$)
-    IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":a$=GET$:IF a$="Y" OR a$="y" THEN PROCend
+    IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
   UNTIL q$="R" OR q$="r"
   CLS
 ENDPROC
