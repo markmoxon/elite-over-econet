@@ -2,33 +2,36 @@ REM ElDebug - Traffic monitor for Elite over Econet
 REM By Mark Moxon
 :
 DIM cblock% 40,tblock% 40,rxbuffer% 40
+DIM fstation%(4),fnetwork%(4),fport%(4),fname$(4)
 DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
 DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
 DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
-ostation%=0:onetwork%=0:file$=""
+ostation%=0:onetwork%=0:file$="":fcount%=0
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 :
 *FX4,0
 *FX200,0
 MODE 7
 ON ERROR PROCerror
-PROCstartMenu
+choice%=FNstartMenu
+IF choice%=4 THEN END
 PROCgetStationNumber
 PRINT '"This machine's network: ";snetwork%
 PRINT "This machine's station: ";FNpad0(sstation%);sstation%
-PRINT "Port number: ";port%
-PRINT '"Press P to pause"'
-IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader
-IF fstation1%>0 AND fport1%>0 THEN f$=fnetwork1%+"."+FNpad0(fstation1%)+fstation1%
-IF fstation2%>0 AND fport2%>0 THEN f2$=fnetwork2%+"."+FNpad0(fstation2%)+fstation2%
+IF choice%=1 OR choice%=2 THEN PRINT "Receiving scores on port number: ";port%
+IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader:PRINT "Logging configured to ";file$
+PROCforwardNames
+IF choice%=1 OR choice%=2 THEN PROCprintForwarding
+IF choice%=3 THEN PRING "Sending test data to ";fname$(0)
+PRINT '"Press P at any time to pause"
+PRINT '"Press any key to start":a$=GET$
 :
+IF choice%=3 THEN PROCinitCmdrs
 REPEAT
-  PROCreceive
-  t$=FNprintData
-  IF file$<>"" THEN PROClogData(t$)
-  IF fstation1%>0 AND fport1%>0 THEN PRINT "Forwarding to: ";f$:PROCforward(fstation1%,fnetwork1%,fport1%)
-  IF fstation2%>0 AND fport2%>0 THEN PRINT "Forwarding to: ";f2$:PROCforward(fstation2%,fnetwork2%,fport2%)
+  IF choice%=1 THEN PROCmonitorLoop
+  IF choice%=2 THEN PROCforwardLoop
+  IF choice%=3 THEN PROCtestLoop
 UNTIL FALSE
 :
 DEF PROCerror
@@ -38,23 +41,96 @@ DEF PROCerror
   END
 ENDPROC
 :
-DEF PROCstartMenu
+DEF FNstartMenu
   PRINT TAB(5,0);CHR$(141);"Elite over Econet Debug Tool"
   PRINT TAB(5,1);CHR$(141);"Elite over Econet Debug Tool"
+  PRINT '"Please choose an option:"
+  PRINT '"1. Monitor and log scoreboard traffic"
+  PRINT '"2. Forward scores to multiple stations"
+  PRINT '"3. Generate test scoreboard traffic"
+  PRINT '"4. Quit"
+  INPUT '"Enter a number to continue: " a$
+  IF a$="1" THEN PROCmonitorMenu:=1
+  IF a$="2" THEN PROCforwardMenu:=2
+  IF a$="3" THEN PROCtestMenu:=3
+=4
+:
+DEF PROCmonitorMenu
+  PRINT '"Option chosen:"
+  PRINT '"1. Monitor and log scoreboard traffic"
   INPUT '"Enter the port number to monitor: " port%
   PRINT '"Press Return to skip the following"'"options"
   INPUT '"Enter the full filename of the log file"'"(e.g. &.SCORES): " file$
-  INPUT '"Enter the network number of the first"'"forwarding destination (of two): " fnetwork1%
-  INPUT '"Enter the station number of the first"'"forwarding destination (of two): " fstation1%
-  INPUT '"Enter the port number of the first"'"forwarding destination (of two): " fport1%
-  INPUT '"Enter the network number of the second"'"forwarding destination (of two): " fnetwork2%
-  INPUT '"Enter the station number of the second"'"forwarding destination (of two): " fstation2%
-  INPUT '"Enter the port number of the second"'"forwarding destination (of two): " fport2%
+  INPUT '"Enter the network number of the"'"forwarding destination: " fnetwork%(0)
+  INPUT '"Enter the station number of the"'"forwarding destination: " fstation%(0)
+  INPUT '"Enter the port number of the"'"forwarding destination: " fport%(0)
+  fcount%=1
+ENDPROC
+:
+DEF PROCforwardMenu
+  PRINT '"Option chosen:"
+  PRINT '"2. Forward scores to multiple stations"
+  INPUT '"Enter the port number to receive: " port%
+  PRINT '"Press Return to stop configuring stations"
+  I%=0:end%=FALSE
+  REPEAT
+    INPUT '"Enter the network number of forwarding"'"destination ";I%;": " fnetwork%(I%)
+    IF fnetwork%(I%)<>0 THEN INPUT '"Enter the station number of forwarding"'"destination ";I%;": " fstation%(I%)
+    IF fnetwork%(I%)<>0 THEN INPUT '"Enter the port number of forwarding"'"destination ";I%;": " fport%(I%)
+    I%=I%+1
+  UNTIL I%=5 OR fnetwork%(I%-1)=0
+  fcount%=I%
+ENDPROC
+:
+DEF PROCtestMenu
+  PRINT '"Option chosen:"
+  PRINT '"3. Generate test scoreboard traffic"
+  INPUT '"Please enter the network number of the"'"scoreboard to test: " fnetwork%(0)
+  INPUT '"Please enter the station number of the"'"scoreboard to test: " fstation%(0)
+  INPUT '"Please enter the port number of the"'"scoreboard to test: " fport%(0)
+  INPUT '"Please enter the number of players"'"to emulate: " max%
+  max%=max%-1
+  fcount%=1
+  DIM name$(max%),credits%(max%),kills%(max%),deaths%(max%)
+  DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
+ENDPROC
+:
+DEF PROCmonitorLoop
+  PROCreceive
+  t$=FNprintData
+  IF file$<>"" THEN PROClogData(t$)
+  IF fstation1%>0 AND fport1%>0 THEN PRINT "Forwarding to: ";f$:PROCforward(fstation1%,fnetwork1%,fport1%)
+ENDPROC
+:
+DEF PROCforwardLoop
+  PROCreceive
+  FOR I%=0 TO fcount%-1
+    IF fstation%(I%)>0 AND fport%(I%)>0 THEN PRINT "Forwarding to: ";fname$(I%)$:PROCforward(fstation%(I%),fnetwork%(I%),fport%(I%))
+  NEXT
+ENDPROC
+:
+DEF PROCtestLoop
+  I%=RND(max%+1)-1
+  PROCupdateCmdr(I%)
+  PROCprocessKeys
+  PROCpause
 ENDPROC
 :
 DEF PROCprocessKeys
   K%=INKEY(0)
   IF K%=ASC("P") THEN PRINT'"Paused - press R to resume":REPEAT:UNTIL INKEY(0)=ASC("R")
+ENDPROC
+:
+DEF PROCforwardNames
+  FOR I%=0 TO fcount%-1
+    IF fstation%(I%)>0 AND fport%(I%)>0 THEN fname$(I%)=STR$(fnetwork%(I%))+"."+FNpad0(fstation%(I%))+STR$(fstation%(I%)):PRINT "Forwarding configured to ";fname$(I%)
+  NEXT
+ENDPROC
+:
+DEF PROCprintForwarding
+  FOR I%=0 TO fcount%-1
+    PRINT "Forwarding configured to ";fname$(I%)
+  NEXT
 ENDPROC
 :
 DEF FNprintData
@@ -123,6 +199,46 @@ DEF PROClogString(s$)
   FOR I%=1 TO LEN(s$)
     BPUT#F%,ASC(MID$(s$,I%,1))
   NEXT
+ENDPROC
+:
+DEF PROCinitCmdrs
+  FOR I%=0 TO max%
+    name$(I%)="Cmdr"+STR$(I%)
+    legal%(I%)=0
+    condition%(I%)=0
+    kills%(I%)=0
+    deaths%(I%)=0
+    credits%(I%)=1000
+    machine%(I%)=RND(5)-1
+    network%(I%)=RND(127)
+    station%(I%)=RND(250)
+    PROCsendCmdr(I%)
+    PROCprocessKeys
+    PROCpause
+  NEXT
+ENDPROC
+:
+DEF PROCsendCmdr(cm%)
+  PRINT "Sending data for ";name$(cm%)
+  $rxbuffer%=name$(cm%)
+  rxbuffer%?8=legal%(cm%)
+  rxbuffer%?9=condition%(cm%)
+  rxbuffer%?10=kills%(cm%)
+  rxbuffer%?11=deaths%(cm%)
+  rxbuffer%!12=credits%(cm%)
+  rxbuffer%?16=machine%(cm%)
+  cblock%?3=station%(cm%)
+  cblock%?4=network%(cm%)
+  PROCforward(fstation%(0),fnetwork%(0),fport%(0))
+ENDPROC
+:
+DEF PROCupdateCmdr(cm%)
+  IF RND(7)=1 THEN legal%(I%)=RND(3)-1
+  IF RND(5)=1 THEN condition%(I%)=RND(4)-1
+  IF RND(4)=1 THEN kills%(I%)=kills%(I%)+1
+  IF RND(10)=1 THEN deaths%(I%)=deaths%(I%)+1
+  IF RND(4)=1 THEN credits%(I%)=credits%(I%)+RND(1000)
+  PROCsendCmdr(cm%)
 ENDPROC
 :
 : REM Econet library
