@@ -201,6 +201,8 @@
 
  LDA argument           \ Fetch the command argument
 
+ AND #%11011111         \ Convert the argument to upper case
+
  CMP #'X'               \ If the argument is not X (i.e. *Elite X), jump to
  BNE entr5              \ entr5 to keep looking
 
