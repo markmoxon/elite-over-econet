@@ -199,7 +199,7 @@ DEF PROCmenu
     IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the station number to forward to: " fstation%
     IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the port number to forward to: " fport%
     IF q$="D" OR q$="d" THEN INPUT TAB(0,22);"Enter the network number to delete: " dn%:INPUT TAB(0,23);"Enter the station number to delete: " ds%:PROCdelete(dn%,ds%)
-    IF q$="W" OR q$="w" THEN INPUT TAB(0,22);"Enter the full filename (e.g. &.SCORES):" file$:IF file$<>"" THEN PROCsave(file$)
+    IF q$="W" OR q$="w" THEN INPUT TAB(0,22);"Enter the filename: " file$:IF file$<>"" THEN PROCsave(file$)
     IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
   UNTIL q$="R" OR q$="r"
   CLS
@@ -303,7 +303,7 @@ DEF PROClogHeader
   PROClogStringTab("Player name")
   PROClogStringTab("Kills")
   PROClogStringTab("Deaths")
-  PROClogStringTab("Credits")
+  PROClogString("Credits")
   BPUT#F%,13
   BPUT#F%,10
 ENDPROC
@@ -318,7 +318,8 @@ DEF PROClogData(row%)
   PROClogStringTab(name$(cm%))
   PROClogNumberTab(kills%(cm%))
   PROClogNumberTab(deaths%(cm%))
-  PROClogNumberTab(credits%(cm%)/10)
+  cr$=STR$(credits%(cm%) DIV 10)+"."+STR$(credits%(cm%) MOD 10)
+  PROClogString(cr$)
   BPUT#F%,13
   BPUT#F%,10
 ENDPROC
