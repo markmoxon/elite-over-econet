@@ -6,6 +6,13 @@ DIM fstation%(4),fnetwork%(4),fport%(4),fname$(4)
 DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
 DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
 DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
+DIM cname$(24):cname$(0)="ALEX":cname$(1)="ELYSSIA":cname$(2)="JAMESON"
+cname$(3)="RAXXLA":cname$(4)="RAFE":cname$(5)="LISTER":cname$(6)="RIMMER"
+cname$(7)="HAN":cname$(8)="LEIA":cname$(9)="YODA":cname$(10)="ARTHUR"
+cname$(11)="LUKE":cname$(12)="SPOCK":cname$(13)="KIRK":cname$(14)="RIPLEY"
+cname$(15)="DECKARD":cname$(16)="ZAPHOD":cname$(17)="PICARD":cname$(18)="FORD"
+cname$(19)="MARVIN":cname$(20)="R2D2":cname$(21)="C3PO":cname$(22)="ORAC"
+cname$(23)="FLASH":cname$(24)="HAL"
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
 ostation%=0:onetwork%=0:file$="":fcount%=0
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
@@ -17,15 +24,15 @@ ON ERROR PROCerror
 choice%=FNstartMenu
 IF choice%=4 THEN END
 PROCgetStationNumber
-PRINT '"This machine's network: ";snetwork%
-PRINT "This machine's station: ";FNpad0(sstation%);sstation%
+thisStn$=STR$(snetwork%)+"."+FNpad0(sstation%)+STR$(sstation%)
+PRINT '"This machine: ";thisStn$
 IF choice%=1 OR choice%=2 THEN PRINT "Receiving scores on port number: ";port%
 IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader:PRINT "Logging configured to ";file$
 PROCforwardNames
 IF choice%=1 OR choice%=2 THEN PROCprintForwarding
-IF choice%=3 THEN PRING "Sending test data to ";fname$(0)
+IF choice%=3 THEN PRINT "Sending test data to ";fname$(0)
 PRINT '"Press P at any time to pause"
-PRINT '"Press any key to start":a$=GET$
+PRINT '"Press any key to start":a$=GET$:PRINT'"Starting..."
 :
 IF choice%=3 THEN PROCinitCmdrs
 REPEAT
@@ -41,9 +48,14 @@ DEF PROCerror
   END
 ENDPROC
 :
-DEF FNstartMenu
+DEF PROCprintTitle
+  CLS
   PRINT TAB(5,0);CHR$(141);"Elite over Econet Debug Tool"
   PRINT TAB(5,1);CHR$(141);"Elite over Econet Debug Tool"
+ENDPROC
+
+DEF FNstartMenu
+  PROCprintTitle
   PRINT '"Please choose an option:"
   PRINT '"1. Monitor and log scoreboard traffic"
   PRINT '"2. Forward scores to multiple stations"
@@ -56,11 +68,12 @@ DEF FNstartMenu
 =4
 :
 DEF PROCmonitorMenu
+  PROCprintTitle
   PRINT '"Option chosen:"
   PRINT '"1. Monitor and log scoreboard traffic"
   INPUT '"Enter the port number to monitor: " port%
-  PRINT '"Press Return to skip the following"'"options"
-  INPUT '"Enter the full filename of the log file"'"(e.g. &.SCORES): " file$
+  PRINT '"Press Return to skip an option"
+  INPUT '"Enter the filename of the log file: "'file$
   INPUT '"Enter the network number of the"'"forwarding destination: " fnetwork%(0)
   INPUT '"Enter the station number of the"'"forwarding destination: " fstation%(0)
   INPUT '"Enter the port number of the"'"forwarding destination: " fport%(0)
@@ -68,6 +81,7 @@ DEF PROCmonitorMenu
 ENDPROC
 :
 DEF PROCforwardMenu
+  PROCprintTitle
   PRINT '"Option chosen:"
   PRINT '"2. Forward scores to multiple stations"
   INPUT '"Enter the port number to receive: " port%
@@ -83,6 +97,7 @@ DEF PROCforwardMenu
 ENDPROC
 :
 DEF PROCtestMenu
+  PROCprintTitle
   PRINT '"Option chosen:"
   PRINT '"3. Generate test scoreboard traffic"
   INPUT '"Please enter the network number of the"'"scoreboard to test: " fnetwork%(0)
@@ -99,13 +114,13 @@ DEF PROCmonitorLoop
   PROCreceive
   t$=FNprintData
   IF file$<>"" THEN PROClogData(t$)
-  IF fstation1%>0 AND fport1%>0 THEN PRINT "Forwarding to: ";f$:PROCforward(fstation1%,fnetwork1%,fport1%)
+  IF fstation%(0)>0 AND fport%(0)>0 THEN PRINT "Forwarding to: ";f$:PROCforward(fstation%(0),fnetwork%(0),fport%(0))
 ENDPROC
 :
 DEF PROCforwardLoop
   PROCreceive
   FOR I%=0 TO fcount%-1
-    IF fstation%(I%)>0 AND fport%(I%)>0 THEN PRINT "Forwarding to: ";fname$(I%)$:PROCforward(fstation%(I%),fnetwork%(I%),fport%(I%))
+    IF fstation%(I%)>0 AND fport%(I%)>0 THEN PRINT "Forwarding from ";thisStn$;" to ";fname$(I%)$:PROCforward(fstation%(I%),fnetwork%(I%),fport%(I%))
   NEXT
 ENDPROC
 :
@@ -123,21 +138,21 @@ ENDPROC
 :
 DEF PROCforwardNames
   FOR I%=0 TO fcount%-1
-    IF fstation%(I%)>0 AND fport%(I%)>0 THEN fname$(I%)=STR$(fnetwork%(I%))+"."+FNpad0(fstation%(I%))+STR$(fstation%(I%)):PRINT "Forwarding configured to ";fname$(I%)
+    IF fstation%(I%)>0 AND fport%(I%)>0 THEN fname$(I%)=STR$(fnetwork%(I%))+"."+FNpad0(fstation%(I%))+STR$(fstation%(I%))
   NEXT
 ENDPROC
 :
 DEF PROCprintForwarding
   FOR I%=0 TO fcount%-1
-    PRINT "Forwarding configured to ";fname$(I%)
+    IF fstation%(I%)>0 AND fport%(I%)>0 THEN PRINT "Forwarding configured to ";fname$(I%)
   NEXT
 ENDPROC
 :
 DEF FNprintData
   IF os%>2 THEN t$=TIME$ ELSE t$=STR$(TIME)
   IF os%>2 THEN PRINT '"Timestamp: ";t$ ELSE PRINT '"Timestamp: ";t$
-  IF rxbuffer%?17>0 THEN PRINT "Data has been forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
-  PRINT "Data received on port: ";cblock%?2
+  IF rxbuffer%?17>0 THEN PRINT "Data forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
+  PRINT "Data received by ";thisStn$;" on port ";cblock%?2
   PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
   PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
@@ -196,14 +211,14 @@ ENDPROC
 :
 DEF PROClogString(s$)
   IF s$="" THEN ENDPROC
-  FOR I%=1 TO LEN(s$)
-    BPUT#F%,ASC(MID$(s$,I%,1))
+  FOR J%=1 TO LEN(s$)
+    BPUT#F%,ASC(MID$(s$,J%,1))
   NEXT
 ENDPROC
 :
 DEF PROCinitCmdrs
   FOR I%=0 TO max%
-    name$(I%)="Cmdr"+STR$(I%)
+    IF I%>=25 THEN name$(I%)=LEFT$(cname$(I% MOD 25),6)+STR$(I% DIV 25) ELSE name$(I%)=cname$(I% MOD 25)
     legal%(I%)=0
     condition%(I%)=0
     kills%(I%)=0
@@ -219,7 +234,7 @@ DEF PROCinitCmdrs
 ENDPROC
 :
 DEF PROCsendCmdr(cm%)
-  PRINT "Sending data for ";name$(cm%)
+  PRINT "Sending data for ";name$(cm%);" to ";fname$(0)
   $rxbuffer%=name$(cm%)
   rxbuffer%?8=legal%(cm%)
   rxbuffer%?9=condition%(cm%)
