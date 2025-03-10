@@ -185,7 +185,7 @@
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS10 to load
                         \ the game binary path from EliteConf into the OS
                         \ command string in MESS1, so if there is a
-                        \ configuration file, we change directory to the
+                        \ configuration file, we change the command to use the
                         \ configured directory rather than $.EliteGame
 
 .entr4
@@ -201,6 +201,8 @@
 
  LDA argument           \ Fetch the command argument
 
+ AND #%11011111         \ Convert the argument to upper case
+
  CMP #'X'               \ If the argument is not X (i.e. *Elite X), jump to
  BNE entr5              \ entr5 to keep looking
 
@@ -212,7 +214,7 @@
  LDA #HI(LOAD5)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD5
+ JSR PrintMessage       \ Print the text at LOAD5 ("Loading Executive...")
 
  LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("EliteX")
  LDY #HI(MESS5)
@@ -228,27 +230,28 @@
                         \ If we get here then the command is *Elite S, which
                         \ loads the scoreboard
 
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
- LDY #HI(MESS1)
-
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
-                        \ to the game folder
-
  LDA #LO(LOAD6)         \ Set ZP(1 0) to the text at LOAD6
  STA ZP
  LDA #HI(LOAD6)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD6
+ JSR PrintMessage       \ Print the text at LOAD6 ("Loading scoreboard...")
 
- LDA #225               \ Call OSBYTE with A = 225 and X = 1 to set the function
- LDX #1                 \ keys to expand as normal soft keys
+ JSR ChangeToKey        \ Change the start of MESS1 to create a KEY 0 command in
+                        \ MESS6
+
+ JSR ChangeToKeyScore   \ Change the end of MESS1 to create a KEY 0 command in
+                        \ MESS6 to load the scoreboard
+
+.runBasic
+
+ LDA #225               \ Call OSBYTE with A = 225, X = 1 and Y = 0 to set the
+ LDX #1                 \ function keys to expand as normal soft keys
+ LDY #0
  JSR OSBYTE
 
  LDX #LO(MESS6)         \ Set (Y X) to point to MESS6 (KEY 0 CHAIN "ElScore"|M)
  LDY #HI(MESS6)
-
-.runBasic
 
  JSR OSCLI              \ Call OSCLI to run the OS command in MESS6 to run the
                         \ scoreboard
@@ -277,28 +280,20 @@
                         \ If we get here then the command is *Elite D, which
                         \ loads the debugger
 
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
- LDY #HI(MESS1)
-
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
-                        \ to the game folder
-
  LDA #LO(LOAD7)         \ Set ZP(1 0) to the text at LOAD7
  STA ZP
  LDA #HI(LOAD7)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD6
+ JSR PrintMessage       \ Print the text at LOAD7 ("Loading debugger...")
 
- LDA #225               \ Call OSBYTE with A = 225 and X = 1 to set the function
- LDX #1                 \ keys to expand as normal soft keys
- JSR OSBYTE
+ JSR ChangeToKey        \ Change the start of MESS1 to create a KEY 0 command in
+                        \ MESS6
 
- LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 (KEY 0 CHAIN "ElDebug"|M)
- LDY #HI(MESS7)
+ JSR ChangeToKeyDebug   \ Change the end of MESS1 to create a KEY 0 command in
+                        \ MESS6 to load the debugger
 
- BNE runBasic           \ Jump up to switch to BASIC and "press" f0 (this BNE is
-                        \ effectively a JMP as Y is never zero)
+ JMP runBasic           \ Jump up to runBasic to switch to BASIC and "press" f0
 
 .entr7
 
@@ -308,23 +303,14 @@
                         \ If we get here then the command is *Elite V, which
                         \ prints the version
 
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
- LDY #HI(MESS1)
+ JSR ChangeToVersion
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
-                        \ to the game folder
+ LDX #LO(MESS1-1)       \ Set (Y X) to point to MESS1-1 ("TYPE Version")
+ LDY #HI(MESS1-1)
 
- LDX #LO(MESS9)         \ Set (Y X) to point to MESS9 ("TYPE Version")
- LDY #HI(MESS9)
-
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS9 to show the
-                        \ version number and return from the subroutine using a
+ JMP OSCLI              \ Call OSCLI to run the OS command in MESS1-1 to show
+                        \ the version number and return from the subroutine using a
                         \ tail call
-
- LDX stack              \ Restore the value of the stack pointer from when we
- TXS                    \ started
-
- RTS                    \ Return from the subroutine
 
 .entr8
 
@@ -349,7 +335,7 @@
  LDA #HI(LOAD3)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD3
+ JSR PrintMessage       \ Print the text at LOAD3 ("Loading BBC Master...")
 
  LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("EliteM")
  LDY #HI(MESS3)
@@ -364,7 +350,7 @@
  LDA #HI(LOAD2)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD2
+ JSR PrintMessage       \ Print the text at LOAD2 ("Loading BBC Micro...")
 
  LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("EliteB")
  LDY #HI(MESS2)
@@ -381,7 +367,8 @@
  LDA #HI(LOAD4)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD4
+ JSR PrintMessage       \ Print the text at LOAD4 ("Loading 6502 Second
+                        \ Processor...")
 
  LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("EliteSP")
  LDY #HI(MESS4)
@@ -413,6 +400,210 @@
 
  JMP entr4              \ Return to just after the failed load command to
                         \ continue with the loader
+
+\ ******************************************************************************
+\
+\       Name: ChangeToKey
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Change the start of MESS1 to create a KEY 0 command in MESS6
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   Y                   The offset from ZP(1 0) of the end of the directory path
+\
+\ ******************************************************************************
+
+.ChangeToKey
+
+ LDA #'I'               \ Replace the first four characters of MESS 1 with the
+ STA MESS1              \ characters IN " so the command at MESS6 changes from:
+ LDA #'N'               \
+ STA MESS1+1            \   KEY 0 CHADIR $...
+ LDA #' '               \
+ STA MESS1+2            \ to:
+ LDA #'"'               \
+ STA MESS1+3            \   KEY 0 CHAIN "$...
+
+                        \ Fall through into FindEndOfPath to set Y to the end of
+                        \ the directory path
+
+\ ******************************************************************************
+\
+\       Name: FindEndOfPath
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Find the end of the directory path in the MESS1 string
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   Y                   The offset from ZP(1 0) of the end of the directory path
+\
+\ ******************************************************************************
+
+.FindEndOfPath
+
+                        \ We now work our way along the directory path in the
+                        \ MESS1 command, until we reach the end
+
+ LDA #LO(MESS1+4)       \ Set ZP(1 0) = MESS1+4, which is the address of the
+ STA ZP                 \ directory path in the MESS1 command
+ LDA #HI(MESS1+4)
+ STA ZP+1
+
+ LDY #0                 \ Set Y to use as an index counter
+
+.path1
+
+ LDA (ZP),Y             \ If the Y-th character of the directory path is null or
+ BEQ path2              \ a carriage return, then we have reached the end, so
+ CMP #&0D               \ jump to path2 to append the BASIC program name
+ BEQ path2
+
+ INY                    \ Increment the index counter
+
+ BNE path1              \ Loop back for the next character (this BNE is
+                        \ effectively a JMP as Y is never zero)
+
+.path2
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: ChangeToKeyScore
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Change the end of MESS1 to create a KEY 0 command in MESS6 to load
+\             the scoreboard
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   Y                   The offset from ZP(1 0) of the end of the directory path
+\
+\ ******************************************************************************
+
+.ChangeToKeyScore
+
+ LDX #0                 \ Set X = 0 to act as an index into the string to copy
+
+.csco1
+
+ LDA MESS7s,X           \ Copy the X-th byte of MESS7s to the Y-th byte of the
+ STA (ZP),Y             \ KEY 0 command
+
+ CMP #&0D               \ If we just copied a carriage return then we have
+ BEQ csco2              \ copied the whole string, so jump to csco2 to return
+                        \ from the subroutine
+
+ INY                    \ Increment the index into the KEY 0 command
+
+ INX                    \ Increment the index into the MESS7s string
+
+ BNE csco1              \ Loop back to copy the next character (this BNE is
+                        \ effectively a JMP as X is never zero)
+
+.csco2
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: ChangeToKeyDebug
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Change the end of MESS1 to create a KEY 0 command in MESS6 to load
+\             the debugger
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   Y                   The offset from ZP(1 0) of the end of the directory path
+\
+\ ******************************************************************************
+
+.ChangeToKeyDebug
+
+ LDX #0                 \ Set X = 0 to act as an index into the string to copy
+
+.cdeb1
+
+ LDA MESS7d,X           \ Copy the X-th byte of MESS7d to the Y-th byte of the
+ STA (ZP),Y             \ KEY 0 command
+
+ CMP #&0D               \ If we just copied a carriage return then we have
+ BEQ cdeb2              \ copied the whole string, so jump to cdeb2 to return
+                        \ from the subroutine
+
+ INY                    \ Increment the index into the KEY 0 command
+
+ INX                    \ Increment the index into the MESS7d string
+
+ BNE cdeb1              \ Loop back to copy the next character (this BNE is
+                        \ effectively a JMP as X is never zero)
+
+.cdeb2
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: ChangeToVersion
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Change the end of MESS1 to create a TYPE command in MESS6 to show
+\             the version file
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   Y                   The offset from ZP(1 0) of the end of the directory path
+\
+\ ******************************************************************************
+
+.ChangeToVersion 
+
+ LDA #'T'               \ Replace the first four characters of MESS-1 with the
+ STA MESS1-1            \ characters TYPE so the command at MESS-1 changes from:
+ LDA #'Y'               \
+ STA MESS1              \   ADIR $...
+ LDA #'P'               \
+ STA MESS1+1            \   TYPE $...
+ LDA #'E'
+ STA MESS1+2
+
+ JSR FindEndOfPath      \ Call FindEndOfPath to set Y to the end of the
+                        \ directory path
+
+ LDX #0                 \ Set X = 0 to act as an index into the string to copy
+
+.cver1
+
+ LDA MESS7v,X           \ Copy the X-th byte of MESS7d to the Y-th byte of the
+ STA (ZP),Y             \ KEY 0 command
+
+ CMP #&0D               \ If we just copied a carriage return then we have
+ BEQ cver2              \ copied the whole string, so jump to cver2 to return
+                        \ from the subroutine
+
+ INY                    \ Increment the index into the KEY 0 command
+
+ INX                    \ Increment the index into the MESS7d string
+
+ BNE cver1              \ Loop back to copy the next character (this BNE is
+                        \ effectively a JMP as X is never zero)
+
+.cver2
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -556,42 +747,6 @@
 
 \ ******************************************************************************
 \
-\       Name: MESS6
-\       Type: Variable
-\   Category: Loader
-\    Summary: Set up f0 to run the scoreboard
-\
-\ ******************************************************************************
-
-.MESS6
-
- EQUS "KEY 0 CHAIN "
- EQUB &22
- EQUS "ElScore"
- EQUB &22
- EQUS "|M"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS7
-\       Type: Variable
-\   Category: Loader
-\    Summary: Set up f0 to run the debugger
-\
-\ ******************************************************************************
-
-.MESS7
-
- EQUS "KEY 0 CHAIN "
- EQUB &22
- EQUS "ElDebug"
- EQUB &22
- EQUS "|M"
- EQUB 13
-
-\ ******************************************************************************
-\
 \       Name: MESS8
 \       Type: Variable
 \   Category: Loader
@@ -715,6 +870,65 @@
  EQUS "Elite over Econet..."
  EQUB 10, 13
  EQUB 0
+
+\ ******************************************************************************
+\
+\       Name: MESS7s
+\       Type: Variable
+\   Category: Loader
+\    Summary: The last part of the f0 definition to run the scoreboard
+\
+\ ******************************************************************************
+
+.MESS7s
+
+ EQUS ".ElScore"
+ EQUB &22
+ EQUS "|M"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS7d
+\       Type: Variable
+\   Category: Loader
+\    Summary: The last part of the f0 definition to run the debugger
+\
+\ ******************************************************************************
+
+.MESS7d
+
+ EQUS ".ElDebug"
+ EQUB &22
+ EQUS "|M"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS7v
+\       Type: Variable
+\   Category: Loader
+\    Summary: The last part of the f0 definition to show the version
+\
+\ ******************************************************************************
+
+.MESS7v
+
+ EQUS ".Version"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: MESS6
+\       Type: Variable
+\   Category: Loader
+\    Summary: Set up f0 to run the scoreboard or debugger
+\
+\ ******************************************************************************
+
+.MESS6
+
+ EQUS "KEY 0 CHA"
 
 \ ******************************************************************************
 \

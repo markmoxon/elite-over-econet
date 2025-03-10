@@ -2,14 +2,19 @@ REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
 max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0:quit%=FALSE
-DIM rowCmdr%(max%),rowUpdt%(max%),name$(max%),credits%(max%),kills%(max%),deaths%(max%)
-DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
+DIM rowCmdr%(max%,1),rowUpdt%(max%)
+DIM name$(max%),kills%(max%),deaths%(max%)
+DIM credits%(max%),condition%(max%),legal%(max%)
+DIM machine%(max%),network%(max%),station%(max%)
 DIM M$(4):M$(0)="B+":M$(1)="M ":M$(2)="SP":M$(3)="B ":M$(4)="A "
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
+DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
+DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
+DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA
-port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0
+port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0:saving%=0
 PROCgetStationNumber
 :
 MODE 7
@@ -24,23 +29,28 @@ REPEAT
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
   IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
-  IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%)
+  IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%,0):PROCsortCmdr(cmrec%,1)
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
-  IF fstation%>0 AND fport%>0 THEN PROCforward
+  IF fstation%>0 AND fport%>0 THEN PROCforward(fstation%,fnetwork%,fport%)
 UNTIL FALSE
 END
 :
 DEF PROCerror
   REPORT
   PRINT " at line ";ERL
-  PROCend
+  IF saving%=0 THEN PROCend ELSE PROCbeep(0):PROCmenu
 ENDPROC
 :
 DEF PROCend
   *FX200,0
   *FX4,0
   END
+ENDPROC
+:
+DEF PROCbeep(high%)
+  IF high%=1 THEN SOUND 3,241,188,1 ELSE SOUND 3,244,12,8
+  PROCpause:PROCpause:PROCpause
 ENDPROC
 :
 DEF PROCprocessKeys
@@ -54,7 +64,8 @@ ENDPROC
 :
 DEF PROCaddCmdr
   cmrec%=cmdrs%
-  rowCmdr%(cmrec%)=cmrec%
+  rowCmdr%(cmrec%,0)=cmrec%
+  rowCmdr%(cmrec%,1)=cmrec%
   cmdrs%=cmdrs%+1
   PROCprintHeader
 ENDPROC
@@ -85,15 +96,15 @@ DEF FNupdateCmdr(cm%)
   legal%(cm%)=rxbuffer%?8
   condition%(cm%)=rxbuffer%?9
   newkills%=rxbuffer%?10
-  IF sort%=0 AND newkills%<>kills%(cm%) THEN ch%=TRUE
+  IF newkills%<>kills%(cm%) THEN ch%=TRUE
   kills%(cm%)=newkills%
-  IF sort%=1 AND credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
+  IF credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
   deaths%(cm%)=rxbuffer%?11
   credits%(cm%)=rxbuffer%!12
   machine%(cm%)=rxbuffer%?16
   station%(cm%)=cblock%?3
   network%(cm%)=cblock%?4
-  rowUpdt%(rowCmdr%(cm%))=1
+  rowUpdt%(rowCmdr%(cm%,sort%))=1
 =ch%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
@@ -103,10 +114,10 @@ DEF FNfindCmdr(nm$,nw%,st%)
   NEXT
 =match%
 :
-DEF FNfindCmdrRow(cm%)
+DEF FNfindCmdrRow(cm%,st%)
   match%=-1
   FOR I%=0 TO cmdrs%-1
-    IF rowCmdr%(I%)=cm% THEN match%=I%:I%=cmdrs%-1
+    IF rowCmdr%(I%,st%)=cm% THEN match%=I%:I%=cmdrs%-1
   NEXT
 =match%
 :
@@ -115,68 +126,33 @@ DEF PROCchangeSort
   SOUND 3,241,188,1
   IF sort%=0 THEN sort%=1 ELSE sort%=0
   PROChighlightSort
-  IF cmdrs%>1 THEN PROCfullSort:PROCupdateTable(1)
+  IF cmdrs%>1 THEN PROCupdateTable(1)
 ENDPROC
 :
-DEF PROCsortCmdr(cm%)
-  thisRow%=FNfindCmdrRow(cm%)
+DEF PROCsortCmdr(cm%,st%)
+  thisRow%=FNfindCmdrRow(cm%,st%)
   REPEAT
     sorted%=TRUE
-    IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1)
-    IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1)
-    IF sort%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(cm%),FNkillScore(prevCm%),-1)
-    IF sorted% AND sort%=0 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(nextCm%),FNkillScore(cm%),1)
-    IF sorted% AND sort%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1)
-    IF sorted% AND sort%=1 AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1)
+    IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1,st%)
+    IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1,st%)
+    IF st%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(cm%),FNkillScore(prevCm%),-1,st%)
+    IF st%=0 AND sorted% AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(nextCm%),FNkillScore(cm%),1,st%)
+    IF st%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1,st%)
+    IF st%=1 AND sorted% AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1,st%)
   UNTIL sorted%
 ENDPROC
 :
-DEF FNswapIfNeeded(v1%,v2%,dir%)
-  IF v1%>v2% THEN PROCswapRow(thisRow%,thisRow%+dir%):thisRow%=thisRow%+dir%:=FALSE
+DEF FNswapIfNeeded(v1%,v2%,dir%,st%)
+  IF v1%>v2% THEN PROCswapRow(thisRow%,thisRow%+dir%,st%):thisRow%=thisRow%+dir%:=FALSE
 =TRUE
+:
+DEF PROCswapRow(A%,B%,st%)
+  T%=rowCmdr%(A%,st%):rowCmdr%(A%,st%)=rowCmdr%(B%,st%):rowCmdr%(B%,st%)=T%
+  IF st%=sort% THEN rowUpdt%(A%)=1:rowUpdt%(B%)=1
+ENDPROC
 :
 DEF FNkillScore(cm%)
 =1000*kills%(cm%)-deaths%(cm%)
-:
-DEF PROCfullSort
-  FOR I%=4 TO 23
-    PRINT TAB(0,I%);SPC(40);
-  NEXT
-  IF sort%=0 THEN by$="kills" ELSE by$="credits"
-  PRINT TAB(10-sort%,10);"Sorting by ";by$;"..."
-  PROCquickSort(0,cmdrs%)
-  PRINT TAB(0,10);SPC(40)
-ENDPROC
-:
-DEF PROCquickSort(start%,size%)
-  LOCAL pivot%,left%,right%,end%
-  IF size%<2 THEN ENDPROC
-  end%=start%+size%-1
-  left%=start%:right%=end%:P%=(left%+right%)DIV2
-  IF sort%=0 THEN pivot%=FNkillScore(rowCmdr%(P%)) ELSE pivot%=credits%(rowCmdr%(P%))
-  REPEAT
-    REPEAT
-      IF sort%=0 THEN V%=FNkillScore(rowCmdr%(left%)) ELSE V%=credits%(rowCmdr%(left%))
-      IF V%>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
-    UNTIL done%
-    REPEAT
-      IF sort%=0 THEN V%=FNkillScore(rowCmdr%(right%)) ELSE V%=credits%(rowCmdr%(right%))
-      IF V%<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
-    UNTIL done%
-    IF left%<=right% THEN PROCswapRow(left%,right%):left%=left%+1:right%=right%-1
-  UNTIL left%>right%
-  IF start%<right% THEN PROCquickSort(start%,right%-start%+1)
-  IF left%<end% THEN PROCquickSort(left%,end%-left%+1)
-ENDPROC
-:
-DEF PROCswapRow(A%,B%)
-  T%=rowCmdr%(A%):rowCmdr%(A%)=rowCmdr%(B%):rowCmdr%(B%)=T%
-  rowUpdt%(A%)=1:rowUpdt%(B%)=1
-ENDPROC
-:
-DEF PROChighlightSort
-  IF sort%=0 THEN PRINT TAB(26,3);CHR$(129);TAB(32,3);CHR$(132); ELSE PRINT TAB(26,3);CHR$(132);TAB(32,3);CHR$(129);
-ENDPROC
 :
 DEF PROCprintHeader
   PRINT TAB(0,0);CHR$(132);"<S>ort      ";
@@ -188,6 +164,10 @@ DEF PROCprintHeader
   PRINT TAB(0,2);CHR$(134);"[]Page      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";INT(cmdrs%/20)+1
   PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
   PROChighlightSort
+ENDPROC
+:
+DEF PROChighlightSort
+  IF sort%=0 THEN PRINT TAB(26,3);CHR$(129);TAB(32,3);CHR$(132); ELSE PRINT TAB(26,3);CHR$(132);TAB(32,3);CHR$(129);
 ENDPROC
 :
 DEF PROCstartMenu
@@ -203,13 +183,14 @@ DEF PROCmenu
     CLS:*FX15,1
     PRINT TAB(15,0);CHR$(141);"Menu"
     PRINT TAB(15,1);CHR$(141);"Menu"
-    PRINT ''"<C>hange this scoreboard's port (";port%;")"
+    PRINT '"<C>hange this scoreboard's port (";port%;")"
     PRINT '"Forward all scores to:"
     PRINT '"  <N>etwork number (";fnetwork%;")"
     PRINT "  <S>tation number (";fstation%;")"
     PRINT "  <P>ort number    (";fport%;")"
     IF fstation%>0 AND fport%>0 THEN PRINT '"To disable forwarding, set the port":PRINT"or station to zero" ELSE PRINT '"To enable forwarding, set the port":PRINT"and station to non-zero values"
     PRINT '"<D>elete a score"
+    PRINT '"<W>rite scores to a file"
     PRINT '"<R>eturn to scoreboard"
     PRINT '"<Q>uit"
     q$=GET$
@@ -218,7 +199,8 @@ DEF PROCmenu
     IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the station number to forward to: " fstation%
     IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the port number to forward to: " fport%
     IF q$="D" OR q$="d" THEN INPUT TAB(0,22);"Enter the network number to delete: " dn%:INPUT TAB(0,23);"Enter the station number to delete: " ds%:PROCdelete(dn%,ds%)
-    IF q$="Q" OR q$="q" THEN PROCend
+    IF q$="W" OR q$="w" THEN INPUT TAB(0,22);"Enter the filename: " file$:IF file$<>"" THEN PROCsave(file$)
+    IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
   UNTIL q$="R" OR q$="r"
   CLS
 ENDPROC
@@ -227,29 +209,38 @@ DEF PROCdelete(dn%,ds%)
   PRINT TAB(0,22);SPC(40);TAB(0,23);SPC(40);
   nomatch%=TRUE
   FOR I%=cmdrs%-1 TO 0 STEP -1
-    IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCdeleteCmdr(I%):nomatch%=FALSE
+    IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCconfirmDeletion(I%):nomatch%=FALSE
   NEXT
   IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
 ENDPROC
 :
-DEF PROCdeleteCmdr(cm%)
+DEF PROCconfirmDeletion(cm%)
   S%=station%(cm%)
   PRINT TAB(0,22);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
   d$=GET$
   IF NOT(d$="Y" OR d$="y") THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
-  IF cmdrs%>1 THEN PROCmoveCmdr(cm%)
+  IF cmdrs%>1 THEN PROCdeleteCmdr(cm%)
   IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
   PRINT TAB(0,23);"Player deleted"
   PROCbeep(1)
 ENDPROC
 :
-DEF PROCbeep(high%)
-  IF high%=1 THEN SOUND 3,241,188,1 ELSE SOUND 3,244,12,8
-  PROCpause:PROCpause:PROCpause
+DEF PROCdeleteCmdr(cm%)
+  PROCshuffleRows(cm%,0)
+  PROCshuffleRows(cm%,1)
+  PROCshuffleCmdr(cm%)
 ENDPROC
 :
-DEF PROCmoveCmdr(cm%)
-  oldrow%=rowCmdr%(cm%)
+DEF PROCshuffleRows(cm%,st%)
+  oldrow%=FNfindCmdrRow(cm%,st%)
+  IF oldrow%=cmdrs%-1 THEN ENDPROC
+  FOR I%=oldrow% TO cmdrs%-2
+    rowCmdr%(I%,st%)=rowCmdr%(I%+1,st%)
+  NEXT
+ENDPROC
+:
+DEF PROCshuffleCmdr(cm%)
+  IF cm%=cmdrs%-1 THEN ENDPROC
   name$(cm%)=name$(cmdrs%-1)
   legal%(cm%)=legal%(cmdrs%-1)
   condition%(cm%)=condition%(cmdrs%-1)
@@ -259,9 +250,9 @@ DEF PROCmoveCmdr(cm%)
   machine%(cm%)=machine%(cmdrs%-1)
   station%(cm%)=station%(cmdrs%-1)
   network%(cm%)=network%(cmdrs%-1)
-  rowCmdr%(cm%)=rowCmdr%(cmdrs%-1)
   FOR I%=0 TO cmdrs%-2
-    IF rowCmdr%(I%) > oldrow% THEN rowCmdr%(I%)=rowCmdr%(I%)-1
+    IF rowCmdr%(I%,0)=cmdrs%-1 THEN rowCmdr%(I%,0)=cm%
+    IF rowCmdr%(I%,1)=cmdrs%-1 THEN rowCmdr%(I%,1)=cm%
   NEXT
 ENDPROC
 :
@@ -269,7 +260,7 @@ DEF PROCupdateTable(all%)
   start%=page%*20
   IF start%+19>cmdrs%-1 THEN end%=cmdrs%-1 ELSE end%=start%+19
   FOR R%=start% TO end%
-    C%=rowCmdr%(R%)
+    C%=rowCmdr%(R%,sort%)
     IF all%=1 OR rowUpdt%(R%)=1 THEN PROCprintCmdr(C%,R%+4-start%)
     rowUpdt%(R%)=0
   NEXT
@@ -287,6 +278,67 @@ DEF PROCprintCmdr(cm%,row%)
   IF M%>99999 AND M%<=99999999 THEN K$="k":M%=M%/1000
   IF M%>99999999 THEN K$="m":M%=M%/1000000
   @%=&2010A:PRINT TAB(37-FNdigits(M%),row%);M%/10;K$;:@%=10
+ENDPROC
+:
+DEF PROCsave(file$)
+  saving%=1
+  PRINT TAB(0,23);"Saving file..."
+  F%=OPENOUT(file$)
+  PROClogHeader
+  FOR I%=0 TO cmdrs%-1
+    PROClogData(I%)
+  NEXT
+  PRINT TAB(0,23);"File saved    "
+  CLOSE#F%
+  PROCbeep(1)
+  saving%=0
+ENDPROC
+:
+DEF PROClogHeader
+  PROClogStringTab("Machine type")
+  PROClogStringTab("Player network")
+  PROClogStringTab("Player station")
+  PROClogStringTab("Condition")
+  PROClogStringTab("Legal status")
+  PROClogStringTab("Player name")
+  PROClogStringTab("Kills")
+  PROClogStringTab("Deaths")
+  PROClogString("Credits")
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROClogData(row%)
+  cm%=rowCmdr%(row%,sort%)
+  PROClogStringTab(dM$(machine%(cm%)))
+  PROClogNumberTab(network%(cm%))
+  PROClogNumberTab(station%(cm%))
+  PROClogStringTab(dC$(condition%(cm%)))
+  PROClogStringTab(dL$(legal%(cm%)))
+  PROClogStringTab(name$(cm%))
+  PROClogNumberTab(kills%(cm%))
+  PROClogNumberTab(deaths%(cm%))
+  cr$=STR$(credits%(cm%) DIV 10)+"."+STR$(credits%(cm%) MOD 10)
+  PROClogString(cr$)
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROClogNumberTab(n)
+  PROClogString(STR$(n))
+  BPUT#F%,9
+ENDPROC
+:
+DEF PROClogStringTab(s$)
+  PROClogString(s$)
+  BPUT#F%,9
+ENDPROC
+:
+DEF PROClogString(s$)
+  IF s$="" THEN ENDPROC
+  FOR J%=1 TO LEN(s$)
+    BPUT#F%,ASC(MID$(s$,J%,1))
+  NEXT
 ENDPROC
 :
 : REM Econet library
@@ -324,16 +376,16 @@ DEF FNdigits(dg%)
 DEF FNpad0(st%)
 =STRING$(2-FNdigits(st%),"0")
 :
-DEF PROCforward
+DEF PROCforward(fs%,fn%,fp%)
   REM Set bytes 17 and 18 of forwarded data to player address
   rxbuffer%?17=cblock%?3
   rxbuffer%?18=cblock%?4
   :
   REM Send forwarded data
   ?cblock%=&80
-  cblock%?1=fport%
-  cblock%?2=fstation%
-  cblock%?3=fnetwork%
+  cblock%?1=fp%
+  cblock%?2=fs%
+  cblock%?3=fn%
   cblock%!4=rxbuffer%
   cblock%!8=rxbuffer%+20
   X%=cblock%:Y%=cblock% DIV 256
