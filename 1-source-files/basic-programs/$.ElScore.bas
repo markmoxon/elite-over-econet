@@ -335,8 +335,8 @@ ENDPROC
 :
 DEF PROClogString(s$)
   IF s$="" THEN ENDPROC
-  FOR I%=1 TO LEN(s$)
-    BPUT#F%,ASC(MID$(s$,I%,1))
+  FOR J%=1 TO LEN(s$)
+    BPUT#F%,ASC(MID$(s$,J%,1))
   NEXT
 ENDPROC
 :
