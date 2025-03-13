@@ -84,15 +84,18 @@ DEF PROCforwardMenu
   PROCprintTitle
   PRINT '"Option chosen:"
   PRINT '"2. Forward scores to multiple stations"
-  INPUT '"Enter the port number to receive: " port%
-  PRINT '"Press Return to stop configuring stations"
+  INPUT '"Enter the port number to receive on: " port%
+  PRINT '"Press Return for all three questions"'"to stop configuring stations"
   I%=0:end%=FALSE
   REPEAT
-    INPUT '"Enter the network number of forwarding"'"destination ";I%;": " fnetwork%(I%)
-    IF fnetwork%(I%)<>0 THEN INPUT '"Enter the station number of forwarding"'"destination ";I%;": " fstation%(I%)
-    IF fnetwork%(I%)<>0 THEN INPUT '"Enter the port number of forwarding"'"destination ";I%;": " fport%(I%)
+    PRINT '"Enter the network number of forwarding"'"destination ";STR$(I%+1);": ";
+    INPUT fnetwork%(I%)
+    PRINT '"Enter the station number of forwarding"'"destination ";STR$(I%+1);": ";
+    INPUT fstation%(I%)
+    PRINT '"Enter the port number of forwarding"'"destination ";STR$(I%+1);": ";
+    INPUT fport%(I%)
     I%=I%+1
-  UNTIL I%=5 OR fnetwork%(I%-1)=0
+  UNTIL I%=5 OR fstation%(I%-1)=0
   fcount%=I%
 ENDPROC
 :
@@ -120,7 +123,7 @@ ENDPROC
 DEF PROCforwardLoop
   PROCreceive
   FOR I%=0 TO fcount%-1
-    IF fstation%(I%)>0 AND fport%(I%)>0 THEN PRINT "Forwarding from ";thisStn$;" to ";fname$(I%)$:PROCforward(fstation%(I%),fnetwork%(I%),fport%(I%))
+    IF fstation%(I%)>0 AND fport%(I%)>0 THEN PRINT "Forwarding from ";thisStn$;" to ";fname$(I%):PROCforward(fstation%(I%),fnetwork%(I%),fport%(I%))
   NEXT
 ENDPROC
 :
