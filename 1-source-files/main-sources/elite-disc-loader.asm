@@ -161,7 +161,7 @@
 .load4
 
  LDA (ZP+1),Y           \ If sram% for this bank is not &FF, move on to the next
- CMP #&FF                \ bank
+ CMP #&FF               \ bank
  BNE load6
 
  LDA (ZP+3),Y           \ If used% for this bank is not 0, move on to the next
