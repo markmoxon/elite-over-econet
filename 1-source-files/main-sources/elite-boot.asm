@@ -209,18 +209,15 @@
                         \ If we get here then the command is *Elite X, which
                         \ loads the Executive version
 
- LDA #LO(LOAD5)         \ Set ZP(1 0) to the text at LOAD5
- STA ZP
+ LDA #LO(LOAD5)         \ Set ZP(1 0) to the text at LOAD5 ("Loading
+ STA ZP                 \ Executive...")
  LDA #HI(LOAD5)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD5 ("Loading Executive...")
+ LDX #'X'               \ Set X and Y so that RunElite does a *RUN ELTXE command
+ LDY #'E'
 
- LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("EliteX")
- LDY #HI(MESS5)
-
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS5 to run the
-                        \ Executive version of Elite over Econet
+ JMP RunElite           \ Run the Executive version of Elite over Econet
 
 .entr5
 
@@ -330,18 +327,15 @@
 
                         \ This is a BBC Master
 
- LDA #LO(LOAD3)         \ Set ZP(1 0) to the text at LOAD3
- STA ZP
+ LDA #LO(LOAD3)         \ Set ZP(1 0) to the text at LOAD3 ("Loading BBC
+ STA ZP                 \ Master...")
  LDA #HI(LOAD3)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD3 ("Loading BBC Master...")
+ LDX #'M'               \ Set X and Y so that RunElite does a *RUN ELTME command
+ LDY #'E'
 
- LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("EliteM")
- LDY #HI(MESS3)
-
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS3 to run the
-                        \ BBC Master version of Elite over Econet
+ JMP RunElite           \ Run the BBC Master version of Elite over Econet
 
 .bbc
 
@@ -362,19 +356,16 @@
 
                         \ This is a 6502 Second Processor
 
- LDA #LO(LOAD4)         \ Set ZP(1 0) to the text at LOAD4
- STA ZP
+ LDA #LO(LOAD4)         \ Set ZP(1 0) to the text at LOAD4 ("Loading 6502 Second
+ STA ZP                 \ Processor...")
  LDA #HI(LOAD4)
  STA ZP+1
 
- JSR PrintMessage       \ Print the text at LOAD4 ("Loading 6502 Second
-                        \ Processor...")
+ LDX #'S'               \ Set X and Y so that RunElite does a *RUN ELTSE command
+ LDY #'E'
 
- LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("EliteSP")
- LDY #HI(MESS4)
-
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS4 to run the
-                        \ 6502 Second Processor version of Elite over Econet
+ JMP RunElite           \ Run the 6502 Second Processor version of Elite over
+                        \ Econet
 
 \ ******************************************************************************
 \
@@ -691,6 +682,59 @@
 
 \ ******************************************************************************
 \
+\       Name: RunElite
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Run an Elite binary
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   ZP(1 0)             The address of the text to print
+\
+\   X                   The first character in the binary to run (ELTXY)
+\
+\   Y                   The second character in the binary to run (ELTXY)
+\
+\ ******************************************************************************
+
+.RunElite
+
+ STX runElt+7           \ Set the command in runElt to run the ELT file with the
+ STY runElt+8           \ name specified in X and Y ("*RUN ELTXY")
+
+ JSR PrintMessage       \ Print the text at ZP(1 0)
+
+ LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
+ LDY #HI(MESS1)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change to
+                        \ the game binary folder
+
+ LDX #LO(runElt)        \ Set (Y X) to point to runElt ("*RUN ELTXY")
+ LDY #HI(runElt)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in runElt to run the
+                        \ BBC Micro version of Elite over Econet
+
+\ ******************************************************************************
+\
+\       Name: runElt
+\       Type: Variable
+\   Category: Loader
+\    Summary: The OS command to run an Elite binary
+\
+\ ******************************************************************************
+
+.runElt
+
+ EQUS "RUN ELTXX"
+ EQUB 13
+
+
+\ ******************************************************************************
+\
 \       Name: MESS2
 \       Type: Variable
 \   Category: Loader
@@ -701,48 +745,6 @@
 .MESS2
 
  EQUS "EliteB"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS3
-\       Type: Variable
-\   Category: Loader
-\    Summary: Run the BBC Master version of Elite
-\
-\ ******************************************************************************
-
-.MESS3
-
- EQUS "EliteM"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS4
-\       Type: Variable
-\   Category: Loader
-\    Summary: Run the 6502 Second Processor version of Elite
-\
-\ ******************************************************************************
-
-.MESS4
-
- EQUS "EliteSP"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS5
-\       Type: Variable
-\   Category: Loader
-\    Summary: Run the Executive version of Elite
-\
-\ ******************************************************************************
-
-.MESS5
-
- EQUS "EliteX"
  EQUB 13
 
 \ ******************************************************************************
