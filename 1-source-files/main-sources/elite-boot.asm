@@ -87,11 +87,11 @@
 .ENTRY
 
  LDA #234               \ Call OSBYTE with A = 234, X = 0 and Y= 255 to read the
- LDX #0                 \ Tube present flag into X
+ LDX #0                 \ "Tube present" flag into X
  LDY #255
  JSR OSBYTE
 
- STX tube               \ Store the Tube present flag in tube
+ STX tubePresent        \ Store the "Tube present" flag in tubePresent
 
  LDA #1                 \ Set ZP(1 0) to the address of the argument to the
  LDX #ZP                \ *Elite command
@@ -140,7 +140,7 @@
 
 .entr1
 
- LDX tube               \ If the Tube is not active, jump to entr2 to skip the
+ LDX tubePresent        \ If the Tube is not active, jump to entr2 to skip the
  CPX #&FF               \ following
  BNE entr2
 
@@ -311,7 +311,7 @@
 
 .entr8
 
- LDX tube               \ Fetch the Tube present flag from tube into X
+ LDX tubePresent        \ Fetch the "Tube present" flag from tubePresent into X
 
  CPX #&FF               \ X will be &FF if this is a co-processor, so jump to
  BEQ copro              \ copro if this is the case
@@ -624,14 +624,14 @@
 
 \ ******************************************************************************
 \
-\       Name: tube
+\       Name: tubePresent
 \       Type: Variable
 \   Category: Loader
-\    Summary: Storage for the Tube status
+\    Summary: Storage for the "Tube present" flag
 \
 \ ******************************************************************************
 
-.tube
+.tubePresent
 
  EQUB 0
 
