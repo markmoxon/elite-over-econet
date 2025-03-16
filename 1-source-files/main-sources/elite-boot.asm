@@ -162,42 +162,65 @@
 
 .entr3
 
- TSX                    \ Store the stack pointer in stack so we can restore it
- STX stack              \ if there's an error
+ JSR TryLoadingConf     \ Try loading EliteConf from the currently selected
+                        \ directory, to support installing Elite for a single
+                        \ user
 
- LDA BRKV               \ Fetch the current value of the break vector
- STA oldBRKV
- LDA BRKV+1
- STA oldBRKV+1
+                        \ We now fetch the Econet user environment, which gives
+                        \ us the handles of the URD (the user's root directory),
+                        \ the CSD (currently selected directory) and LIB (the
+                        \ library directory)
+                        \
+                        \ We can then manipulate the user environment to change
+                        \ the currently selected directory to the library, so we
+                        \ can load the EliteConf file, if there is one
 
- SEI                    \ Disable interrupts while we update the break vector
+ LDA #6                 \ Set the first byte of the OSWORD block to 6, which is
+ STA oswordBlock        \ the command number for reading the Econet user
+                        \ environment using OSWORD &13
 
- LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
- STA BRKV               \ configuration file, we jump to NoConfFile where we
- LDA #HI(NoConfFile)    \ clear the break condition and return to entr4 to
- STA BRKV+1             \ restore the break vector and keep going
+ LDA #&13               \ Call OSWORD with A = &13 to read the Econet user
+ LDX #LO(oswordBlock)   \ environment (URD, CSD and LIB) into bytes 1 to 3 of
+ LDY #HI(oswordBlock)   \ the OSWORD block
+ JSR OSWORD
 
- CLI                    \ Enable interrupts again
+ LDA oswordBlock+1      \ Copy the Econet user environment into userEnv, so we
+ STA userEnv            \ can restore it below
+ LDA oswordBlock+2
+ STA userEnv+1
+ LDA oswordBlock+3
+ STA userEnv+2
 
- LDX #LO(MESS10)        \ Set (Y X) to point to MESS10 ("LOAD EliteConf xxxx")
- LDY #HI(MESS10)
+ STA oswordBlock+2      \ Set the CSD handle in the OSWORD block to the LIB
+                        \ handle, so when we write this block back, this will
+                        \ change the current directory to the library directory
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS10 to load
-                        \ the game binary path from EliteConf into the OS
-                        \ command string in MESS1, so if there is a
-                        \ configuration file, we change the command to use the
-                        \ configured directory rather than $.EliteGame
+ LDA #7                 \ Set the first byte of the OSWORD block to 7, which is
+ STA oswordBlock        \ the command number for writing the Econet user
+                        \ environment using OSWORD &13
 
-.entr4
+ LDA #&13               \ Call OSWORD with A = &13 to set the CSD to LIB, so if
+ LDX #LO(oswordBlock)   \ we now do a *LOAD EliteConf command, it will look in
+ LDY #HI(oswordBlock)   \ the library directory
+ JSR OSWORD
 
- SEI                    \ Disable interrupts while we update the break vector
+ JSR TryLoadingConf     \ Try loading EliteConf from the library directory
 
- LDA oldBRKV            \ Restore BRKV
- STA BRKV
- LDA oldBRKV+1
- STA BRKV+1
+ LDA #7                 \ Set the first byte of the OSWORD block to 7, which is
+ STA oswordBlock        \ the command number for writing the Econet user
+                        \ environment using OSWORD &13
 
- CLI                    \ Enable interrupts again
+ LDA userEnv            \ Copy the Econet user environment from userEnv into the
+ STA oswordBlock+1      \ OSWORD block
+ LDA userEnv+1
+ STA oswordBlock+2
+ LDA userEnv+2
+ STA oswordBlock+3
+
+ LDA #&13               \ Call OSWORD with A = &13 to set the Econet user
+ LDX #LO(oswordBlock)   \ environment back to its original setting
+ LDY #HI(oswordBlock)
+ JSR OSWORD
 
  LDA argument           \ Fetch the command argument
 
@@ -217,7 +240,8 @@
  LDX #'X'               \ Set X and Y so that RunElite does a *RUN ELTXE command
  LDY #'E'
 
- JMP RunElite           \ Run the Executive version of Elite over Econet
+ JMP RunElite           \ Run the Executive version of Elite over Econet,
+                        \ returning from the subroutine using a tail call
 
 .entr5
 
@@ -306,8 +330,8 @@
  LDY #HI(MESS1-1)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS1-1 to show
-                        \ the version number and return from the subroutine using a
-                        \ tail call
+                        \ the version number and return from the subroutine
+                        \ using a tail call
 
 .entr8
 
@@ -335,7 +359,8 @@
  LDX #'M'               \ Set X and Y so that RunElite does a *RUN ELTME command
  LDY #'E'
 
- JMP RunElite           \ Run the BBC Master version of Elite over Econet
+ JMP RunElite           \ Run the BBC Master version of Elite over Econet,
+                        \ returning from the subroutine using a tail call
 
 .bbc
 
@@ -350,7 +375,8 @@
  LDY #HI(MESS2)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in MESS2 to run the
-                        \ BBC Micro version of Elite over Econet
+                        \ BBC Micro version of Elite over Econet, returning from
+                        \ the subroutine using a tail call
 
 .copro
 
@@ -365,7 +391,66 @@
  LDY #'E'
 
  JMP RunElite           \ Run the 6502 Second Processor version of Elite over
-                        \ Econet
+                        \ Econet, returning from the subroutine using a tail
+                        \ call
+
+\ ******************************************************************************
+\
+\       Name: TryLoadingConf
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Try loading the EliteConf file and consume any errors
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   C flag              Clear if the EliteConf file was loaded, set if it wasn't
+\
+\ ******************************************************************************
+
+.TryLoadingConf
+
+ TSX                    \ Store the stack pointer in stack so we can restore it
+ STX stack              \ if there's an error
+
+ LDA BRKV               \ Fetch the current value of the break vector
+ STA oldBRKV
+ LDA BRKV+1
+ STA oldBRKV+1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
+ STA BRKV               \ configuration file, we jump to NoConfFile where we
+ LDA #HI(NoConfFile)    \ clear the break condition and return to entr4 to
+ STA BRKV+1             \ restore the break vector and keep going
+
+ CLI                    \ Enable interrupts again
+
+ LDX #LO(MESS10)        \ Set (Y X) to point to MESS10 ("LOAD EliteConf xxxx")
+ LDY #HI(MESS10)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS10 to load
+                        \ the game binary path from EliteConf into the OS
+                        \ command string in MESS1, so if there is a
+                        \ configuration file, we change the command to use the
+                        \ configured directory rather than $.EliteGame
+
+ CLC                    \ Clear the C flag to indicate the file was loaded
+
+.entr4
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA oldBRKV            \ Restore BRKV
+ STA BRKV
+ LDA oldBRKV+1
+ STA BRKV+1
+
+ CLI                    \ Enable interrupts again
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -389,8 +474,10 @@
  LDX stack              \ Restore the value of the stack pointer from when we
  TXS                    \ started
 
- JMP entr4              \ Return to just after the failed load command to
-                        \ continue with the loader
+ SEC                    \ Set the C flag to indicate the file was not loaded
+
+ JMP entr4              \ Jump to entr4 to reset the break vector and return
+                        \ from the subroutine
 
 \ ******************************************************************************
 \
@@ -647,6 +734,33 @@
 .oldBRKV
 
  EQUW 0
+
+\ ******************************************************************************
+\
+\       Name: userEnv
+\       Type: Variable
+\   Category: Loader
+\    Summary: Storage for the current Econet user environment (URD, CSD, LIB)
+\
+\ ******************************************************************************
+
+.userEnv
+
+ EQUW 0
+ EQUB 0
+
+\ ******************************************************************************
+\
+\       Name: oswordBlock
+\       Type: Variable
+\   Category: Loader
+\    Summary: OSWORD block for accessing the Econet user environment
+\
+\ ******************************************************************************
+
+.oswordBlock
+
+ EQUD 0
 
 \ ******************************************************************************
 \

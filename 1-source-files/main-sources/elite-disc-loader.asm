@@ -78,7 +78,7 @@
 .ENTRY
 
                         \ First we check the value of PAGE, and if it is bigger
-                        \ than &1200, we terminate with a message about FixPAGE
+                        \ than &1200, we run FixPAGE
 
  LDA #131               \ Call OSBYTE with A = 131 to read the value of OSHWM,
  JSR OSBYTE             \ which is also known as PAGE, into (Y X)
@@ -92,7 +92,7 @@
 
 .load1
 
- JMP load9              \ Jump to load9 to print an error
+ JMP load9              \ Jump to load9 to run FixPAGE
 
 .load2
 
