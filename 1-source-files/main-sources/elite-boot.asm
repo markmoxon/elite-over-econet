@@ -175,52 +175,31 @@
                         \ the currently selected directory to the library, so we
                         \ can load the EliteConf file, if there is one
 
- LDA #6                 \ Set the first byte of the OSWORD block to 6, which is
- STA oswordBlock        \ the command number for reading the Econet user
-                        \ environment using OSWORD &13
+ LDA #6                 \ Read the Econet user environment (URD, CSD and LIB)
+ JSR AccessUserEnv      \ into bytes 1 to 3 of the OSWORD block
 
- LDA #&13               \ Call OSWORD with A = &13 to read the Econet user
- LDX #LO(oswordBlock)   \ environment (URD, CSD and LIB) into bytes 1 to 3 of
- LDY #HI(oswordBlock)   \ the OSWORD block
- JSR OSWORD
-
- LDA oswordBlock+1      \ Copy the Econet user environment into userEnv, so we
- STA userEnv            \ can restore it below
+ LDA oswordBlock+1      \ Copy the Econet user environment into restoreBlock, so
+ STA restoreBlock+1     \ we can restore it below
  LDA oswordBlock+2
- STA userEnv+1
+ STA restoreBlock+2
  LDA oswordBlock+3
- STA userEnv+2
+ STA restoreBlock+3
 
  STA oswordBlock+2      \ Set the CSD handle in the OSWORD block to the LIB
-                        \ handle, so when we write this block back, this will
-                        \ change the current directory to the library directory
+                        \ handle, so when we write this block back to the user
+                        \ environment, this will change the current directory to
+                        \ the library directory
 
- LDA #7                 \ Set the first byte of the OSWORD block to 7, which is
- STA oswordBlock        \ the command number for writing the Econet user
-                        \ environment using OSWORD &13
-
- LDA #&13               \ Call OSWORD with A = &13 to set the CSD to LIB, so if
- LDX #LO(oswordBlock)   \ we now do a *LOAD EliteConf command, it will look in
- LDY #HI(oswordBlock)   \ the library directory
- JSR OSWORD
+ LDA #7                 \ Write the updated Econet user environment to set the
+ JSR AccessUserEnv      \ CSD to LIB, so if we now do a *LOAD EliteConf command,
+                        \ it will look in the library directory
 
  JSR TryLoadingConf     \ Try loading EliteConf from the library directory
 
- LDA #7                 \ Set the first byte of the OSWORD block to 7, which is
- STA oswordBlock        \ the command number for writing the Econet user
-                        \ environment using OSWORD &13
-
- LDA userEnv            \ Copy the Econet user environment from userEnv into the
- STA oswordBlock+1      \ OSWORD block
- LDA userEnv+1
- STA oswordBlock+2
- LDA userEnv+2
- STA oswordBlock+3
-
  LDA #&13               \ Call OSWORD with A = &13 to set the Econet user
- LDX #LO(oswordBlock)   \ environment back to its original setting
- LDY #HI(oswordBlock)
- JSR OSWORD
+ LDX #LO(restoreBlock)  \ environment back to its original setting, using the
+ LDY #HI(restoreBlock)  \ restore block se set up above (the first byte of which
+ JSR OSWORD             \ is already set to command number 7
 
  LDA argument           \ Fetch the command argument
 
@@ -408,6 +387,32 @@
 
 \ ******************************************************************************
 \
+\       Name: AccessUserEnv
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Read or write the Econet user environment
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   A                   The command number (6 = read, 7 = write)
+\
+\ ******************************************************************************
+
+.AccessUserEnv
+
+ STA oswordBlock        \ Set the first byte of the OSWORD block to the command
+                        \ number for reading (6) or writing (6) the Econet user
+                        \ environment using OSWORD &13
+
+ LDA #&13               \ Call OSWORD with A = &13 to read/write the Econet user
+ LDX #LO(oswordBlock)   \ environment (URD, CSD and LIB) with bytes 1 to 3 of
+ LDY #HI(oswordBlock)   \ the OSWORD block, returning from the subroutine using
+ JMP OSWORD             \ a tail call
+
+\ ******************************************************************************
+\
 \       Name: TryLoadingConf
 \       Type: Subroutine
 \   Category: Loader
@@ -433,10 +438,10 @@
 
  SEI                    \ Disable interrupts while we update the break vector
 
- LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
- STA BRKV               \ configuration file, we jump to NoConfFile where we
- LDA #HI(NoConfFile)    \ clear the break condition and return to entr4 to
- STA BRKV+1             \ restore the break vector and keep going
+ LDA #LO(conf2)         \ Set BRKV to point to conf2 below, so if there is no
+ STA BRKV               \ configuration file, we jump to conf2 where we clear
+ LDA #HI(conf2)         \ the break condition and return to conf1 to restore the
+ STA BRKV+1             \ break vector and keep going
 
  CLI                    \ Enable interrupts again
 
@@ -451,7 +456,7 @@
 
  CLC                    \ Clear the C flag to indicate the file was loaded
 
-.entr4
+.conf1
 
  SEI                    \ Disable interrupts while we update the break vector
 
@@ -464,16 +469,7 @@
 
  RTS                    \ Return from the subroutine
 
-\ ******************************************************************************
-\
-\       Name: NoConfFile
-\       Type: Subroutine
-\   Category: Loader
-\    Summary: A break handler for when there is no EliteConf file
-\
-\ ******************************************************************************
-
-.NoConfFile
+.conf2
 
                         \ If we get here then the *LOAD EliteConf file returned
                         \ an error and this routine was called as the break
@@ -488,7 +484,7 @@
 
  SEC                    \ Set the C flag to indicate the file was not loaded
 
- JMP entr4              \ Jump to entr4 to reset the break vector and return
+ JMP conf1              \ Jump to conf1 to reset the break vector and return
                         \ from the subroutine
 
 \ ******************************************************************************
@@ -750,16 +746,19 @@
 
 \ ******************************************************************************
 \
-\       Name: userEnv
+\       Name: restoreBlock
 \       Type: Variable
 \   Category: Loader
-\    Summary: Storage for the current Econet user environment (URD, CSD, LIB)
+\    Summary: OSWORD block for restoring the current Econet user environment
+\             (URD, CSD, LIB)
 \
 \ ******************************************************************************
 
-.userEnv
+.restoreBlock
 
- EQUW 0
+ EQUB 7
+ EQUB 0
+ EQUB 0
  EQUB 0
 
 \ ******************************************************************************
@@ -839,16 +838,16 @@
 \
 \   ZP(1 0)             The address of the text to print
 \
-\   X                   The first character in the binary to run (ELTXY)
+\   X                   The first character in the binary to run (ELTxy)
 \
-\   Y                   The second character in the binary to run (ELTXY)
+\   Y                   The second character in the binary to run (ELTxy)
 \
 \ ******************************************************************************
 
 .RunElite
 
  STX runElt+7           \ Set the command in runElt to run the ELT file with the
- STY runElt+8           \ name specified in X and Y ("*RUN ELTXY")
+ STY runElt+8           \ name specified in X and Y ("*RUN ELTxy")
 
  JSR PrintMessage       \ Print the text at ZP(1 0)
 
@@ -858,7 +857,7 @@
  JSR OSCLI              \ Call OSCLI to run the OS command in osCommand to
                         \ change to the game binary folder
 
- LDX #LO(runElt)        \ Set (Y X) to point to runElt ("*RUN ELTXY")
+ LDX #LO(runElt)        \ Set (Y X) to point to runElt ("*RUN ELTxy")
  LDY #HI(runElt)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in runElt to run the
@@ -877,7 +876,6 @@
 
  EQUS "RUN ELTXX"
  EQUB 13
-
 
 \ ******************************************************************************
 \
