@@ -55,9 +55,6 @@
 
 \ Boot files
 
- PUTFILE "2-assembled-output/EliteM.bin", "L.EliteM", &002000, &002000
- PUTFILE "2-assembled-output/EliteSP.bin", "L.EliteSP", &FF2000, &FF2000
- PUTFILE "2-assembled-output/EliteX.bin", "L.EliteX", &FF2000, &FF2000
  PUTFILE "2-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00
  PUTFILE "2-assembled-output/Elite.bin", "L.Elite", &002400, &002400
 

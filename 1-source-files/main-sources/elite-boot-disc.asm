@@ -43,6 +43,8 @@
 
  OSARGS = &FFDA         \ The address for the OSARGS routine
 
+ OSWORD = &FFF1         \ The address for the OSWORD routine
+
  OSCLI = &FFF7          \ The address for the OSCLI routine
 
 \ ******************************************************************************
@@ -156,48 +158,51 @@
 
 .entr2
 
- TSX                    \ Store the stack pointer in stack so we can restore it
- STX stack              \ if there's an error
+ JSR TryLoadingConf     \ Try loading EliteConf from the currently selected
+                        \ directory, to support installing Elite for a single
+                        \ user
 
- LDA BRKV               \ Fetch the current value of the break vector
- STA oldBRKV
- LDA BRKV+1
- STA oldBRKV+1
 
- SEI                    \ Disable interrupts while we update the break vector
+                        \ We now fetch the Econet user environment, which gives
+                        \ us the handles of the URD (the user's root directory),
+                        \ the CSD (currently selected directory) and LIB (the
+                        \ library directory)
+                        \
+                        \ We can then manipulate the user environment to change
+                        \ the currently selected directory to the library, so we
+                        \ can load the EliteConf file, if there is one
 
- LDA #LO(NoConfFile)    \ Set BRKV to point to NoConfFile, so if there is no
- STA BRKV               \ configuration file, we jump to NoConfFile where we
- LDA #HI(NoConfFile)    \ clear the break condition and return to entr3 to
- STA BRKV+1             \ restore the break vector and keep going
+ LDA #6                 \ Read the Econet user environment (URD, CSD and LIB)
+ JSR AccessUserEnv      \ into bytes 1 to 3 of the OSWORD block
 
- CLI                    \ Enable interrupts again
+ LDA oswordBlock+1      \ Copy the Econet user environment into restoreBlock, so
+ STA restoreBlock+1     \ we can restore it below
+ LDA oswordBlock+2
+ STA restoreBlock+2
+ LDA oswordBlock+3
+ STA restoreBlock+3
 
- LDX #LO(MESS10)        \ Set (Y X) to point to MESS10 ("LOAD EliteConf xxxx")
- LDY #HI(MESS10)
+ STA oswordBlock+2      \ Set the CSD handle in the OSWORD block to the LIB
+                        \ handle, so when we write this block back to the user
+                        \ environment, this will change the current directory to
+                        \ the library directory
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS10 to load
-                        \ the game binary path from EliteConf into the OS
-                        \ command string in MESS1, so if there is a
-                        \ configuration file, we change directory to the
-                        \ configured directory rather than $.EliteGame
+ LDA #7                 \ Write the updated Econet user environment to set the
+ JSR AccessUserEnv      \ CSD to LIB, so if we now do a *LOAD EliteConf command,
+                        \ it will look in the library directory
 
-.entr3
+ JSR TryLoadingConf     \ Try loading EliteConf from the library directory
 
- SEI                    \ Disable interrupts while we update the break vector
+ LDA #&13               \ Call OSWORD with A = &13 to set the Econet user
+ LDX #LO(restoreBlock)  \ environment back to its original setting, using the
+ LDY #HI(restoreBlock)  \ restore block se set up above (the first byte of which
+ JSR OSWORD             \ is already set to command number 7
 
- LDA oldBRKV            \ Restore BRKV
- STA BRKV
- LDA oldBRKV+1
- STA BRKV+1
+ LDX #LO(osCommand)     \ Set (Y X) to point to osCommand ("DIR $.EliteGame")
+ LDY #HI(osCommand)
 
- CLI                    \ Enable interrupts again
-
- LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("DIR $.EliteGame")
- LDY #HI(MESS1)
-
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to change
-                        \ to the game folder
+ JSR OSCLI              \ Call OSCLI to run the OS command in osCommand to
+                        \ change to the game binary folder
 
  LDA argument           \ Fetch the command argument
 
@@ -208,14 +213,13 @@
                         \ loads the docked code for the sideways RAM version
                         \ and restarts the game (*LOAD T.CODE in the original)
 
- LDX #LO(MESS4)         \ Set (Y X) to point to MESS4 ("LOAD ELTBT")
- LDY #HI(MESS4)
+ LDX #'B'               \ Change the loadElt command to *LOAD ELTBT
+ STX loadElt+8
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS4, which
-                        \ *LOADs the docked code
-
- JMP S%+3               \ Jump to the second JMP instruction in the docked code,
-                        \ which is a JMP DOBEGIN that restarts the game
+ BNE loadDocked         \ Jump to loadDocked to load the docked code and jump to
+                        \ the second JMP instruction in the docked code, which
+                        \ is a JMP DOBEGIN that restarts the game (this BNE is
+                        \ effectively a JMP as X is never zero)
 
 .entr4
 
@@ -227,13 +231,12 @@
                         \ and docks with the station (*RUN T.CODE in the
                         \ original)
 
- LDX #LO(MESS3)         \ Set (Y X) to point to MESS3 ("RUN ELTBT")
- LDY #HI(MESS3)
+ LDX #'B'               \ Set X and Y so that RunElite does a *RUN ELTBT command
+ LDY #'T'
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
-                        \ the flight code (and calls the DOENTRY routine to dock
-                        \ at the station), returning from the subroutine using
-                        \ a tail call
+ JMP RunElite           \ Run the flight code (and call the DOENTRY routine to
+                        \ dock at the station), returning from the subroutine
+                        \ using a tail call
 
 .entr5
 
@@ -244,12 +247,11 @@
                         \ runs the flight code for the sideways RAM version
                         \ (*RUN D.CODE in the original)
 
- LDX #LO(MESS2)         \ Set (Y X) to point to MESS2 ("RUN ELTBD")
- LDY #HI(MESS2)
+ LDX #'B'               \ Set X and Y so that RunElite does a *RUN ELTBD command
+ LDY #'D'
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
-                        \ the flight code, returning from the subroutine using
-                        \ a tail call
+ JMP RunElite           \ Run the flight code, returning from the subroutine
+                        \ using a tail call
 
 .entr6
 
@@ -260,10 +262,12 @@
                         \ loads the docked code for the standard version and
                         \ restarts the game (*LOAD T.CODE in the original)
 
- LDX #LO(MESS7)         \ Set (Y X) to point to MESS7 ("LOAD ELTAT")
- LDY #HI(MESS7)
+.loadDocked
 
- JSR OSCLI              \ Call OSCLI to run the OS command in MESS4, which
+ LDX #LO(loadElt)       \ Set (Y X) to point to loadElt ("LOAD ELTAT")
+ LDY #HI(loadElt)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in loadElt, which
                         \ *LOADs the docked code
 
  JMP S%+3               \ Jump to the second JMP instruction in the docked code,
@@ -278,13 +282,11 @@
                         \ runs the docked code for the standard version and
                         \ docks with the station (*RUN T.CODE in the original)
 
- LDX #LO(MESS6)         \ Set (Y X) to point to MESS6 ("RUN ELTAT")
- LDY #HI(MESS6)
+ LDY #'T'               \ Set Y so that RunElite does a *RUN ELTAT command
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
-                        \ the flight code (and calls the DOENTRY routine to dock
-                        \ at the station), returning from the subroutine using
-                        \ a tail call
+ JMP RunElite+3         \ Run the flight code (and call the DOENTRY routine to
+                        \ dock at the station), returning from the subroutine
+                        \ using a tail call
 
 .entr8
 
@@ -295,12 +297,10 @@
                         \ runs the flight code for the standard version
                         \ (*RUN D.CODE in the original)
 
- LDX #LO(MESS5)         \ Set (Y X) to point to MESS5 ("RUN ELTAD")
- LDY #HI(MESS5)
+ LDY #'D'               \ Set X and Y so that RunElite does a *RUN ELTAD command
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS2, which *RUNs
-                        \ the flight code, returning from the subroutine using
-                        \ a tail call
+ JMP RunElite+3         \ Run the the flight code, returning from the subroutine
+                        \ using a tail call
 
 .entr9
 
@@ -314,17 +314,17 @@
                         \ version (*LOAD D.MO0 in the original, where 0 is the
                         \ argument)
 
- STA MESS9+9            \ Store the letter of the ship blueprints file we want
-                        \ in the tenth byte of the command string at MESS9, so
-                        \ it overwrites the "0" in "D.MO0" with the file letter
-                        \ to load, from D.MOA to D.MOP
+ STA loadShipFile+9     \ Store the letter of the ship blueprints file we want
+                        \ in the command string at loadShipFile, so we overwrite
+                        \ the "0" in "D.MO0" with the file letter to load, in
+                        \ the range D.MOA to D.MOP
 
- LDX #LO(MESS9)         \ Set (Y X) to point to MESS9 ("LOAD D.MO0")
- LDY #HI(MESS9)
+ LDX #LO(loadShipFile)  \ Set (Y X) to point to loadShipFile ("LOAD D.MO0")
+ LDY #HI(loadShipFile)
 
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS9, which
-                        \ *LOADs the ship blueprints file, returning from the
-                        \ subroutine using a tail call
+ JMP OSCLI              \ Call OSCLI to run the OS command in loadShipFile,
+                        \ which *LOADs the ship blueprints file, returning from
+                        \ the subroutine using a tail call
 
 .entr10
 
@@ -332,24 +332,96 @@
                         \ *EliteB, so now we need to load the game from the
                         \ start
 
- LDX #LO(MESS8)         \ Set (Y X) to point to MESS8 ("RUN ELTAB")
- LDY #HI(MESS8)
-
- JMP OSCLI              \ Call OSCLI to run the OS command in MESS8, which
-                        \ *RUNs the disc version loader, which checks PAGE and
-                        \ sideways RAM and runs the correct game, returning from
-                        \ the subroutine using a tail call
+ JMP RunElite+6         \ Run the disc version loader with a *RUN ELTAB command,
+                        \ which checks PAGE and sideways RAM and runs the
+                        \ correct game, returning from the subroutine using a
+                        \ tail call
 
 \ ******************************************************************************
 \
-\       Name: NoConfFile
+\       Name: AccessUserEnv
 \       Type: Subroutine
 \   Category: Loader
-\    Summary: A break handler for when there is no EliteConf file
+\    Summary: Read or write the Econet user environment
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   A                   The command number (6 = read, 7 = write)
 \
 \ ******************************************************************************
 
-.NoConfFile
+.AccessUserEnv
+
+ STA oswordBlock        \ Set the first byte of the OSWORD block to the command
+                        \ number for reading (6) or writing (6) the Econet user
+                        \ environment using OSWORD &13
+
+ LDA #&13               \ Call OSWORD with A = &13 to read/write the Econet user
+ LDX #LO(oswordBlock)   \ environment (URD, CSD and LIB) with bytes 1 to 3 of
+ LDY #HI(oswordBlock)   \ the OSWORD block, returning from the subroutine using
+ JMP OSWORD             \ a tail call
+
+\ ******************************************************************************
+\
+\       Name: TryLoadingConf
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Try loading the EliteConf file and consume any errors
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   C flag              Clear if the EliteConf file was loaded, set if it wasn't
+\
+\ ******************************************************************************
+
+.TryLoadingConf
+
+ TSX                    \ Store the stack pointer in stack so we can restore it
+ STX stack              \ if there's an error
+
+ LDA BRKV               \ Fetch the current value of the break vector
+ STA oldBRKV
+ LDA BRKV+1
+ STA oldBRKV+1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA #LO(conf2)         \ Set BRKV to point to conf2 below, so if there is no
+ STA BRKV               \ configuration file, we jump to conf2 where we clear
+ LDA #HI(conf2)         \ the break condition and return to conf1 to restore the
+ STA BRKV+1             \ break vector and keep going
+
+ CLI                    \ Enable interrupts again
+
+ LDX #LO(loadEliteConf) \ Set (Y X) to point to the loadEliteConf command
+ LDY #HI(loadEliteConf) \ ("LOAD EliteConf xxxx")
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in loadEliteConf to
+                        \ load the game binary path from EliteConf into the
+                        \ osCommand command string at gamePath, so if there is a
+                        \ configuration file, we change the command to use the
+                        \ configured directory rather than $.EliteGame
+
+ CLC                    \ Clear the C flag to indicate the file was loaded
+
+.conf1
+
+ SEI                    \ Disable interrupts while we update the break vector
+
+ LDA oldBRKV            \ Restore BRKV
+ STA BRKV
+ LDA oldBRKV+1
+ STA BRKV+1
+
+ CLI                    \ Enable interrupts again
+
+ RTS                    \ Return from the subroutine
+
+.conf2
 
                         \ If we get here then the *LOAD EliteConf file returned
                         \ an error and this routine was called as the break
@@ -362,8 +434,10 @@
  LDX stack              \ Restore the value of the stack pointer from when we
  TXS                    \ started
 
- JMP entr3              \ Return to just after the failed load command to
-                        \ continue with the loader
+ SEC                    \ Set the C flag to indicate the file was not loaded
+
+ JMP conf1              \ Jump to conf1 to reset the break vector and return
+                        \ from the subroutine
 
 \ ******************************************************************************
 \
@@ -406,145 +480,155 @@
 
 \ ******************************************************************************
 \
-\       Name: MESS9
+\       Name: restoreBlock
 \       Type: Variable
 \   Category: Loader
-\    Summary: Load a ship file for standard Elite (D.MOx)
+\    Summary: OSWORD block for restoring the current Econet user environment
+\             (URD, CSD, LIB)
 \
 \ ******************************************************************************
 
-.MESS9
+.restoreBlock
 
- EQUS "LOAD D.MO0"
- EQUB 13
+ EQUB 7
+ EQUB 0
+ EQUB 0
+ EQUB 0
 
 \ ******************************************************************************
 \
-\       Name: MESS8
+\       Name: oswordBlock
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the loader for BBC Micro disc Elite, which checks for sideways
-\             RAM and loads the relevant version of BBC Micro Elite
+\    Summary: OSWORD block for accessing the Econet user environment
 \
 \ ******************************************************************************
 
-.MESS8
+.oswordBlock
+
+ EQUD 0
+
+\ ******************************************************************************
+\
+\       Name: RunElite
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Run an Elite binary
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   ZP(1 0)             The address of the text to print
+\
+\   X                   The first character in the binary to run (ELTxy)
+\
+\   Y                   The second character in the binary to run (ELTxy)
+\
+\ ------------------------------------------------------------------------------
+\
+\ Other entry points:
+\
+\   RunElite+3          Set the first character to "A" (i.e. run ELTAY)
+\
+\   RunElite+6          Run the ELTAB binary
+\
+\ ******************************************************************************
+
+.RunElite
+
+ STX runElt+7           \ Set the command in runElt to run the ELT file with the
+ STY runElt+8           \ name specified in X and Y ("*RUN ELTxy")
+
+ LDX #LO(runElt)        \ Set (Y X) to point to runElt ("*RUN ELTxy")
+ LDY #HI(runElt)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in runElt to run the
+                        \ BBC Micro version of Elite over Econet
+
+\ ******************************************************************************
+\
+\       Name: runElt
+\       Type: Variable
+\   Category: Loader
+\    Summary: The OS command to run an Elite binary
+\
+\ ******************************************************************************
+
+.runElt
 
  EQUS "RUN ELTAB"
  EQUB 13
 
 \ ******************************************************************************
 \
-\       Name: MESS7
+\       Name: loadElt
 \       Type: Variable
 \   Category: Loader
-\    Summary: Load the docked code for standard disc Elite (T.CODE)
+\    Summary: The OS command to load an Elite binary
 \
 \ ******************************************************************************
 
-.MESS7
+.loadElt
 
  EQUS "LOAD ELTAT"
  EQUB 13
 
 \ ******************************************************************************
 \
-\       Name: MESS6
+\       Name: loadShipFile
 \       Type: Variable
 \   Category: Loader
-\    Summary: Run the docked code for standard disc Elite (T.CODE)
+\    Summary: Load a ship file for standard Elite (D.MOx)
 \
 \ ******************************************************************************
 
-.MESS6
+.loadShipFile
 
- EQUS "RUN ELTAT"
+ EQUS "LOAD D.MO0"
  EQUB 13
 
 \ ******************************************************************************
 \
-\       Name: MESS5
-\       Type: Variable
-\   Category: Loader
-\    Summary: Run the flight code for standard disc Elite (D.CODE)
-\
-\ ******************************************************************************
-
-.MESS5
-
- EQUS "RUN ELTAD"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS4
-\       Type: Variable
-\   Category: Loader
-\    Summary: Load the docked code for sideways RAM disc Elite (T.CODE)
-\
-\ ******************************************************************************
-
-.MESS4
-
- EQUS "LOAD ELTBT"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS3
-\       Type: Variable
-\   Category: Loader
-\    Summary: Run the docked code for sideways RAM disc Elite (T.CODE)
-\
-\ ******************************************************************************
-
-.MESS3
-
- EQUS "RUN ELTBT"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS2
-\       Type: Variable
-\   Category: Loader
-\    Summary: Run the flight code for sideways RAM disc Elite (D.CODE)
-\
-\ ******************************************************************************
-
-.MESS2
-
- EQUS "RUN ELTBD"
- EQUB 13
-
-\ ******************************************************************************
-\
-\       Name: MESS1
+\       Name: osCommand
 \       Type: Variable
 \   Category: Loader
 \    Summary: Switch to the game directory
 \
 \ ******************************************************************************
 
-.MESS1
+.osCommand
 
- EQUS "DIR $.EliteGame"
+ EQUS "DIR "
+
+\ ******************************************************************************
+\
+\       Name: gamePath
+\       Type: Variable
+\   Category: Loader
+\    Summary: The directory path of the game binaries
+\
+\ ******************************************************************************
+
+.gamePath
+
+ EQUS "$.EliteGame"
  EQUB 13
 
 \ ******************************************************************************
 \
-\       Name: MESS10
+\       Name: loadEliteConf
 \       Type: Variable
 \   Category: Loader
 \    Summary: Load the Elite configuration file that contains the full path of
-\             the game binary directory, just after the *DIR in command MESS1
+\             the game binary directory, putting it into gamePath
 \
 \ ******************************************************************************
 
-.MESS10
+.loadEliteConf
 
  EQUS "LOAD EliteConf "
- EQUS STR$~(MESS1 + 4)
+ EQUS STR$~(gamePath)
  EQUB 13
 
 \ ******************************************************************************
