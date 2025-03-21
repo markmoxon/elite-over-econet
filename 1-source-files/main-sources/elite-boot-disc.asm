@@ -162,6 +162,8 @@
                         \ directory, to support installing Elite for a single
                         \ user
 
+ BCC entr3              \ If EliteConf was loaded successfully, jump to entr3 to
+                        \ skip loading from the library
 
                         \ We now fetch the Econet user environment, which gives
                         \ us the handles of the URD (the user's root directory),
@@ -195,8 +197,10 @@
 
  LDA #&13               \ Call OSWORD with A = &13 to set the Econet user
  LDX #LO(restoreBlock)  \ environment back to its original setting, using the
- LDY #HI(restoreBlock)  \ restore block se set up above (the first byte of which
+ LDY #HI(restoreBlock)  \ restore block we set up above (the first byte of which
  JSR OSWORD             \ is already set to command number 7
+
+.entr3
 
  LDX #LO(osCommand)     \ Set (Y X) to point to osCommand ("DIR $.EliteGame")
  LDY #HI(osCommand)
