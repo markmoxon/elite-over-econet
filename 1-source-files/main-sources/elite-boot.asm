@@ -166,6 +166,9 @@
                         \ directory, to support installing Elite for a single
                         \ user
 
+ BCC entr4              \ If EliteConf was loaded successfully, jump to entr4 to
+                        \ skip loading from the library
+
                         \ We now fetch the Econet user environment, which gives
                         \ us the handles of the URD (the user's root directory),
                         \ the CSD (currently selected directory) and LIB (the
@@ -200,6 +203,8 @@
  LDX #LO(restoreBlock)  \ environment back to its original setting, using the
  LDY #HI(restoreBlock)  \ restore block se set up above (the first byte of which
  JSR OSWORD             \ is already set to command number 7
+
+.entr4
 
  LDA argument           \ Fetch the command argument
 

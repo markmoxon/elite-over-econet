@@ -311,7 +311,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2402   A2 00      LDX #&00
      2404   A0 FF      LDY #&FF
      2406   20 F4 FF   JSR &FFF4
-     2409   8E 15 26   STX &2615
+     2409   8E 17 26   STX &2617
      240C   A9 01      LDA #&01
      240E   A2 70      LDX #&70
      2410   A0 00      LDY #&00
@@ -328,7 +328,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2429   D0 16      BNE &2441
      242B   A0 05      LDY #&05
      242D   B1 70      LDA (&70),Y
-     242F   8D 14 26   STA &2614
+     242F   8D 16 26   STA &2616
      2432   C9 0D      CMP #&0D
      2434   F0 2A      BEQ &2460
      2436   A5 70      LDA &70
@@ -338,7 +338,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      243D   90 02      BCC &2441
      243F   E6 71      INC &71
 .entr1
-     2441   AE 15 26   LDX &2615
+     2441   AE 17 26   LDX &2617
      2444   E0 FF      CPX #&FF
      2446   D0 11      BNE &2459
      2448   A2 70      LDX #&70
@@ -346,337 +346,339 @@ Saving file '2-assembled-output/ELTAB.bin'
      244C   A9 05      LDA #&05
      244E   20 F1 FF   JSR &FFF1
      2451   A5 74      LDA &74
-     2453   8D 14 26   STA &2614
+     2453   8D 16 26   STA &2616
      2456   4C 60 24   JMP &2460
 .entr2
      2459   A0 00      LDY #&00
      245B   B1 70      LDA (&70),Y
-     245D   8D 14 26   STA &2614
+     245D   8D 16 26   STA &2616
 .entr3
-     2460   20 66 25   JSR &2566
-     2463   A9 06      LDA #&06
-     2465   20 5A 25   JSR &255A
-     2468   AD 1D 26   LDA &261D
-     246B   8D 19 26   STA &2619
-     246E   AD 1E 26   LDA &261E
-     2471   8D 1A 26   STA &261A
-     2474   AD 1F 26   LDA &261F
-     2477   8D 1B 26   STA &261B
-     247A   8D 1E 26   STA &261E
-     247D   A9 07      LDA #&07
-     247F   20 5A 25   JSR &255A
-     2482   20 66 25   JSR &2566
-     2485   A9 13      LDA #&13
-     2487   A2 18      LDX #&18
-     2489   A0 26      LDY #&26
-     248B   20 F1 FF   JSR &FFF1
-     248E   AD 14 26   LDA &2614
-     2491   29 DF      AND #&DF
-     2493   C9 58      CMP #&58
-     2495   D0 12      BNE &24A9
-     2497   20 20 26   JSR &2620
-     249A   A9 BE      LDA #&BE
-     249C   85 70      STA &70
-     249E   A9 26      LDA #&26
-     24A0   85 71      STA &71
-     24A2   A2 58      LDX #&58
-     24A4   A0 45      LDY #&45
-     24A6   4C 38 26   JMP &2638
+     2460   20 68 25   JSR &2568
+     2463   90 2B      BCC &2490
+     2465   A9 06      LDA #&06
+     2467   20 5C 25   JSR &255C
+     246A   AD 1F 26   LDA &261F
+     246D   8D 1B 26   STA &261B
+     2470   AD 20 26   LDA &2620
+     2473   8D 1C 26   STA &261C
+     2476   AD 21 26   LDA &2621
+     2479   8D 1D 26   STA &261D
+     247C   8D 20 26   STA &2620
+     247F   A9 07      LDA #&07
+     2481   20 5C 25   JSR &255C
+     2484   20 68 25   JSR &2568
+     2487   A9 13      LDA #&13
+     2489   A2 1A      LDX #&1A
+     248B   A0 26      LDY #&26
+     248D   20 F1 FF   JSR &FFF1
+.entr4
+     2490   AD 16 26   LDA &2616
+     2493   29 DF      AND #&DF
+     2495   C9 58      CMP #&58
+     2497   D0 12      BNE &24AB
+     2499   20 22 26   JSR &2622
+     249C   A9 C0      LDA #&C0
+     249E   85 70      STA &70
+     24A0   A9 26      LDA #&26
+     24A2   85 71      STA &71
+     24A4   A2 58      LDX #&58
+     24A6   A0 45      LDY #&45
+     24A8   4C 3A 26   JMP &263A
 .entr5
-     24A9   C9 53      CMP #&53
-     24AB   D0 38      BNE &24E5
-     24AD   A9 D3      LDA #&D3
-     24AF   85 70      STA &70
-     24B1   A9 26      LDA #&26
-     24B3   85 71      STA &71
-     24B5   20 2B 26   JSR &262B
-     24B8   20 A1 25   JSR &25A1
-     24BB   20 CB 25   JSR &25CB
+     24AB   C9 53      CMP #&53
+     24AD   D0 38      BNE &24E7
+     24AF   A9 D5      LDA #&D5
+     24B1   85 70      STA &70
+     24B3   A9 26      LDA #&26
+     24B5   85 71      STA &71
+     24B7   20 2D 26   JSR &262D
+     24BA   20 A3 25   JSR &25A3
+     24BD   20 CD 25   JSR &25CD
 .runBasic
-     24BE   A9 E1      LDA #&E1
-     24C0   A2 01      LDX #&01
-     24C2   A0 00      LDY #&00
-     24C4   20 F4 FF   JSR &FFF4
-     24C7   A2 58      LDX #&58
-     24C9   A0 27      LDY #&27
-     24CB   20 F7 FF   JSR &FFF7
-     24CE   A9 0F      LDA #&0F
-     24D0   A2 00      LDX #&00
-     24D2   20 F4 FF   JSR &FFF4
-     24D5   A9 8A      LDA #&8A
-     24D7   A2 00      LDX #&00
-     24D9   A0 80      LDY #&80
-     24DB   20 F4 FF   JSR &FFF4
-     24DE   A2 60      LDX #&60
-     24E0   A0 26      LDY #&26
-     24E2   4C F7 FF   JMP &FFF7
+     24C0   A9 E1      LDA #&E1
+     24C2   A2 01      LDX #&01
+     24C4   A0 00      LDY #&00
+     24C6   20 F4 FF   JSR &FFF4
+     24C9   A2 5A      LDX #&5A
+     24CB   A0 27      LDY #&27
+     24CD   20 F7 FF   JSR &FFF7
+     24D0   A9 0F      LDA #&0F
+     24D2   A2 00      LDX #&00
+     24D4   20 F4 FF   JSR &FFF4
+     24D7   A9 8A      LDA #&8A
+     24D9   A2 00      LDX #&00
+     24DB   A0 80      LDY #&80
+     24DD   20 F4 FF   JSR &FFF4
+     24E0   A2 62      LDX #&62
+     24E2   A0 26      LDY #&26
+     24E4   4C F7 FF   JMP &FFF7
 .entr6
-     24E5   C9 44      CMP #&44
-     24E7   D0 14      BNE &24FD
-     24E9   A9 06      LDA #&06
-     24EB   85 70      STA &70
-     24ED   A9 27      LDA #&27
-     24EF   85 71      STA &71
-     24F1   20 2B 26   JSR &262B
-     24F4   20 A1 25   JSR &25A1
-     24F7   20 DB 25   JSR &25DB
-     24FA   4C BE 24   JMP &24BE
+     24E7   C9 44      CMP #&44
+     24E9   D0 14      BNE &24FF
+     24EB   A9 08      LDA #&08
+     24ED   85 70      STA &70
+     24EF   A9 27      LDA #&27
+     24F1   85 71      STA &71
+     24F3   20 2D 26   JSR &262D
+     24F6   20 A3 25   JSR &25A3
+     24F9   20 DD 25   JSR &25DD
+     24FC   4C C0 24   JMP &24C0
 .entr7
-     24FD   C9 56      CMP #&56
-     24FF   D0 0A      BNE &250B
-     2501   20 EB 25   JSR &25EB
-     2504   A2 60      LDX #&60
-     2506   A0 27      LDY #&27
-     2508   4C F7 FF   JMP &FFF7
+     24FF   C9 56      CMP #&56
+     2501   D0 0A      BNE &250D
+     2503   20 ED 25   JSR &25ED
+     2506   A2 62      LDX #&62
+     2508   A0 27      LDY #&27
+     250A   4C F7 FF   JMP &FFF7
 .entr8
-     250B   AE 15 26   LDX &2615
-     250E   E0 FF      CPX #&FF
-     2510   F0 36      BEQ &2548
-     2512   A9 00      LDA #&00
-     2514   A2 01      LDX #&01
-     2516   20 F4 FF   JSR &FFF4
-     2519   E0 03      CPX #&03
-     251B   90 16      BCC &2533
-     251D   E0 06      CPX #&06
-     251F   B0 12      BCS &2533
-     2521   20 20 26   JSR &2620
-     2524   A9 97      LDA #&97
-     2526   85 70      STA &70
-     2528   A9 26      LDA #&26
-     252A   85 71      STA &71
-     252C   A2 4D      LDX #&4D
-     252E   A0 45      LDY #&45
-     2530   4C 38 26   JMP &2638
+     250D   AE 17 26   LDX &2617
+     2510   E0 FF      CPX #&FF
+     2512   F0 36      BEQ &254A
+     2514   A9 00      LDA #&00
+     2516   A2 01      LDX #&01
+     2518   20 F4 FF   JSR &FFF4
+     251B   E0 03      CPX #&03
+     251D   90 16      BCC &2535
+     251F   E0 06      CPX #&06
+     2521   B0 12      BCS &2535
+     2523   20 22 26   JSR &2622
+     2526   A9 99      LDA #&99
+     2528   85 70      STA &70
+     252A   A9 26      LDA #&26
+     252C   85 71      STA &71
+     252E   A2 4D      LDX #&4D
+     2530   A0 45      LDY #&45
+     2532   4C 3A 26   JMP &263A
 .bbc
-     2533   20 20 26   JSR &2620
-     2536   A9 8A      LDA #&8A
-     2538   85 70      STA &70
-     253A   A9 26      LDA #&26
-     253C   85 71      STA &71
-     253E   20 2B 26   JSR &262B
-     2541   A2 59      LDX #&59
-     2543   A0 26      LDY #&26
-     2545   4C F7 FF   JMP &FFF7
+     2535   20 22 26   JSR &2622
+     2538   A9 8C      LDA #&8C
+     253A   85 70      STA &70
+     253C   A9 26      LDA #&26
+     253E   85 71      STA &71
+     2540   20 2D 26   JSR &262D
+     2543   A2 5B      LDX #&5B
+     2545   A0 26      LDY #&26
+     2547   4C F7 FF   JMP &FFF7
 .copro
-     2548   20 20 26   JSR &2620
-     254B   A9 A5      LDA #&A5
-     254D   85 70      STA &70
-     254F   A9 26      LDA #&26
-     2551   85 71      STA &71
-     2553   A2 53      LDX #&53
-     2555   A0 45      LDY #&45
-     2557   4C 38 26   JMP &2638
+     254A   20 22 26   JSR &2622
+     254D   A9 A7      LDA #&A7
+     254F   85 70      STA &70
+     2551   A9 26      LDA #&26
+     2553   85 71      STA &71
+     2555   A2 53      LDX #&53
+     2557   A0 45      LDY #&45
+     2559   4C 3A 26   JMP &263A
 .AccessUserEnv
-     255A   8D 1C 26   STA &261C
-     255D   A9 13      LDA #&13
-     255F   A2 1C      LDX #&1C
-     2561   A0 26      LDY #&26
-     2563   4C F1 FF   JMP &FFF1
+     255C   8D 1E 26   STA &261E
+     255F   A9 13      LDA #&13
+     2561   A2 1E      LDX #&1E
+     2563   A0 26      LDY #&26
+     2565   4C F1 FF   JMP &FFF1
 .TryLoadingConf
-     2566   BA         TSX
-     2567   8E 12 26   STX &2612
-     256A   AD 02 02   LDA &0202
-     256D   8D 16 26   STA &2616
-     2570   AD 03 02   LDA &0203
-     2573   8D 17 26   STA &2617
-     2576   78         SEI
-     2577   A9 99      LDA #&99
-     2579   8D 02 02   STA &0202
-     257C   A9 25      LDA #&25
-     257E   8D 03 02   STA &0203
-     2581   58         CLI
-     2582   A2 71      LDX #&71
-     2584   A0 27      LDY #&27
-     2586   20 F7 FF   JSR &FFF7
-     2589   18         CLC
+     2568   BA         TSX
+     2569   8E 14 26   STX &2614
+     256C   AD 02 02   LDA &0202
+     256F   8D 18 26   STA &2618
+     2572   AD 03 02   LDA &0203
+     2575   8D 19 26   STA &2619
+     2578   78         SEI
+     2579   A9 9B      LDA #&9B
+     257B   8D 02 02   STA &0202
+     257E   A9 25      LDA #&25
+     2580   8D 03 02   STA &0203
+     2583   58         CLI
+     2584   A2 73      LDX #&73
+     2586   A0 27      LDY #&27
+     2588   20 F7 FF   JSR &FFF7
+     258B   18         CLC
 .conf1
-     258A   78         SEI
-     258B   AD 16 26   LDA &2616
-     258E   8D 02 02   STA &0202
-     2591   AD 17 26   LDA &2617
-     2594   8D 03 02   STA &0203
-     2597   58         CLI
-     2598   60         RTS
+     258C   78         SEI
+     258D   AD 18 26   LDA &2618
+     2590   8D 02 02   STA &0202
+     2593   AD 19 26   LDA &2619
+     2596   8D 03 02   STA &0203
+     2599   58         CLI
+     259A   60         RTS
 .conf2
-     2599   AE 12 26   LDX &2612
-     259C   9A         TXS
-     259D   38         SEC
-     259E   4C 8A 25   JMP &258A
+     259B   AE 14 26   LDX &2614
+     259E   9A         TXS
+     259F   38         SEC
+     25A0   4C 8C 25   JMP &258C
 .ChangeToKey
-     25A1   A9 49      LDA #&49
-     25A3   8D 61 27   STA &2761
-     25A6   A9 4E      LDA #&4E
-     25A8   8D 62 27   STA &2762
-     25AB   A9 20      LDA #&20
-     25AD   8D 63 27   STA &2763
-     25B0   A9 22      LDA #&22
-     25B2   8D 64 27   STA &2764
+     25A3   A9 49      LDA #&49
+     25A5   8D 63 27   STA &2763
+     25A8   A9 4E      LDA #&4E
+     25AA   8D 64 27   STA &2764
+     25AD   A9 20      LDA #&20
+     25AF   8D 65 27   STA &2765
+     25B2   A9 22      LDA #&22
+     25B4   8D 66 27   STA &2766
 .FindEndOfPath
-     25B5   A9 65      LDA #&65
-     25B7   85 70      STA &70
-     25B9   A9 27      LDA #&27
-     25BB   85 71      STA &71
-     25BD   A0 00      LDY #&00
+     25B7   A9 67      LDA #&67
+     25B9   85 70      STA &70
+     25BB   A9 27      LDA #&27
+     25BD   85 71      STA &71
+     25BF   A0 00      LDY #&00
 .path1
-     25BF   B1 70      LDA (&70),Y
-     25C1   F0 07      BEQ &25CA
-     25C3   C9 0D      CMP #&0D
-     25C5   F0 03      BEQ &25CA
-     25C7   C8         INY
-     25C8   D0 F5      BNE &25BF
+     25C1   B1 70      LDA (&70),Y
+     25C3   F0 07      BEQ &25CC
+     25C5   C9 0D      CMP #&0D
+     25C7   F0 03      BEQ &25CC
+     25C9   C8         INY
+     25CA   D0 F5      BNE &25C1
 .path2
-     25CA   60         RTS
+     25CC   60         RTS
 .ChangeToKeyScore
-     25CB   A2 00      LDX #&00
+     25CD   A2 00      LDX #&00
 .csco1
-     25CD   BD 37 27   LDA &2737,X
-     25D0   91 70      STA (&70),Y
-     25D2   C9 0D      CMP #&0D
-     25D4   F0 04      BEQ &25DA
-     25D6   C8         INY
-     25D7   E8         INX
-     25D8   D0 F3      BNE &25CD
+     25CF   BD 39 27   LDA &2739,X
+     25D2   91 70      STA (&70),Y
+     25D4   C9 0D      CMP #&0D
+     25D6   F0 04      BEQ &25DC
+     25D8   C8         INY
+     25D9   E8         INX
+     25DA   D0 F3      BNE &25CF
 .csco2
-     25DA   60         RTS
+     25DC   60         RTS
 .ChangeToKeyDebug
-     25DB   A2 00      LDX #&00
+     25DD   A2 00      LDX #&00
 .cdeb1
-     25DD   BD 43 27   LDA &2743,X
-     25E0   91 70      STA (&70),Y
-     25E2   C9 0D      CMP #&0D
-     25E4   F0 04      BEQ &25EA
-     25E6   C8         INY
-     25E7   E8         INX
-     25E8   D0 F3      BNE &25DD
+     25DF   BD 45 27   LDA &2745,X
+     25E2   91 70      STA (&70),Y
+     25E4   C9 0D      CMP #&0D
+     25E6   F0 04      BEQ &25EC
+     25E8   C8         INY
+     25E9   E8         INX
+     25EA   D0 F3      BNE &25DF
 .cdeb2
-     25EA   60         RTS
+     25EC   60         RTS
 .ChangeToVersion
-     25EB   A9 54      LDA #&54
-     25ED   8D 60 27   STA &2760
-     25F0   A9 59      LDA #&59
-     25F2   8D 61 27   STA &2761
-     25F5   A9 50      LDA #&50
-     25F7   8D 62 27   STA &2762
-     25FA   A9 45      LDA #&45
-     25FC   8D 63 27   STA &2763
-     25FF   20 B5 25   JSR &25B5
-     2602   A2 00      LDX #&00
+     25ED   A9 54      LDA #&54
+     25EF   8D 62 27   STA &2762
+     25F2   A9 59      LDA #&59
+     25F4   8D 63 27   STA &2763
+     25F7   A9 50      LDA #&50
+     25F9   8D 64 27   STA &2764
+     25FC   A9 45      LDA #&45
+     25FE   8D 65 27   STA &2765
+     2601   20 B7 25   JSR &25B7
+     2604   A2 00      LDX #&00
 .cver1
-     2604   BD 4F 27   LDA &274F,X
-     2607   91 70      STA (&70),Y
-     2609   C9 0D      CMP #&0D
-     260B   F0 04      BEQ &2611
-     260D   C8         INY
-     260E   E8         INX
-     260F   D0 F3      BNE &2604
+     2606   BD 51 27   LDA &2751,X
+     2609   91 70      STA (&70),Y
+     260B   C9 0D      CMP #&0D
+     260D   F0 04      BEQ &2613
+     260F   C8         INY
+     2610   E8         INX
+     2611   D0 F3      BNE &2606
 .cver2
-     2611   60         RTS
+     2613   60         RTS
 .stack
-     2612   00 00
+     2614   00 00
 .argument
-     2614   00
+     2616   00
 .tubePresent
-     2615   00
+     2617   00
 .oldBRKV
-     2616   00 00
+     2618   00 00
 .restoreBlock
-     2618   07
-     2619   00
-     261A   00
+     261A   07
      261B   00
+     261C   00
+     261D   00
 .oswordBlock
-     261C   00 00 00 00
+     261E   00 00 00 00
 .PrintLoadMessage
-     2620   A9 66      LDA #&66
-     2622   85 70      STA &70
-     2624   A9 26      LDA #&26
-     2626   85 71      STA &71
-     2628   4C 2B 26   JMP &262B
+     2622   A9 68      LDA #&68
+     2624   85 70      STA &70
+     2626   A9 26      LDA #&26
+     2628   85 71      STA &71
+     262A   4C 2D 26   JMP &262D
 .PrintMessage
-     262B   A0 00      LDY #&00
+     262D   A0 00      LDY #&00
 .prin1
-     262D   B1 70      LDA (&70),Y
-     262F   F0 06      BEQ &2637
-     2631   20 EE FF   JSR &FFEE
-     2634   C8         INY
-     2635   D0 F6      BNE &262D
+     262F   B1 70      LDA (&70),Y
+     2631   F0 06      BEQ &2639
+     2633   20 EE FF   JSR &FFEE
+     2636   C8         INY
+     2637   D0 F6      BNE &262F
 .prin2
-     2637   60         RTS
+     2639   60         RTS
 .RunElite
-     2638   8E 56 26   STX &2656
-     263B   8C 57 26   STY &2657
-     263E   20 2B 26   JSR &262B
-     2641   A2 61      LDX #&61
-     2643   A0 27      LDY #&27
-     2645   20 F7 FF   JSR &FFF7
-     2648   A2 4F      LDX #&4F
-     264A   A0 26      LDY #&26
-     264C   4C F7 FF   JMP &FFF7
+     263A   8E 58 26   STX &2658
+     263D   8C 59 26   STY &2659
+     2640   20 2D 26   JSR &262D
+     2643   A2 63      LDX #&63
+     2645   A0 27      LDY #&27
+     2647   20 F7 FF   JSR &FFF7
+     264A   A2 51      LDX #&51
+     264C   A0 26      LDY #&26
+     264E   4C F7 FF   JMP &FFF7
 .runElt
-     264F   52 55 4E ...
-     2658   0D
+     2651   52 55 4E ...
+     265A   0D
 .runEliteB
-     2659   45 6C 69 ...
-     265F   0D
+     265B   45 6C 69 ...
+     2661   0D
 .basicCommand
-     2660   42 41 53 ...
-     2665   0D
+     2662   42 41 53 ...
+     2667   0D
 .loadMessage
-     2666   4C 6F 61 ...
-     2687   0A
-     2688   0D
-     2689   00
+     2668   4C 6F 61 ...
+     2689   0A
+     268A   0D
+     268B   00
 .bbcText
-     268A   42 42 43 ...
-     2696   00
+     268C   42 42 43 ...
+     2698   00
 .masterText
-     2697   42 42 43 ...
-     26A4   00
+     2699   42 42 43 ...
+     26A6   00
 .spText
-     26A5   36 35 30 ...
-     26BD   00
+     26A7   36 35 30 ...
+     26BF   00
 .executiveText
-     26BE   45 78 65 ...
-     26D2   00
+     26C0   45 78 65 ...
+     26D4   00
 .scoreText
-     26D3   4C 6F 61 ...
-     26ED   0A
-     26EE   0D
-     26EF   45 6C 69 ...
-     2703   0A
-     2704   0D
-     2705   00
+     26D5   4C 6F 61 ...
+     26EF   0A
+     26F0   0D
+     26F1   45 6C 69 ...
+     2705   0A
+     2706   0D
+     2707   00
 .debugText
-     2706   4C 6F 61 ...
-     271E   0A
-     271F   0D
-     2720   45 6C 69 ...
-     2734   0A
-     2735   0D
-     2736   00
+     2708   4C 6F 61 ...
+     2720   0A
+     2721   0D
+     2722   45 6C 69 ...
+     2736   0A
+     2737   0D
+     2738   00
 .elScoreName
-     2737   2E 45 6C ...
-     273F   22
-     2740   7C 4D 
-     2742   0D
+     2739   2E 45 6C ...
+     2741   22
+     2742   7C 4D 
+     2744   0D
 .elDebugName
-     2743   2E 45 6C ...
-     274B   22
-     274C   7C 4D 
-     274E   0D
+     2745   2E 45 6C ...
+     274D   22
+     274E   7C 4D 
+     2750   0D
 .versionName
-     274F   2E 56 65 ...
-     2757   0D
+     2751   2E 56 65 ...
+     2759   0D
 .keyCommand
-     2758   4B 45 59 ...
+     275A   4B 45 59 ...
 .osCommand
-     2761   44 49 52 ...
+     2763   44 49 52 ...
 .gamePath
-     2765   24 2E 45 ...
-     2770   0D
+     2767   24 2E 45 ...
+     2772   0D
 .loadEliteConf
-     2771   4C 4F 41 ...
-     2780   32 37 36 ...
-     2784   0D
-S.Elite &2400  &2785  &2400  &2400 
+     2773   4C 4F 41 ...
+     2782   32 37 36 ...
+     2786   0D
+S.Elite &2400  &2787  &2400  &2400 
 Saving file '2-assembled-output/Elite.bin'
