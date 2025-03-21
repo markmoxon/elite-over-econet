@@ -322,9 +322,24 @@
  LDX #LO(loadShipFile)  \ Set (Y X) to point to loadShipFile ("LOAD D.MO0")
  LDY #HI(loadShipFile)
 
- JMP OSCLI              \ Call OSCLI to run the OS command in loadShipFile,
-                        \ which *LOADs the ship blueprints file, returning from
-                        \ the subroutine using a tail call
+ JSR OSCLI              \ Call OSCLI to run the OS command in loadShipFile,
+                        \ which *LOADs the ship blueprints file
+
+ LDX #LO(cmdrDirectory) \ Set (Y X) to point to cmdrDirectory ("DIR")
+ LDY #HI(cmdrDirectory)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in cmdrDirectory,
+                        \ which changes to the user's home directory
+
+ LDA #' '               \ Convert the command at cmdrDirectory from *DIR to
+ STA cmdrDirectory+3    \ *DIR EliteCmdrs
+
+ LDX #LO(cmdrDirectory) \ Set (Y X) to point to cmdrDirectory ("DIR EliteCmdrs")
+ LDY #HI(cmdrDirectory)
+
+ JMP OSCLI              \ Call OSCLI to run the OS command in cmdrDirectory,
+                        \ which changes the directory to EliteCmdrs, returning
+                        \ from the subroutine using a tail call
 
 .entr10
 
@@ -587,6 +602,23 @@
 
  EQUS "LOAD D.MO0"
  EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: cmdrDirectory
+\       Type: Variable
+\   Category: Loader
+\    Summary: The OS command string for changing the disc directory to
+\             EliteCmdrs
+\
+\ ******************************************************************************
+
+.cmdrDirectory
+
+ EQUS "DIR"             \ Change to the EliteCmdrs folder in the user's main
+ EQUB 13                \ directory on the network, with a carriage return in
+ EQUS "EliteCmdrs"      \ the first space so we can do a *DIR first
+ EQUB 13                
 
 \ ******************************************************************************
 \
