@@ -271,9 +271,11 @@ DEF PROCprintCmdr(cm%,row%)
   IF cmrec%=cm% THEN flag$="*":star%=row% ELSE flag$=" "
   N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
   PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";FNpad0(S%);S%;
-  PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
   K%=kills%(cm%):D%=deaths%(cm%)
-  PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
+  Z%=FNdigits(K%)+FNdigits(D%)
+  IF Z%>2 THEN N$=LEFT$(name$(cm%),7-(Z%-2)) ELSE N$=name$(cm%)
+  PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);N$;CHR$(130);
+  PRINT TAB(29-Z%,row%);K%;"/";D%;
   K$=" ":M%=credits%(cm%)
   IF M%>99999 AND M%<=99999999 THEN K$="k":M%=M%/1000
   IF M%>99999999 THEN K$="m":M%=M%/1000000
