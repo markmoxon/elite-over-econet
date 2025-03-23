@@ -92,7 +92,7 @@ ENDPROC
 :
 DEF FNupdateCmdr(cm%)
   ch%=FALSE
-  name$(cm%)=$rxbuffer%
+  rxbuffer%?7=13:name$(cm%)=$rxbuffer%
   legal%(cm%)=rxbuffer%?8
   condition%(cm%)=rxbuffer%?9
   newkills%=rxbuffer%?10

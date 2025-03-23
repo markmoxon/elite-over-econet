@@ -157,7 +157,7 @@ DEF FNprintData
   IF rxbuffer%?17>0 THEN PRINT "Data forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
   PRINT "Data received by ";thisStn$;" on port ";cblock%?2
   PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
-  PRINT "Player name: ";$rxbuffer%
+  rxbuffer%?7=13:PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
   PRINT "Kills: ";rxbuffer%?10
@@ -190,7 +190,7 @@ DEF PROClogData(t$)
   PROClogNumberTab(cblock%?2):REM Port
   PROClogNumberTab(cblock%?4):REM Player network
   PROClogNumberTab(cblock%?3):REM Player station
-  PROClogStringTab($rxbuffer%):REM Player name
+  rxbuffer%?7=13:PROClogStringTab($rxbuffer%):REM Player name
   PROClogStringTab(dL$(rxbuffer%?8)):REM Legal status
   PROClogStringTab(dC$(rxbuffer%?9)):REM Condition
   PROClogNumberTab(rxbuffer%?10):REM Kills
