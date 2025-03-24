@@ -72,7 +72,7 @@ DEF PROCmonitorMenu
   PRINT '"Option chosen:"
   PRINT '"1. Monitor and log scoreboard traffic"
   INPUT '"Enter the port number to monitor: " port%
-  PRINT '"Press Return to skip an option"
+  PRINT '"Press RETURN to skip an option"
   INPUT '"Enter the filename of the log file: "'file$
   INPUT '"Enter the network number of the"'"forwarding destination: " fnetwork%(0)
   INPUT '"Enter the station number of the"'"forwarding destination: " fstation%(0)
@@ -85,7 +85,7 @@ DEF PROCforwardMenu
   PRINT '"Option chosen:"
   PRINT '"2. Forward scores to multiple stations"
   INPUT '"Enter the port number to receive on: " port%
-  PRINT '"Press Return for all three questions"'"to stop configuring stations"
+  PRINT '"Press RETURN for all three questions"'"to stop configuring stations"
   I%=0:end%=FALSE
   REPEAT
     PRINT '"Enter the network number of forwarding"'"destination ";STR$(I%+1);": ";
