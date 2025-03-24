@@ -72,7 +72,7 @@ DEF PROCmonitorMenu
   PRINT '"Option chosen:"
   PRINT '"1. Monitor and log scoreboard traffic"
   INPUT '"Enter the port number to monitor: " port%
-  PRINT '"Press Return to skip an option"
+  PRINT '"Press RETURN to skip an option"
   INPUT '"Enter the filename of the log file: "'file$
   INPUT '"Enter the network number of the"'"forwarding destination: " fnetwork%(0)
   INPUT '"Enter the station number of the"'"forwarding destination: " fstation%(0)
@@ -85,7 +85,7 @@ DEF PROCforwardMenu
   PRINT '"Option chosen:"
   PRINT '"2. Forward scores to multiple stations"
   INPUT '"Enter the port number to receive on: " port%
-  PRINT '"Press Return for all three questions"'"to stop configuring stations"
+  PRINT '"Press RETURN for all three questions"'"to stop configuring stations"
   I%=0:end%=FALSE
   REPEAT
     PRINT '"Enter the network number of forwarding"'"destination ";STR$(I%+1);": ";
@@ -157,7 +157,7 @@ DEF FNprintData
   IF rxbuffer%?17>0 THEN PRINT "Data forwarded from: ";onetwork%;".";FNpad0(ostation%);ostation%
   PRINT "Data received by ";thisStn$;" on port ";cblock%?2
   PRINT "Player address: ";cblock%?4;".";FNpad0(cblock%?3);cblock%?3
-  PRINT "Player name: ";$rxbuffer%
+  rxbuffer%?7=13:PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
   PRINT "Kills: ";rxbuffer%?10
@@ -190,7 +190,7 @@ DEF PROClogData(t$)
   PROClogNumberTab(cblock%?2):REM Port
   PROClogNumberTab(cblock%?4):REM Player network
   PROClogNumberTab(cblock%?3):REM Player station
-  PROClogStringTab($rxbuffer%):REM Player name
+  rxbuffer%?7=13:PROClogStringTab($rxbuffer%):REM Player name
   PROClogStringTab(dL$(rxbuffer%?8)):REM Legal status
   PROClogStringTab(dC$(rxbuffer%?9)):REM Condition
   PROClogNumberTab(rxbuffer%?10):REM Kills

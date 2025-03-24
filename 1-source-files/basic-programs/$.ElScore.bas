@@ -24,22 +24,25 @@ ON ERROR PROCerror
 *FX200,1
 VDU23;8202;0;0;0;
 PROCprintHeader
-REPEAT
-  PROCreceive
-  IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
-  IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
-  IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
-  IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%,0):PROCsortCmdr(cmrec%,1)
-  IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
-  PROCupdateTable(0)
-  IF fstation%>0 AND fport%>0 THEN PROCforward(fstation%,fnetwork%,fport%)
-UNTIL FALSE
+PROCmainLoop
 END
+:
+DEF PROCmainLoop
+  REPEAT
+    PROCreceive
+    IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
+    IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
+    IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
+    IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%,0):PROCsortCmdr(cmrec%,1)
+    IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
+    PROCupdateTable(0)
+    IF fstation%>0 AND fport%>0 THEN PROCforward(fstation%,fnetwork%,fport%)
+  UNTIL FALSE
+ENDPROC
 :
 DEF PROCerror
   REPORT
   PRINT " at line ";ERL
-  IF saving%=0 THEN PROCend ELSE PROCbeep(0):PROCmenu
 ENDPROC
 :
 DEF PROCend
@@ -56,10 +59,16 @@ ENDPROC
 DEF PROCprocessKeys
   K%=INKEY(0)
   IF K%=ASC("S") THEN PROCchangeSort
-  IF K%=ASC("M") THEN PROCmenu:PROCprintHeader:IF cmdrs%>0 THEN PROCupdateTable(1)
+  IF K%=ASC("M") THEN PROCmainMenu
   IF K%=ASC("R") THEN PROCupdateScreen
   IF K%=136 THEN PROCprevPage
   IF K%=137 THEN PROCnextPage
+ENDPROC
+:
+DEF PROCmainMenu
+  PROCmenu
+  PROCprintHeader
+  IF cmdrs%>0 THEN PROCupdateTable(1)
 ENDPROC
 :
 DEF PROCaddCmdr
@@ -92,7 +101,7 @@ ENDPROC
 :
 DEF FNupdateCmdr(cm%)
   ch%=FALSE
-  name$(cm%)=$rxbuffer%
+  rxbuffer%?7=13:name$(cm%)=$rxbuffer%
   legal%(cm%)=rxbuffer%?8
   condition%(cm%)=rxbuffer%?9
   newkills%=rxbuffer%?10
@@ -271,9 +280,11 @@ DEF PROCprintCmdr(cm%,row%)
   IF cmrec%=cm% THEN flag$="*":star%=row% ELSE flag$=" "
   N%=network%(cm%):L%=legal%(cm%):S%=station%(cm%)
   PRINT TAB(0,row%);flag$;CHR$(134);M$(machine%(cm%));SPC(3-FNdigits(N%));N%;".";FNpad0(S%);S%;
-  PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);name$(cm%);CHR$(130);
   K%=kills%(cm%):D%=deaths%(cm%)
-  PRINT TAB(29-FNdigits(K%)-FNdigits(D%),row%);K%;"/";D%;
+  Z%=FNdigits(K%)+FNdigits(D%)
+  IF Z%>2 THEN N$=LEFT$(name$(cm%),7-(Z%-2)) ELSE N$=name$(cm%)
+  PRINT TAB(12,row%);C$(condition%(cm%));CHR$(172);L$(legal%(cm%));CHR$(134);N$;CHR$(130);
+  PRINT TAB(29-Z%,row%);K%;"/";D%;
   K$=" ":M%=credits%(cm%)
   IF M%>99999 AND M%<=99999999 THEN K$="k":M%=M%/1000
   IF M%>99999999 THEN K$="m":M%=M%/1000000
@@ -281,7 +292,7 @@ DEF PROCprintCmdr(cm%,row%)
 ENDPROC
 :
 DEF PROCsave(file$)
-  saving%=1
+  ON ERROR PROCsaveError:PROCmainMenu:PROCmainLoop
   PRINT TAB(0,23);"Saving file..."
   F%=OPENOUT(file$)
   PROClogHeader
@@ -291,7 +302,14 @@ DEF PROCsave(file$)
   PRINT TAB(0,23);"File saved    "
   CLOSE#F%
   PROCbeep(1)
-  saving%=0
+  ON ERROR PROCend
+ENDPROC
+:
+DEF PROCsaveError
+  ON ERROR PROCend
+  PRINT TAB(0,23);:REPORT
+  PROCbeep(0)
+  CLOSE#F%
 ENDPROC
 :
 DEF PROClogHeader
