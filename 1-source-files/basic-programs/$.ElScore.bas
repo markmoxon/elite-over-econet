@@ -104,7 +104,7 @@ DEF FNupdateCmdr(cm%)
   rxbuffer%?7=13:name$(cm%)=$rxbuffer%
   legal%(cm%)=FNlimit(rxbuffer%?8,2)
   condition%(cm%)=FNlimit(rxbuffer%?9,3)
-  newkills%=rxbuffer%?10
+  newkills%=rxbuffer%?10+256*rxbuffer%?19
   IF newkills%<>kills%(cm%) THEN ch%=TRUE
   kills%(cm%)=newkills%
   IF credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
