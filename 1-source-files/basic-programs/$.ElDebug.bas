@@ -160,7 +160,7 @@ DEF FNprintData
   rxbuffer%?7=13:PRINT "Player name: ";$rxbuffer%
   PRINT "Legal status: ";rxbuffer%?8
   PRINT "Condition: ";rxbuffer%?9
-  PRINT "Kills: ";rxbuffer%?10
+  PRINT "Kills: ";rxbuffer%?10+256*rxbuffer%?19
   PRINT "Deaths: ";rxbuffer%?11
   PRINT "Credits: ";(rxbuffer%!12)/10
   PRINT "Machine type: ";rxbuffer%?16
@@ -193,7 +193,7 @@ DEF PROClogData(t$)
   rxbuffer%?7=13:PROClogStringTab($rxbuffer%):REM Player name
   PROClogStringTab(dL$(rxbuffer%?8)):REM Legal status
   PROClogStringTab(dC$(rxbuffer%?9)):REM Condition
-  PROClogNumberTab(rxbuffer%?10):REM Kills
+  PROClogNumberTab(rxbuffer%?10+256*rxbuffer%?19):REM Kills
   PROClogNumberTab(rxbuffer%?11):REM Deaths
   PROClogNumberTab((rxbuffer%!12)/10):REM Credits
   PROClogStringTab(dM$(rxbuffer%?16)):REM Machine type
@@ -241,7 +241,8 @@ DEF PROCsendCmdr(cm%)
   $rxbuffer%=name$(cm%)
   rxbuffer%?8=legal%(cm%)
   rxbuffer%?9=condition%(cm%)
-  rxbuffer%?10=kills%(cm%)
+  rxbuffer%?10=kills%(cm%) MOD 256
+  rxbuffer%?19=kills%(cm%) DIV 256
   rxbuffer%?11=deaths%(cm%)
   rxbuffer%!12=credits%(cm%)
   rxbuffer%?16=machine%(cm%)

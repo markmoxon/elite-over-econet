@@ -102,19 +102,25 @@ ENDPROC
 DEF FNupdateCmdr(cm%)
   ch%=FALSE
   rxbuffer%?7=13:name$(cm%)=$rxbuffer%
-  legal%(cm%)=rxbuffer%?8
-  condition%(cm%)=rxbuffer%?9
-  newkills%=rxbuffer%?10
+  legal%(cm%)=FNlimit(rxbuffer%?8,2)
+  condition%(cm%)=FNlimit(rxbuffer%?9,3)
+  newkills%=rxbuffer%?10+256*rxbuffer%?19
   IF newkills%<>kills%(cm%) THEN ch%=TRUE
   kills%(cm%)=newkills%
   IF credits%(cm%)<>rxbuffer%!12 THEN ch%=TRUE
   deaths%(cm%)=rxbuffer%?11
   credits%(cm%)=rxbuffer%!12
-  machine%(cm%)=rxbuffer%?16
+  IF credits%(cm%)<0 THEN credits%(cm%)=0
+  machine%(cm%)=FNlimit(rxbuffer%?16,4)
   station%(cm%)=cblock%?3
   network%(cm%)=cblock%?4
   rowUpdt%(rowCmdr%(cm%,sort%))=1
 =ch%
+:
+DEF FNlimit(vl%,lm%)
+  IF vl%<0 THEN =0
+  IF vl%>lm% THEN =lm%
+=vl%
 :
 DEF FNfindCmdr(nm$,nw%,st%)
   match%=-1
