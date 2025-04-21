@@ -169,7 +169,7 @@ DEF PROCswapRow(A%,B%,st%)
 ENDPROC
 :
 DEF FNkillScore(cm%)
-=1000*kills%(cm%)-deaths%(cm%)
+=100000*kills%(cm%)-deaths%(cm%)
 :
 DEF PROCprintHeader
   PRINT TAB(0,0);CHR$(133);"<M>enu      ";
