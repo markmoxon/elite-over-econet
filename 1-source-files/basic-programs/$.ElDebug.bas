@@ -22,7 +22,7 @@ A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 MODE 7
 ON ERROR PROCerror
 choice%=FNstartMenu
-IF choice%=4 THEN END
+IF choice%>=4 THEN END
 PROCgetStationNumber
 thisStn$=STR$(snetwork%)+"."+FNpad0(sstation%)+STR$(sstation%)
 PRINT '"This machine: ";thisStn$
@@ -60,12 +60,16 @@ DEF FNstartMenu
   PRINT '"1. Monitor and log scoreboard traffic"
   PRINT '"2. Forward scores to multiple stations"
   PRINT '"3. Generate test scoreboard traffic"
-  PRINT '"4. Quit"
+  PRINT '"4. Convert a score file to TSV"
+  PRINT '"5. Merge score files"
+  PRINT '"6. Quit"
   INPUT '"Enter a number to continue: " a$
   IF a$="1" THEN PROCmonitorMenu:=1
   IF a$="2" THEN PROCforwardMenu:=2
   IF a$="3" THEN PROCtestMenu:=3
-=4
+  IF a$="4" THEN PROCtsvMenu:=4
+  IF a$="5" THEN PROCmergeMenu:=5
+=6
 :
 DEF PROCmonitorMenu
   PROCprintTitle
@@ -111,6 +115,41 @@ DEF PROCtestMenu
   fcount%=1
   DIM name$(max%),credits%(max%),kills%(max%),deaths%(max%)
   DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
+ENDPROC
+:
+DEF PROCtsvMenu
+  PROCprintTitle
+  PRINT '"Option chosen:"
+  PRINT '"4. Convert a score file to TSV"
+  INPUT '"Please enter the filename to load: "'ifile$
+  INPUT '"Please enter the filename to save: "'ofile$
+  F%=OPENIN(ifile$)
+  INPUT#F%,cmdrs%
+  DIM rowCmdr%(cmdrs%,1),rowUpdt%(cmdrs%)
+  DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
+  DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
+  PROCload(cmdrs%)
+  PROCsaveTSV(ofile$)
+ENDPROC
+:
+DEF PROCmergeMenu
+  PROCprintTitle
+  PRINT '"Option chosen:"
+  PRINT '"5. Merge score files"
+  INPUT '"Please enter the first filename: "'file1$
+  INPUT '"Please enter the second filename: "'file2$
+  INPUT '"Please enter the filename to save: "'ofile$
+  F%=OPENIN(file1$)
+  INPUT#F%,cmdrs1%
+  G%=OPENIN(file2$)
+  INPUT#G%,cmdrs2%
+  cmdrs%=cmdrs1%+cmdrs2%
+  DIM rowCmdr%(cmdrs%,1),rowUpdt%(cmdrs%)
+  DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
+  DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
+  PROCload(cmdrs1%)
+  PROCmerge(cmdrs1%,cmdrs2%-1)
+  PROCsave(ofile$)
 ENDPROC
 :
 DEF PROCmonitorLoop
@@ -259,6 +298,117 @@ DEF PROCupdateCmdr(cm%)
   IF RND(4)=1 THEN credits%(I%)=credits%(I%)+RND(1000)
   PROCsendCmdr(cm%)
 ENDPROC
+:
+DEF PROCsave(file$)
+  PRINT "Saving file..."
+  F%=OPENOUT(file$)
+  PRINT#F%,cmdrs%
+  FOR I%=0 TO cmdrs%-1
+    PRINT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
+    PRINT#F%,name$(I%),kills%(I%),deaths%(I%)
+    PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
+    PRINT#F%,machine%(I%),network%(I%),station%(I%)
+  NEXT
+  PRINT "File saved"
+  CLOSE#F%
+ENDPROC
+:
+DEF PROCload(size%)
+  PRINT '"Loading file..."
+  FOR I%=0 TO size%-1
+    INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
+    INPUT#F%,name$(I%),kills%(I%),deaths%(I%)
+    INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
+    INPUT#F%,machine%(I%),network%(I%),station%(I%)
+  NEXT
+  PRINT "File loaded"
+  CLOSE#F%
+ENDPROC
+:
+DEF PROCmerge(start%,size%)
+  PRINT "Merging file..."
+  FOR I%=start% TO start%+size%-1
+    INPUT#G%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
+    INPUT#G%,name$(I%),kills%(I%),deaths%(I%)
+    INPUT#G%,credits%(I%),condition%(I%),legal%(I%)
+    INPUT#G%,machine%(I%),network%(I%),station%(I%)
+    rowCmdr%(I%,0)=I%:rowCmdr%(I%,1)=I%:cmdrs%=I%+1
+    PROCsortCmdr(I%,0,I%):PROCsortCmdr(I%,1,I%)
+  NEXT
+  PRINT "File merged"
+  CLOSE#G%
+ENDPROC
+:
+DEF PROCsaveTSV(file$)
+  PRINT "Saving TSV file..."
+  F%=OPENOUT(file$)
+  PROCtsvHeader
+  FOR I%=0 TO cmdrs%-1
+    PROCtsvData(I%)
+  NEXT
+  PRINT "TSV File saved"
+  CLOSE#F%
+ENDPROC
+:
+DEF PROCtsvHeader
+  PROClogStringTab("Machine type")
+  PROClogStringTab("Player network")
+  PROClogStringTab("Player station")
+  PROClogStringTab("Condition")
+  PROClogStringTab("Legal status")
+  PROClogStringTab("Player name")
+  PROClogStringTab("Kills")
+  PROClogStringTab("Deaths")
+  PROClogString("Credits")
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF PROCtsvData(row%)
+  cm%=rowCmdr%(row%,0)
+  PROClogStringTab(dM$(machine%(cm%)))
+  PROClogNumberTab(network%(cm%))
+  PROClogNumberTab(station%(cm%))
+  PROClogStringTab(dC$(condition%(cm%)))
+  PROClogStringTab(dL$(legal%(cm%)))
+  PROClogStringTab(name$(cm%))
+  PROClogNumberTab(kills%(cm%))
+  PROClogNumberTab(deaths%(cm%))
+  cr$=STR$(credits%(cm%) DIV 10)+"."+STR$(credits%(cm%) MOD 10)
+  PROClogString(cr$)
+  BPUT#F%,13
+  BPUT#F%,10
+ENDPROC
+:
+DEF FNfindCmdr(nm$,nw%,st%)
+  match%=-1
+  FOR I%=0 TO cmdrs%-1
+    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN match%=I%:I%=cmdrs%-1
+  NEXT
+=match%
+:
+DEF PROCsortCmdr(cm%,st%,thisRow%)
+  REPEAT
+    sorted%=TRUE
+    IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1,st%)
+    IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1,st%)
+    IF st%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(cm%),FNkillScore(prevCm%),-1,st%)
+    IF st%=0 AND sorted% AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(nextCm%),FNkillScore(cm%),1,st%)
+    IF st%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1,st%)
+    IF st%=1 AND sorted% AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(nextCm%),credits%(cm%),1,st%)
+  UNTIL sorted%
+ENDPROC
+:
+DEF FNswapIfNeeded(v1%,v2%,dir%,st%)
+  IF v1%>v2% THEN PROCswapRow(thisRow%,thisRow%+dir%,st%):thisRow%=thisRow%+dir%:=FALSE
+=TRUE
+:
+DEF PROCswapRow(A%,B%,st%)
+  T%=rowCmdr%(A%,st%):rowCmdr%(A%,st%)=rowCmdr%(B%,st%):rowCmdr%(B%,st%)=T%
+ENDPROC
+:
+DEF FNkillScore(cm%)
+=1000*kills%(cm%)-deaths%(cm%)
 :
 : REM Econet library
 :
