@@ -31,7 +31,7 @@ DEF PROCmainLoop
   REPEAT
     PROCreceive
     IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
-    IF cmrec%=-1 AND cmdrs%<max% THEN PROCaddCmdr
+    IF cmrec%=-1 AND cmdrs%<max%+1 THEN PROCaddCmdr
     IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
     IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%,0):PROCsortCmdr(cmrec%,1)
     IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
@@ -305,17 +305,19 @@ DEF PROCprintCmdr(cm%,row%)
 ENDPROC
 :
 DEF PROCsave(file$)
+  IF cmdrs%=0 THEN PRINT TAB(0,23);"There are no scores to save":PROCbeep(1):ENDPROC
   ON ERROR PROCfileError:PROCmainMenu:PROCmainLoop
   PRINT TAB(0,23);"Saving file..."
   F%=OPENOUT(file$)
   PRINT#F%,cmdrs%
   FOR I%=0 TO cmdrs%-1
+    PRINT TAB(15,23);INT(100*I%/(cmdrs%-1));"%"
     PRINT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
     PRINT#F%,name$(I%),kills%(I%),deaths%(I%)
     PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
     PRINT#F%,machine%(I%),network%(I%),station%(I%)
   NEXT
-  PRINT TAB(0,23);"File saved    "
+  PRINT TAB(0,23);"File saved";SPC(9)
   CLOSE#F%
   PROCbeep(1)
   ON ERROR PROCend
@@ -327,12 +329,13 @@ DEF PROCload(file$)
   F%=OPENIN(file$)
   INPUT#F%,cmdrs%
   FOR I%=0 TO cmdrs%-1
+    PRINT TAB(16,23);INT(100*I%/(cmdrs%-1));"%"
     INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
     INPUT#F%,name$(I%),kills%(I%),deaths%(I%)
     INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
     INPUT#F%,machine%(I%),network%(I%),station%(I%)
   NEXT
-  PRINT TAB(0,23);"File loaded    "
+  PRINT TAB(0,23);"File loaded";SPC(9)
   CLOSE#F%
   PROCbeep(1)
   cmrec%=-1
