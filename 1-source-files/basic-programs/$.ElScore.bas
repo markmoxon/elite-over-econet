@@ -31,7 +31,7 @@ DEF PROCmainLoop
   REPEAT
     PROCreceive
     IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
-    IF cmrec%=-1 AND cmdrs%<max%+1 THEN PROCaddCmdr
+    IF cmrec%=-1 AND cmdrs%<=max% THEN PROCaddCmdr
     IF cmrec%<>-1 THEN dosort%=FNupdateCmdr(cmrec%) ELSE dosort%=FALSE
     IF cmrec%<>-1 AND dosort% AND cmdrs%>1 THEN PROCsortCmdr(cmrec%,0):PROCsortCmdr(cmrec%,1)
     IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
@@ -83,7 +83,7 @@ DEF PROCprevPage
   *FX15,1
   PROCbeep(1)
   page%=page%-1
-  IF page%<0 THEN page%=INT(cmdrs%/20)
+  IF page%<0 THEN page%=INT((cmdrs%-1)/20)
   PROCupdateScreen
 ENDPROC
 :
@@ -91,7 +91,7 @@ DEF PROCnextPage
   *FX15,1
   PROCbeep(1)
   page%=page%+1
-  IF page%>INT(cmdrs%/20) THEN page%=0
+  IF page%>INT((cmdrs%-1)/20) THEN page%=0
   PROCupdateScreen
 ENDPROC
 :
@@ -178,7 +178,8 @@ DEF PROCprintHeader
   PRINT TAB(0,1);CHR$(132);"<S>ort      ";
   PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
   PRINT SPC(9-FNdigits(port%));"Port ";port%
-  PRINT TAB(0,2);CHR$(134);"[]Page      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";INT(cmdrs%/20)+1
+  PRINT TAB(0,2);CHR$(134);"[]Page      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";
+  IF cmdrs%=0 THEN PRINT "1"; ELSE PRINT STR$(INT((cmdrs%-1)/20)+1);
   PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
   PROChighlightSort
 ENDPROC

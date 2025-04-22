@@ -1,6 +1,7 @@
 REM ElDebug - Traffic monitor for Elite over Econet
 REM By Mark Moxon
 :
+max%=99
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 DIM fstation%(4),fnetwork%(4),fport%(4),fname$(4)
 DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
@@ -110,11 +111,11 @@ DEF PROCtestMenu
   INPUT '"Please enter the network number of the"'"scoreboard to test: " fnetwork%(0)
   INPUT '"Please enter the station number of the"'"scoreboard to test: " fstation%(0)
   INPUT '"Please enter the port number of the"'"scoreboard to test: " fport%(0)
-  INPUT '"Please enter the number of players"'"to emulate: " max%
-  max%=max%-1
+  INPUT '"Please enter the number of players"'"to emulate: " cmdrs%
+  cmdrs%=cmdrs%-1
   fcount%=1
-  DIM name$(max%),credits%(max%),kills%(max%),deaths%(max%)
-  DIM machine%(max%),condition%(max%),legal%(max%),network%(max%),station%(max%)
+  DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
+  DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
 ENDPROC
 :
 DEF PROCtsvMenu
@@ -129,7 +130,7 @@ DEF PROCtsvMenu
   DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
   DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
   PROCload(cmdrs%)
-  PROCsaveTSV(ofile$)
+  PROCsaveTSV(ofile$,cmdrs%)
 ENDPROC
 :
 DEF PROCmergeMenu
@@ -143,14 +144,29 @@ DEF PROCmergeMenu
   INPUT#F%,cmdrs1%
   G%=OPENIN(file2$)
   INPUT#G%,cmdrs2%
-  cmdrs%=cmdrs1%+cmdrs2%
+  IF cmdrs1%<cmdrs2% THEN T%=cmdrs1%:cmdrs1%=cmdrs2%:cmdrs2%=T%:T%=F%:F%=G%:G%=T%:T$=file1$:file1$=file2$:file2$=T$
+  cmdrs%=cmdrs1%+cmdrs2%-1
+  ok%=TRUE
+  IF cmdrs%>max% THEN ok%=FNmergeWarning:cmdrs%=max%+1
+  IF NOT(ok%) THEN CLOSE#F%:CLOSE#G%:ENDPROC
   DIM rowCmdr%(cmdrs%,1),rowUpdt%(cmdrs%)
   DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
   DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
   PROCload(cmdrs1%)
-  PROCmerge(cmdrs1%,cmdrs2%-1)
-  PROCsave(ofile$)
+  PROCmerge(cmdrs1%,cmdrs%)
+  PROCsave(ofile$,cmdrs%)
 ENDPROC
+:
+DEF FNmergeWarning
+ PRINT '"Please note: truncation will occur as"
+ PRINT "score files are limited to ";max%+1;" scores"
+ PRINT 'file1$;" contains ";cmdrs1%;" scores"
+ PRINT 'file2$;" contains ";cmdrs2%;" scores"
+ PRINT '"So ";cmdrs%-max%;" scores will be dropped from the"
+ PRINT "end of the ";file2$;" file"
+ PRINT '"Is this OK? (Y/N)"
+ a$=GET$
+=(a$="Y" OR a$="y")
 :
 DEF PROCmonitorLoop
   PROCreceive
@@ -299,54 +315,58 @@ DEF PROCupdateCmdr(cm%)
   PROCsendCmdr(cm%)
 ENDPROC
 :
-DEF PROCsave(file$)
-  PRINT "Saving file..."
+DEF PROCsave(file$,size%)
+  PRINT '"Saving file...";
   F%=OPENOUT(file$)
-  PRINT#F%,cmdrs%
-  FOR I%=0 TO cmdrs%-1
+  PRINT#F%,size%
+  FOR I%=0 TO size%-1
+    PRINT ".";
     PRINT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
     PRINT#F%,name$(I%),kills%(I%),deaths%(I%)
     PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
     PRINT#F%,machine%(I%),network%(I%),station%(I%)
   NEXT
-  PRINT "File saved"
+  PRINT '"File saved"
   CLOSE#F%
 ENDPROC
 :
 DEF PROCload(size%)
-  PRINT '"Loading file..."
+  PRINT '"Loading file...";
   FOR I%=0 TO size%-1
+    PRINT ".";
     INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
     INPUT#F%,name$(I%),kills%(I%),deaths%(I%)
     INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
     INPUT#F%,machine%(I%),network%(I%),station%(I%)
   NEXT
-  PRINT "File loaded"
+  PRINT '"File loaded"
   CLOSE#F%
 ENDPROC
 :
-DEF PROCmerge(start%,size%)
-  PRINT "Merging file..."
-  FOR I%=start% TO start%+size%-1
+DEF PROCmerge(start%,end%)
+  PRINT '"Merging file...";
+  FOR I%=start% TO end%-1
+    PRINT ".";
     INPUT#G%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
     INPUT#G%,name$(I%),kills%(I%),deaths%(I%)
     INPUT#G%,credits%(I%),condition%(I%),legal%(I%)
     INPUT#G%,machine%(I%),network%(I%),station%(I%)
-    rowCmdr%(I%,0)=I%:rowCmdr%(I%,1)=I%:cmdrs%=I%+1
+    rowCmdr%(I%,0)=I%:rowCmdr%(I%,1)=I%
     PROCsortCmdr(I%,0,I%):PROCsortCmdr(I%,1,I%)
   NEXT
-  PRINT "File merged"
+  PRINT '"File merged"
   CLOSE#G%
 ENDPROC
 :
-DEF PROCsaveTSV(file$)
-  PRINT "Saving TSV file..."
+DEF PROCsaveTSV(file$,size%)
+  PRINT '"Saving TSV file...";
   F%=OPENOUT(file$)
   PROCtsvHeader
-  FOR I%=0 TO cmdrs%-1
+  FOR I%=0 TO size%-1
+    PRINT ".";
     PROCtsvData(I%)
   NEXT
-  PRINT "TSV File saved"
+  PRINT '"TSV File saved"
   CLOSE#F%
 ENDPROC
 :
@@ -380,18 +400,12 @@ DEF PROCtsvData(row%)
   BPUT#F%,10
 ENDPROC
 :
-DEF FNfindCmdr(nm$,nw%,st%)
-  match%=-1
-  FOR I%=0 TO cmdrs%-1
-    IF station%(I%)=st% AND network%(I%)=nw% AND name$(I%)=nm$ THEN match%=I%:I%=cmdrs%-1
-  NEXT
-=match%
-:
 DEF PROCsortCmdr(cm%,st%,thisRow%)
+  size%=thisRow%+1
   REPEAT
     sorted%=TRUE
     IF thisRow%=0 THEN prevCm%=-1 ELSE prevCm%=rowCmdr%(thisRow%-1,st%)
-    IF thisRow%=cmdrs%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1,st%)
+    IF thisRow%=size%-1 THEN nextCm%=-1 ELSE nextCm%=rowCmdr%(thisRow%+1,st%)
     IF st%=0 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(cm%),FNkillScore(prevCm%),-1,st%)
     IF st%=0 AND sorted% AND nextCm%>=0 THEN sorted%=FNswapIfNeeded(FNkillScore(nextCm%),FNkillScore(cm%),1,st%)
     IF st%=1 AND prevCm%>=0 THEN sorted%=FNswapIfNeeded(credits%(cm%),credits%(prevCm%),-1,st%)
