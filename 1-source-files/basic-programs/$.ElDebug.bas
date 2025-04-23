@@ -310,7 +310,7 @@ DEF PROCupdateCmdr(cm%)
  IF RND(7)=1 THEN legal%(I%)=RND(3)-1
  IF RND(5)=1 THEN condition%(I%)=RND(4)-1
  IF RND(4)=1 THEN kills%(I%)=kills%(I%)+1
- IF RND(10)=1 THEN deaths%(I%)=deaths%(I%)+1
+ IF RND(10)=1 AND deaths%(I%)<255 THEN deaths%(I%)=deaths%(I%)+1
  IF RND(4)=1 THEN credits%(I%)=credits%(I%)+RND(1000)
  PROCsendCmdr(cm%)
 ENDPROC
