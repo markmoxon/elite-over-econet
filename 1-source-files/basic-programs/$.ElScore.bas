@@ -309,9 +309,10 @@ ENDPROC
 :
 DEF PROCsave(file$)
  IF cmdrs%=0 THEN PRINT TAB(0,23);"There are no scores to save":PROCbeep(1):ENDPROC
- ON ERROR PROCfileError:PROCmainMenu:PROCmainLoop
- PRINT TAB(0,23);"Saving file..."
+ ON ERROR PROCfileError(""):PROCmainMenu:PROCmainLoop
  F%=OPENOUT(file$)
+ IF F%=0 THEN PROCfileError("Can't open file"):PROCmainMenu:PROCmainLoop
+ PRINT TAB(0,23);"Saving file..."
  PRINT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
   PRINT TAB(15,23);INT(100*I%/(cmdrs%-1));"%"
@@ -327,9 +328,10 @@ DEF PROCsave(file$)
 ENDPROC
 :
 DEF PROCload(file$)
- ON ERROR PROCfileError:PROCmainMenu:PROCmainLoop
- PRINT TAB(0,23);"Loading file..."
+ ON ERROR PROCfileError(""):PROCmainMenu:PROCmainLoop
  F%=OPENIN(file$)
+ IF F%=0 THEN PROCfileError("Can't open file"):PROCmainMenu:PROCmainLoop
+ PRINT TAB(0,23);"Loading file..."
  INPUT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
   PRINT TAB(16,23);INT(100*I%/(cmdrs%-1));"%"
@@ -345,9 +347,10 @@ DEF PROCload(file$)
  ON ERROR PROCend
 ENDPROC
 :
-DEF PROCfileError
+DEF PROCfileError(e$)
  ON ERROR PROCend
- PRINT TAB(0,23);:REPORT
+ PRINT TAB(0,23);
+ IF e$="" THEN REPORT ELSE PRINT e$;
  PROCbeep(0)
  CLOSE#F%
 ENDPROC
