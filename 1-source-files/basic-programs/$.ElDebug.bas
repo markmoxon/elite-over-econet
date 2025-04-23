@@ -326,7 +326,7 @@ DEF PROCsave(file$,size%)
   PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
   PRINT#F%,machine%(I%),network%(I%),station%(I%)
  NEXT
- PRINT '"File saved"
+ PRINT ''"File saved"
  CLOSE#F%
 ENDPROC
 :
@@ -339,7 +339,7 @@ DEF PROCload(size%)
   INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
   INPUT#F%,machine%(I%),network%(I%),station%(I%)
  NEXT
- PRINT '"File loaded"
+ PRINT ''"File loaded"
  CLOSE#F%
 ENDPROC
 :
@@ -352,9 +352,12 @@ DEF PROCmerge(start%,end%)
   INPUT#G%,credits%(I%),condition%(I%),legal%(I%)
   INPUT#G%,machine%(I%),network%(I%),station%(I%)
   rowCmdr%(I%,0)=I%:rowCmdr%(I%,1)=I%
-  PROCsortCmdr(I%,0,I%):PROCsortCmdr(I%,1,I%)
  NEXT
- PRINT '"File merged"
+ PRINT ''"Sorting by kills...";
+ PROCquickSort(0,end%,0)
+ PRINT '"Sorting by credits...";
+ PROCquickSort(0,end%,1)
+ PRINT ''"File merged"
  CLOSE#G%
 ENDPROC
 :
@@ -366,7 +369,7 @@ DEF PROCsaveTSV(file$,size%)
   PRINT ".";
   PROCtsvData(I%)
  NEXT
- PRINT '"TSV File saved"
+ PRINT ''"TSV File saved"
  CLOSE#F%
 ENDPROC
 :
@@ -423,6 +426,28 @@ ENDPROC
 :
 DEF FNkillScore(cm%)
 =100000*kills%(cm%)-deaths%(cm%)
+:
+DEF PROCquickSort(start%,size%,st%)
+  LOCAL pivot%,left%,right%,end%
+  IF size%<2 THEN ENDPROC
+  end%=start%+size%-1
+  left%=start%:right%=end%:P%=(left%+right%)DIV2
+  IF st%=0 THEN pivot%=FNkillScore(rowCmdr%(P%,st%)) ELSE pivot%=credits%(rowCmdr%(P%,st%))
+  REPEAT
+    PRINT ".";
+    REPEAT
+      IF st%=0 THEN V%=FNkillScore(rowCmdr%(left%,st%)) ELSE V%=credits%(rowCmdr%(left%,st%))
+      IF V%>pivot% THEN left%=left%+1:done%=FALSE ELSE done%=TRUE
+    UNTIL done%
+    REPEAT
+      IF st%=0 THEN V%=FNkillScore(rowCmdr%(right%,st%)) ELSE V%=credits%(rowCmdr%(right%,st%))
+      IF V%<pivot% THEN right%=right%-1:done%=FALSE ELSE done%=TRUE
+    UNTIL done%
+    IF left%<=right% THEN PROCswapRow(left%,right%,st%):left%=left%+1:right%=right%-1
+  UNTIL left%>right%
+  IF start%<right% THEN PROCquickSort(start%,right%-start%+1,st%)
+  IF left%<end% THEN PROCquickSort(left%,end%-left%+1,st%)
+ENDPROC
 :
 : REM Econet library
 :
