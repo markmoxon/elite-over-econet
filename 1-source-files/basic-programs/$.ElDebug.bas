@@ -15,7 +15,7 @@ cname$(15)="DECKARD":cname$(16)="ZAPHOD":cname$(17)="PICARD":cname$(18)="FORD"
 cname$(19)="MARVIN":cname$(20)="R2D2":cname$(21)="C3PO":cname$(22)="ORAC"
 cname$(23)="FLASH":cname$(24)="HAL"
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA:TIME=0
-ostation%=0:onetwork%=0:file$="":fcount%=0
+ostation%=0:onetwork%=0:log$="":fcount%=0
 A%=0:X%=1:os%=((USR OSBYTE) AND &FF00) DIV 256
 :
 *FX4,0
@@ -28,7 +28,7 @@ PROCgetStationNumber
 thisStn$=STR$(snetwork%)+"."+FNpad0(sstation%)+STR$(sstation%)
 PRINT '"This machine: ";thisStn$
 IF choice%=1 OR choice%=2 THEN PRINT "Receiving scores on port number: ";port%
-IF file$<>"" THEN F%=OPENOUT(file$):PROClogHeader:PRINT "Logging configured to ";file$
+IF log$<>"" THEN F%=OPENOUT(log$):PROClogHeader:PRINT "Logging configured to ";log$
 PROCforwardNames
 IF choice%=1 OR choice%=2 THEN PROCprintForwarding
 IF choice%=3 THEN PRINT "Sending test data to ";fname$(0)
@@ -45,7 +45,7 @@ UNTIL FALSE
 DEF PROCerror
  REPORT
  PRINT " at line ";ERL
- IF file$<>"" THEN PRINT "Closing log file":CLOSE#F%
+ IF log$<>"" THEN PRINT "Closing log file":CLOSE#F%
  END
 ENDPROC
 :
@@ -78,7 +78,7 @@ DEF PROCmonitorMenu
  PRINT '"1. Monitor and log scoreboard traffic"
  INPUT '"Enter the port number to monitor: " port%
  PRINT '"Press RETURN to skip an option"
- INPUT '"Enter the filename of the log file: "'file$
+ INPUT '"Enter the filename of the log file: "'log$
  INPUT '"Enter the network number of the"'"forwarding destination: " fnetwork%(0)
  INPUT '"Enter the station number of the"'"forwarding destination: " fstation%(0)
  INPUT '"Enter the port number of the"'"forwarding destination: " fport%(0)
@@ -129,7 +129,7 @@ DEF PROCtsvMenu
  DIM rowCmdr%(cmdrs%,1),rowUpdt%(cmdrs%)
  DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
  DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
- PROCload(cmdrs%)
+ PROCload(ifile$,cmdrs%)
  PROCsaveTSV(ofile$,cmdrs%)
 ENDPROC
 :
@@ -144,7 +144,7 @@ DEF PROCmergeMenu
  INPUT#F%,cmdrs1%
  G%=OPENIN(file2$)
  INPUT#G%,cmdrs2%
- IF cmdrs1%<cmdrs2% THEN T%=cmdrs1%:cmdrs1%=cmdrs2%:cmdrs2%=T%:T%=F%:F%=G%:G%=T%:T$=file1$:file1$=file2$:file2$=T$
+ REM IF cmdrs1%<cmdrs2% THEN T%=cmdrs1%:cmdrs1%=cmdrs2%:cmdrs2%=T%:T%=F%:F%=G%:G%=T%:T$=file1$:file1$=file2$:file2$=T$
  cmdrs%=cmdrs1%+cmdrs2%-1
  ok%=TRUE
  IF cmdrs%>max% THEN ok%=FNmergeWarning:cmdrs%=max%+1
@@ -152,8 +152,8 @@ DEF PROCmergeMenu
  DIM rowCmdr%(cmdrs%,1),rowUpdt%(cmdrs%)
  DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
  DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
- PROCload(cmdrs1%)
- PROCmerge(cmdrs1%,cmdrs%)
+ PROCload(file1$,cmdrs1%)
+ PROCmerge(file2$,cmdrs1%,cmdrs%)
  PROCsave(ofile$,cmdrs%)
 ENDPROC
 :
@@ -163,7 +163,9 @@ DEF FNmergeWarning
  PRINT 'file1$;" contains ";cmdrs1%;" scores"
  PRINT 'file2$;" contains ";cmdrs2%;" scores"
  PRINT '"So ";cmdrs%-max%;" scores will be dropped from the"
- PRINT "end of the ";file2$;" file"
+ PRINT "second file (";file2$;")"
+ PRINT '"The scores dropped will be the last"
+ PRINT "ones to join the game"
  PRINT '"Is this OK? (Y/N)"
  a$=GET$
 =(a$="Y" OR a$="y")
@@ -171,7 +173,7 @@ DEF FNmergeWarning
 DEF PROCmonitorLoop
  PROCreceive
  t$=FNprintData
- IF file$<>"" THEN PROClogData(t$)
+ IF log$<>"" THEN PROClogData(t$)
  IF fstation%(0)>0 AND fport%(0)>0 THEN PRINT "Forwarding to: ";f$:PROCforward(fstation%(0),fnetwork%(0),fport%(0))
 ENDPROC
 :
@@ -240,7 +242,7 @@ DEF PROClogHeader
 ENDPROC
 :
 DEF PROClogData(t$)
- PRINT "Logging to: ";file$
+ PRINT "Logging to: ";log$
  PROClogStringTab(t$)
  PROClogNumberTab(cblock%?2):REM Port
  PROClogNumberTab(cblock%?4):REM Player network
@@ -316,7 +318,7 @@ DEF PROCupdateCmdr(cm%)
 ENDPROC
 :
 DEF PROCsave(file$,size%)
- PRINT '"Saving file...";
+ PRINT '"Saving file ";file$;"...";
  F%=OPENOUT(file$)
  PRINT#F%,size%
  FOR I%=0 TO size%-1
@@ -326,12 +328,12 @@ DEF PROCsave(file$,size%)
   PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
   PRINT#F%,machine%(I%),network%(I%),station%(I%)
  NEXT
- PRINT ''"File saved"
+ PRINT ''"File ";file$;" saved"
  CLOSE#F%
 ENDPROC
 :
-DEF PROCload(size%)
- PRINT '"Loading file...";
+DEF PROCload(file$,size%)
+ PRINT '"Loading file ";file$;"...";
  FOR I%=0 TO size%-1
   PRINT ".";
   INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
@@ -339,12 +341,12 @@ DEF PROCload(size%)
   INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
   INPUT#F%,machine%(I%),network%(I%),station%(I%)
  NEXT
- PRINT ''"File loaded"
+ PRINT ''"File ";file$;" loaded"
  CLOSE#F%
 ENDPROC
 :
-DEF PROCmerge(start%,end%)
- PRINT '"Merging file...";
+DEF PROCmerge(file$,start%,end%)
+ PRINT '"Merging file ";file$;"...";
  FOR I%=start% TO end%-1
   PRINT ".";
   INPUT#G%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
@@ -355,21 +357,21 @@ DEF PROCmerge(start%,end%)
  NEXT
  PRINT ''"Sorting by kills...";
  PROCquickSort(0,end%,0)
- PRINT '"Sorting by credits...";
+ PRINT ''"Sorting by credits...";
  PROCquickSort(0,end%,1)
- PRINT ''"File merged"
+ PRINT ''"File ";file$;" merged"
  CLOSE#G%
 ENDPROC
 :
 DEF PROCsaveTSV(file$,size%)
- PRINT '"Saving TSV file...";
+ PRINT '"Saving TSV file ";file$;"...";
  F%=OPENOUT(file$)
  PROCtsvHeader
  FOR I%=0 TO size%-1
   PRINT ".";
   PROCtsvData(I%)
  NEXT
- PRINT ''"TSV File saved"
+ PRINT ''"TSV file ";file$;" saved"
  CLOSE#F%
 ENDPROC
 :
