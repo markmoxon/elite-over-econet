@@ -144,31 +144,26 @@ DEF PROCmergeMenu
  INPUT#F%,cmdrs1%
  G%=OPENIN(file2$)
  INPUT#G%,cmdrs2%
- REM IF cmdrs1%<cmdrs2% THEN T%=cmdrs1%:cmdrs1%=cmdrs2%:cmdrs2%=T%:T%=F%:F%=G%:G%=T%:T$=file1$:file1$=file2$:file2$=T$
- cmdrs%=cmdrs1%+cmdrs2%-1
- ok%=TRUE
- IF cmdrs%>max% THEN ok%=FNmergeWarning:cmdrs%=max%+1
- IF NOT(ok%) THEN CLOSE#F%:CLOSE#G%:ENDPROC
- DIM rowCmdr%(cmdrs%,1),rowUpdt%(cmdrs%)
- DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
- DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
+ cmdrs%=cmdrs1%+cmdrs2%
+ truncateWarn%=FALSE
+ IF cmdrs%>max%+1 THEN PROCtruncateWarning:cmdrs%=max%+1
+ DIM rowCmdr%(max%+1,1),rowUpdt%(max%+1)
+ DIM name$(max%+1),credits%(max%+1),kills%(max%+1),deaths%(max%+1)
+ DIM machine%(max%+1),condition%(max%+1),legal%(max%+1),network%(max%+1),station%(max%+1)
  PROCload(file1$,cmdrs1%)
- PROCmerge(file2$,cmdrs1%,cmdrs%)
+ PROCmerge(file2$,cmdrs1%,cmdrs2%)
  PROCsave(ofile$,cmdrs%)
 ENDPROC
 :
-DEF FNmergeWarning
- PRINT '"Please note: truncation will occur as"
- PRINT "score files are limited to ";max%+1;" scores"
- PRINT 'file1$;" contains ";cmdrs1%;" scores"
- PRINT 'file2$;" contains ";cmdrs2%;" scores"
- PRINT '"So ";cmdrs%-max%;" scores will be dropped from the"
- PRINT "second file (";file2$;")"
- PRINT '"The scores dropped will be the last"
- PRINT "ones to join the game"
- PRINT '"Is this OK? (Y/N)"
- a$=GET$
-=(a$="Y" OR a$="y")
+DEF PROCtruncateWarning
+ truncateWarn%=TRUE
+ PRINT '"File ";file1$;" contains ";cmdrs1%;" scores"
+ PRINT "File ";file2$;" contains ";cmdrs2%;" scores"
+ PRINT '"That's a total of ";cmdrs%;" scores"
+ PRINT '"The maximum in one file is ";max%+1;" scores"
+ PRINT '"If there are any scores that don't fit"
+ PRINT "then I will list them at the end"
+ENDPROC
 :
 DEF PROCmonitorLoop
  PROCreceive
@@ -345,22 +340,44 @@ DEF PROCload(file$,size%)
  CLOSE#F%
 ENDPROC
 :
-DEF PROCmerge(file$,start%,end%)
+DEF PROCmerge(file$,start%,size%)
  PRINT '"Merging file ";file$;"...";
- FOR I%=start% TO end%-1
+ truncate$=""
+ C%=start%
+ FOR I%=start% TO start%+size%-1
   PRINT ".";
-  INPUT#G%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
-  INPUT#G%,name$(I%),kills%(I%),deaths%(I%)
-  INPUT#G%,credits%(I%),condition%(I%),legal%(I%)
-  INPUT#G%,machine%(I%),network%(I%),station%(I%)
-  rowCmdr%(I%,0)=I%:rowCmdr%(I%,1)=I%
+  INPUT#G%,rowCmdr%(C%,0),rowCmdr%(C%,1),rowUpdt%(C%)
+  INPUT#G%,name$(C%),kills%(C%),deaths%(C%)
+  INPUT#G%,credits%(C%),condition%(C%),legal%(C%)
+  INPUT#G%,machine%(C%),network%(C%),station%(C%)
+  rowCmdr%(C%,0)=C%:rowCmdr%(C%,1)=C%:rowUpdt%(C%)=0
+  M%=FNfindCmdr(name$(C%),network%(C%),station%(C%),start%)
+  IF M%>=0 THEN PROCmergeCmdr(M%,C%) ELSE C%=C%+1
+  IF C%>max%+1 THEN C%=max%+1:truncate$=truncate$+CHR$(10)+CHR$(13)+STR$(network%(C%))+"."+FNpad0(station%(C%))+STR$(station%(C%))+" "+name$(C%)
  NEXT
+ cmdrs%=C%
  PRINT ''"Sorting by kills...";
- PROCquickSort(0,end%,0)
+ PROCquickSort(0,cmdrs%,0)
  PRINT ''"Sorting by credits...";
- PROCquickSort(0,end%,1)
+ PROCquickSort(0,cmdrs%,1)
  PRINT ''"File ";file$;" merged"
+ IF truncate$<>"" THEN PRINT '"There was no room for the following"'"scores from file ";file$;":"'truncate$ ELSE IF truncateWarn% THEN PRINT '"All scores were successfully merged"
  CLOSE#G%
+ENDPROC
+:
+DEF PROCmergeCmdr(old%,new%)
+ IF kills%(new%)<kills%(old%) OR deaths%(new%)>deaths%(old%) THEN ENDPROC
+ IF kills%(new%)>kills%(old%) OR deaths%(new%)<deaths%(old%) THEN PROCcopyCmdr(old%,new%):ENDPROC
+ IF credits%(new%)>credits%(old%) PROCcopyCmdr(old%,new%)
+ENDPROC
+:
+DEF PROCcopyCmdr(old%,new%)
+ PRINT "Copy (";STR$(old%)";";STR$(new%)")"
+ kills%(old%)=kills%(new%)
+ deaths%(old%)=deaths%(new%)
+ credits%(old%)=credits%(new%)
+ condition%(old%)=condition%(new%)
+ legal%(old%)=legal%(new%)
 ENDPROC
 :
 DEF PROCsaveTSV(file$,size%)
@@ -450,6 +467,13 @@ DEF PROCquickSort(start%,size%,st%)
   IF start%<right% THEN PROCquickSort(start%,right%-start%+1,st%)
   IF left%<end% THEN PROCquickSort(left%,end%-left%+1,st%)
 ENDPROC
+:
+DEF FNfindCmdr(nm$,nw%,st%,start%)
+ match%=-1
+ FOR J%=0 TO start%-1
+  IF station%(J%)=st% AND network%(J%)=nw% AND name$(J%)=nm$ THEN match%=J%:J%=start%-1
+ NEXT
+=match%
 :
 : REM Econet library
 :
