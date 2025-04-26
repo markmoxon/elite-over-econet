@@ -193,8 +193,10 @@ ENDPROC
 DEF PROCstartMenu
  PRINT TAB(5,0);CHR$(141);"Elite over Econet Scoreboard"
  PRINT TAB(5,1);CHR$(141);"Elite over Econet Scoreboard"
- PRINT '"Please enter the port number for this"
- INPUT "scoreboard (1-255): " port%
+ REPEAT
+  PRINT TAB(0,4);SPC(40);
+  INPUT TAB(0,3);"Please enter the port number for this"'"scoreboard (1-255): " port%
+ UNTIL port%>=1 AND port%<=255
  CLS
 ENDPROC
 :
@@ -206,47 +208,51 @@ DEF PROCmenu
   PRINT '" Change this scoreboard's";CHR$(130);"<P>ort";CHR$(135);"(";port%;")"
   IF fstation%>0 AND fport%>0 THEN PRINT '" Change";CHR$(130);"<F>orwarding";CHR$(135); ELSE PRINT '" Set up";CHR$(130);"<F>orwarding";CHR$(135);"to another machine"
   IF fstation%>0 AND fport%>0 THEN PRINT "(";fnetwork%;".";FNpad0(fstation%);fstation%;" port ";fport%;")"
-  IF fstation%>0 AND fport%>0 THEN PRINT '" To disable forwarding, set the port":PRINT" or station to zero"
   PRINT 'CHR$(130);"<D>elete";CHR$(135);"a score"
   PRINT 'CHR$(130);"<S>ave";CHR$(135);"scores to a file"
   PRINT 'CHR$(130);"<L>oad";CHR$(135);"scores from a file"
   PRINT 'CHR$(130);"<R>eturn";CHR$(135);"to scoreboard"
   PRINT 'CHR$(130);"<Q>uit"
   q$=GET$
-  IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the new port number (1-255): " port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
+  IF q$="P" OR q$="p" THEN INPUT TAB(0,21);"Enter the new port number (1-255):"'port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
   IF q$="F" OR q$="f" THEN PROCforwarding
-  IF q$="D" OR q$="d" THEN INPUT TAB(0,22);"Enter the network number to delete: " dn%:INPUT TAB(0,23);"Enter the station number to delete: " ds%:PROCdelete(dn%,ds%)
-  IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the filename to save: " file$:IF file$<>"" THEN PROCsave(file$)
-  IF q$="L" OR q$="l" THEN INPUT TAB(0,22);"Enter the filename to load: " file$:IF file$<>"" THEN PROCload(file$)
-  IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
+  IF q$="D" OR q$="d" THEN PROCdelete(dn%,ds%)
+  IF q$="S" OR q$="s" THEN INPUT TAB(0,21);"Enter the filename to save:"'file$:IF file$<>"" THEN PROCsave(file$)
+  IF q$="L" OR q$="l" THEN INPUT TAB(0,21);"Enter the filename to load:"'file$:IF file$<>"" THEN PROCload(file$)
+  IF q$="Q" OR q$="q" THEN PRINT TAB(0,21);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
  UNTIL q$="R" OR q$="r"
  CLS
 ENDPROC
 :
 DEF PROCforwarding
- INPUT TAB(0,22);"Enter the network number to forward to: " fnetwork%
- PRINT TAB(0,23);SPC(40);
- INPUT TAB(0,22);"Enter the station number to forward to: " fstation%
- INPUT TAB(0,22);"Enter the port number to forward to:    " fport%
+ PRINT TAB(0,18);"To disable forwarding, set the port or"'"station to zero (or just press Return)"
+ INPUT TAB(0,21);"Enter the network number to forward to:"'fnetwork%
+ PRINT TAB(0,22);SPC(40);
+ INPUT TAB(0,21);"Enter the station number to forward to:"'fstation%
+ PRINT TAB(0,22);SPC(40);
+ INPUT TAB(0,21);"Enter the port number to forward to:   "'fport%
 ENDPROC
 :
 DEF PROCdelete(dn%,ds%)
- PRINT TAB(0,22);SPC(40);TAB(0,23);SPC(40);
+ INPUT TAB(0,21);"Enter the network number of the score"'"to delete: " dn%
+ PRINT TAB(0,22);SPC(40);
+ INPUT TAB(0,21);"Enter the station number of the score"'"to delete: " ds%
+ PRINT TAB(0,21);SPC(40);TAB(0,22);SPC(40);
  nomatch%=TRUE
  FOR I%=cmdrs%-1 TO 0 STEP -1
   IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCconfirmDeletion(I%):nomatch%=FALSE
  NEXT
- IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
+ IF nomatch% THEN PRINT TAB(0,21);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
 ENDPROC
 :
 DEF PROCconfirmDeletion(cm%)
  S%=station%(cm%)
- PRINT TAB(0,22);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
+ PRINT TAB(0,21);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
  d$=GET$
- IF NOT(d$="Y" OR d$="y") THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
+ IF NOT(d$="Y" OR d$="y") THEN PRINT TAB(0,22);"Player not deleted":PROCbeep(0):ENDPROC
  IF cmdrs%>1 THEN PROCdeleteCmdr(cm%)
  IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
- PRINT TAB(0,23);"Player deleted"
+ PRINT TAB(0,22);"Player deleted"
  PROCbeep(1)
 ENDPROC
 :
