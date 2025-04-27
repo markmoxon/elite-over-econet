@@ -24,7 +24,8 @@
 \
 \ ******************************************************************************
 
- GUARD &6000            \ Guard against assembling over screen memory
+ GUARD &2F00            \ Guard against assembling over the read buffer that's
+                        \ just before the lowest possible screen memory (&3000)
 
 \ ******************************************************************************
 \
@@ -32,11 +33,18 @@
 \
 \ ******************************************************************************
 
+ bufferSize = 255       \ The size of the text buffer for reading the version
+                        \ file with OSGBPB (must be < 256 bytes)
+
  ZP = &70               \ Use language-safe zero page locations, so they don't
                         \ clash with BASIC
 
  BRKV = &0202           \ The break vector that we intercept to enable us to
                         \ load the configuration file, if there is one
+
+ OSFIND = &FFCE         \ The address for the OSFIND routine
+
+ OSGBPB = &FFD1         \ The address for the OSGBPB routine
 
  OSARGS = &FFDA         \ The address for the OSARGS routine
 
@@ -311,13 +319,7 @@
                         \ If we get here then the command is *Elite V, which
                         \ prints the version
 
- JSR ChangeToVersion
-
- LDX #LO(osCommand-1)   \ Set (Y X) to point to osCommand-1 ("TYPE Version")
- LDY #HI(osCommand-1)
-
- JMP OSCLI              \ Call OSCLI to run the OS command in osCommand-1 to
-                        \ show the version number and return from the subroutine
+ JMP PrintVersionFile   \ Print the version file and return from the subroutine
                         \ using a tail call
 
 .entr8
@@ -647,30 +649,18 @@
 
 \ ******************************************************************************
 \
-\       Name: ChangeToVersion
+\       Name: PrintVersionFile
 \       Type: Subroutine
 \   Category: Loader
-\    Summary: Change the end of osCommand to create a TYPE command in keyCommand
-\             to show the version file
-\
-\ ------------------------------------------------------------------------------
-\
-\ Arguments:
-\
-\   Y                   The offset from ZP(1 0) of the end of the directory path
+\    Summary: Print the version file
 \
 \ ******************************************************************************
 
-.ChangeToVersion 
+.PrintVersionFile 
 
- LDA #'T'               \ Replace the first four characters of osCommand-1 with
- STA osCommand-1        \ the characters TYPE so osCommand-1 changes from:
- LDA #'Y'               \
- STA osCommand          \   ADIR $...
- LDA #'P'               \
- STA osCommand+1        \   TYPE $...
- LDA #'E'
- STA osCommand+2
+                        \ We start by appending ".Version" to the end of the
+                        \ game binary path in gamePath, to give us the filename
+                        \ of the installed game's version information
 
  JSR FindEndOfPath      \ Call FindEndOfPath to set Y to the end of the
                         \ directory path
@@ -695,7 +685,108 @@
 
 .cver2
 
+ LDA #&40               \ Call OSFIND with A = &40 and (Y X) = gamePath to open
+ LDX #LO(gamePath)      \ the version file and return the handle in A
+ LDY #HI(gamePath)
+ JSR OSFIND
+
+ CMP #0                 \ If the file could not be opened, jump to cver7 to
+ BEQ cver7              \ return from the subroutine
+
+ STA osgbpbBlock        \ Set byte #0 of the OSGBPB block to the file handle
+
+ LDA #3                 \ We start by calling OSGBPB with A = 4, to read the
+                        \ first block (i.e. starting at a pointer of 0)
+
+.cver3
+
+ LDX #LO(osgbpbBlock)   \ Set (Y X) to the address of the OSGBPB block
+ LDY #HI(osgbpbBlock)
+
+ JSR OSGBPB             \ Read a block from the file into the buffer at &2F00
+
+ PHP                    \ Store the C flag on the stack so we can retrieve it
+                        \ below
+
+ LDA #bufferSize        \ If the C flag is clear then we filled the whole
+ BCC cver4              \ buffer, so set A to the maximum number of characters
+                        \ to print (i.e. bufferSize)
+
+ LDA #bufferSize        \ Otherwise set A = bufferSize - #characters left (from
+ SBC osgbpbBlock+5      \ byte #5 of the OSGBPB block) to get the number of
+                        \ characters we did fetch (the subtraction works as we
+                        \ know the C flag is set)
+
+.cver4
+
+ TAX                    \ Set X to the number of characters to print from the
+                        \ buffer at &2F00, to use as a character counter
+
+ LDY #0                 \ Set Y = 0 to use as a character index into the buffer
+
+.cver5
+
+ LDA &2F00,Y            \ Print the Y-th character from the buffer at &2F00
+ JSR OSWRCH
+
+ INY                    \ Increment the character index in Y
+
+ DEX                    \ Decrement the character counter in X
+
+ BNE cver5              \ Loop back until we have printed X characters
+
+ PLP                    \ Retrieve the flags that were returned by the call to
+                        \ OSGBPB
+
+ BCS cver6              \ If we have reached the end of the file then the C flag
+                        \ will be set, so jump to cver6 to finish off
+
+ LDA #&2F               \ Set the second entry in the OSGBPB block to the buffer
+ STA osgbpbBlock+2      \ address &2F00 (as this will have been updated by the
+ LDA #0                 \ call to OSGBPB)
+ STA osgbpbBlock+1
+ STA osgbpbBlock+3
+ STA osgbpbBlock+4
+
+ LDA #bufferSize        \ Set the third entry in the OSGBPB block to bufferSize
+ STA osgbpbBlock+5      \ bytes (as this will have been updated by the call to
+ LDA #0                 \ OSGBPB)
+ STA osgbpbBlock+6
+ STA osgbpbBlock+7
+ STA osgbpbBlock+8
+
+ LDA #4                 \ Otherwise jump to cver3 to call OSGBPB with A = 3 to
+ BNE cver3              \ fetch the next block from the file (i.e. using the
+                        \ updated pointer from the previous call)
+
+.cver6
+
+ LDA #0                 \ Call OSFIND with A = 0 and Y = filer handle to close
+ LDY osgbpbBlock        \ the version file
+ JSR OSFIND
+
+.cver7
+
  RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: osgbpbBlock
+\       Type: Variable
+\   Category: Loader
+\    Summary: OSGBPB block for loading the version file one block at a time
+\
+\ ******************************************************************************
+
+.osgbpbBlock
+
+ EQUB 0                 \ File handle
+
+ EQUD &2F00             \ Address to load the version file
+
+ EQUD bufferSize        \ Number of bytes to transfer in each block
+
+ EQUD 0                 \ Sequential pointer
 
 \ ******************************************************************************
 \
