@@ -574,9 +574,9 @@ Saving file '2-assembled-output/ELTAB.bin'
      260C   A0 26      LDY #&26
      260E   20 D1 FF   JSR &FFD1
      2611   08         PHP
-     2612   A9 80      LDA #&80
+     2612   A9 FF      LDA #&FF
      2614   90 05      BCC &261B
-     2616   A9 80      LDA #&80
+     2616   A9 FF      LDA #&FF
      2618   ED 5D 26   SBC &265D
 .cver4
      261B   AA         TAX
@@ -595,7 +595,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2632   8D 59 26   STA &2659
      2635   8D 5B 26   STA &265B
      2638   8D 5C 26   STA &265C
-     263B   A9 80      LDA #&80
+     263B   A9 FF      LDA #&FF
      263D   8D 5D 26   STA &265D
      2640   A9 00      LDA #&00
      2642   8D 5E 26   STA &265E
@@ -612,7 +612,7 @@ Saving file '2-assembled-output/ELTAB.bin'
 .osgbpbBlock
      2658   00
      2659   00 2F 00 00
-     265D   80 00 00 00
+     265D   FF 00 00 00
      2661   00 00 00 00
 .stack
      2665   00 00

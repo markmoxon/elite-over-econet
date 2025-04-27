@@ -33,7 +33,7 @@
 \
 \ ******************************************************************************
 
- bufferSize = 128       \ The size of the text buffer for reading the version
+ bufferSize = 255       \ The size of the text buffer for reading the version
                         \ file with OSGBPB (must be < 256 bytes)
 
  ZP = &70               \ Use language-safe zero page locations, so they don't
@@ -784,7 +784,7 @@
 
  EQUD &2F00             \ Address to load the version file
 
- EQUD 128               \ Number of bytes to transfer in each block
+ EQUD bufferSize        \ Number of bytes to transfer in each block
 
  EQUD 0                 \ Sequential pointer
 
