@@ -1,7 +1,8 @@
 REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
-max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0:quit%=FALSE
+max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0
+auto%=0:autoTime%=0:quit%=FALSE
 DIM rowCmdr%(max%,1),rowUpdt%(max%)
 DIM name$(max%),kills%(max%),deaths%(max%)
 DIM credits%(max%),condition%(max%),legal%(max%)
@@ -60,11 +61,18 @@ ENDPROC
 :
 DEF PROCprocessKeys
  K%=INKEY(0)
- IF K%=ASC("S") THEN PROCchangeSort
- IF K%=ASC("M") THEN PROCmainMenu
- IF K%=ASC("R") THEN PROCupdateScreen
- IF K%=136 THEN PROCprevPage
- IF K%=137 THEN PROCnextPage
+ IF K%=ASC("S") THEN PROCchangeSort:ENDPROC
+ IF K%=ASC("M") THEN PROCmainMenu:ENDPROC
+ IF K%=ASC("R") THEN PROCupdateScreen:ENDPROC
+ IF K%=136 THEN PROCprevPage:ENDPROC
+ IF K%=137 THEN PROCnextPage:ENDPROC
+ IF auto%>0 AND cmdrs%>20 THEN PROCcheckAuto
+ENDPROC
+:
+DEF PROCcheckAuto
+ T%=autoTime%-TIME
+ IF T%<0 THEN PROCnextPage:autoTime%=TIME+auto%*100:ENDPROC
+ PRINT TAB(8,2);STR$(INT(T%/100)+1)+"  "
 ENDPROC
 :
 DEF PROCmainMenu
@@ -91,7 +99,7 @@ ENDPROC
 :
 DEF PROCnextPage
  *FX15,1
- PROCbeep(1)
+ IF K%=137 THEN PROCbeep(1)
  page%=page%+1
  IF page%>INT((cmdrs%-1)/20) THEN page%=0
  PROCupdateScreen
@@ -180,7 +188,9 @@ DEF PROCprintHeader
  PRINT TAB(0,1);CHR$(132);"<S>ort      ";
  PRINT CHR$(147);CHR$(247);CHR$(176);CHR$(234);CHR$(176);CHR$(234);" ";CHR$(234);" ";CHR$(234);CHR$(241);CHR$(130);
  PRINT SPC(9-FNdigits(port%));"Port ";port%
- PRINT TAB(0,2);CHR$(134);"[]Page      ";CHR$(131);"SCOREBOARD        Page ";page%+1;"/";
+ PRINT TAB(0,2);CHR$(134);"[]";
+ IF auto%=0 THEN PRINT "Page"; ELSE PRINT "Auto";
+ PRINT TAB(13,2);CHR$(131);"SCOREBOARD        Page ";page%+1;"/";
  IF cmdrs%=0 THEN PRINT "1"; ELSE PRINT STR$(INT((cmdrs%-1)/20)+1);
  PRINT TAB(0,3);CHR$(157);CHR$(132);"Mc Station C Lgl Player  Kills Credits"
  PROChighlightSort
@@ -208,51 +218,62 @@ DEF PROCmenu
   PRINT '" Change this scoreboard's";CHR$(130);"<P>ort";CHR$(135);"(";port%;")"
   IF fstation%>0 AND fport%>0 THEN PRINT '" Change";CHR$(130);"<F>orwarding";CHR$(135); ELSE PRINT '" Set up";CHR$(130);"<F>orwarding";CHR$(135);"to another machine"
   IF fstation%>0 AND fport%>0 THEN PRINT "(";fnetwork%;".";FNpad0(fstation%);fstation%;" port ";fport%;")"
+  IF auto%=0 THEN PRINT '" Enable";CHR$(130);"<A>utomated";CHR$(135);"page-turning" ELSE PRINT '" Change";CHR$(130);"<A>utomated";CHR$(135);"page-turning (";auto%;"s)"
   PRINT 'CHR$(130);"<D>elete";CHR$(135);"a score"
   PRINT 'CHR$(130);"<S>ave";CHR$(135);"scores to a file"
   PRINT 'CHR$(130);"<L>oad";CHR$(135);"scores from a file"
   PRINT 'CHR$(130);"<R>eturn";CHR$(135);"to scoreboard"
   PRINT 'CHR$(130);"<Q>uit"
   q$=GET$
-  IF q$="P" OR q$="p" THEN INPUT TAB(0,21);"Enter the new port number (1-255):"'port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
+  IF q$="P" OR q$="p" THEN INPUT TAB(0,22);"Enter the new port number (1-255):"'port%:PROCdeleteReceiveBlock:rxcb_number%=FNopenReceiveBlock(port%)
   IF q$="F" OR q$="f" THEN PROCforwarding
   IF q$="D" OR q$="d" THEN PROCdelete(dn%,ds%)
-  IF q$="S" OR q$="s" THEN INPUT TAB(0,21);"Enter the filename to save:"'file$:IF file$<>"" THEN PROCsave(file$)
-  IF q$="L" OR q$="l" THEN INPUT TAB(0,21);"Enter the filename to load:"'file$:IF file$<>"" THEN PROCload(file$)
-  IF q$="Q" OR q$="q" THEN PRINT TAB(0,21);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
+  IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the filename to save:"'file$:IF file$<>"" THEN PROCsave(file$)
+  IF q$="L" OR q$="l" THEN INPUT TAB(0,22);"Enter the filename to load:"'file$:IF file$<>"" THEN PROCload(file$)
+  IF q$="A" OR q$="a" THEN PROCauto
+  IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
  UNTIL q$="R" OR q$="r"
  CLS
+ autoTime%=TIME+auto%*100
 ENDPROC
 :
 DEF PROCforwarding
- PRINT TAB(0,18);"To disable forwarding, set the port or"'"station to zero (or just press Return)"
- INPUT TAB(0,21);"Enter the network number to forward to:"'fnetwork%
- PRINT TAB(0,22);SPC(40);
- INPUT TAB(0,21);"Enter the station number to forward to:"'fstation%
- PRINT TAB(0,22);SPC(40);
- INPUT TAB(0,21);"Enter the port number to forward to:   "'fport%
+ PRINT TAB(0,19);"To disable forwarding, just press"'"RETURN for all three values"
+ INPUT TAB(0,22);"Enter the network number to forward to:"'fnetwork%
+ PRINT TAB(0,23);SPC(40);
+ INPUT TAB(0,22);"Enter the station number to forward to:"'fstation%
+ PRINT TAB(0,23);SPC(40);
+ INPUT TAB(0,22);"Enter the port number to forward to:   "'fport%
+ENDPROC
+:
+DEF PROCauto
+ PRINT TAB(0,19);"To disable automated page-turning, just"'"press RETURN"
+ REPEAT
+  PRINT TAB(0,24);SPC(39);
+  INPUT TAB(0,22);"Enter the page-turning interval in"'"seconds (in the range 10 to 500):"'auto%
+ UNTIL auto%=0 OR (auto%>=10 AND auto%<=500)
 ENDPROC
 :
 DEF PROCdelete(dn%,ds%)
- INPUT TAB(0,21);"Enter the network number of the score"'"to delete: " dn%
- PRINT TAB(0,22);SPC(40);
- INPUT TAB(0,21);"Enter the station number of the score"'"to delete: " ds%
- PRINT TAB(0,21);SPC(40);TAB(0,22);SPC(40);
+ INPUT TAB(0,22);"Enter the network number of the score"'"to delete: " dn%
+ PRINT TAB(0,23);SPC(40);
+ INPUT TAB(0,22);"Enter the station number of the score"'"to delete: " ds%
+ PRINT TAB(0,22);SPC(40);TAB(0,23);SPC(40);
  nomatch%=TRUE
  FOR I%=cmdrs%-1 TO 0 STEP -1
   IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCconfirmDeletion(I%):nomatch%=FALSE
  NEXT
- IF nomatch% THEN PRINT TAB(0,21);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
+ IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
 ENDPROC
 :
 DEF PROCconfirmDeletion(cm%)
  S%=station%(cm%)
- PRINT TAB(0,21);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
+ PRINT TAB(0,22);"Delete player ";name$(cm%);" on ";network%(cm%);".";FNpad0(S%);S%;" (Y/N)?"
  d$=GET$
- IF NOT(d$="Y" OR d$="y") THEN PRINT TAB(0,22);"Player not deleted":PROCbeep(0):ENDPROC
+ IF NOT(d$="Y" OR d$="y") THEN PRINT TAB(0,23);"Player not deleted":PROCbeep(0):ENDPROC
  IF cmdrs%>1 THEN PROCdeleteCmdr(cm%)
  IF cmdrs%>0 THEN cmdrs%=cmdrs%-1
- PRINT TAB(0,22);"Player deleted"
+ PRINT TAB(0,23);"Player deleted"
  PROCbeep(1)
 ENDPROC
 :
@@ -314,20 +335,20 @@ DEF PROCprintCmdr(cm%,row%)
 ENDPROC
 :
 DEF PROCsave(file$)
- IF cmdrs%=0 THEN PRINT TAB(0,23);"There are no scores to save":PROCbeep(1):ENDPROC
+ IF cmdrs%=0 THEN PRINT TAB(0,24);"There are no scores to save":PROCbeep(1):ENDPROC
  ON ERROR PROCfileError(""):PROCmainMenu:PROCmainLoop
  F%=OPENOUT(file$)
  IF F%=0 THEN PROCfileError("Can't open file"):PROCmainMenu:PROCmainLoop
- PRINT TAB(0,23);"Saving file..."
+ PRINT TAB(0,24);"Saving file...";
  PRINT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
-  PRINT TAB(15,23);INT(100*I%/(cmdrs%-1));"%"
+  PRINT TAB(15,24);INT(100*I%/(cmdrs%-1));"%";
   PRINT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
   PRINT#F%,name$(I%),kills%(I%),deaths%(I%)
   PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
   PRINT#F%,machine%(I%),network%(I%),station%(I%)
  NEXT
- PRINT TAB(0,23);"File saved";SPC(9)
+ PRINT TAB(0,24);"File saved";SPC(9);
  CLOSE#F%
  PROCbeep(1)
  ON ERROR PROCend
@@ -337,16 +358,16 @@ DEF PROCload(file$)
  ON ERROR PROCfileError(""):PROCmainMenu:PROCmainLoop
  F%=OPENIN(file$)
  IF F%=0 THEN PROCfileError("Can't open file"):PROCmainMenu:PROCmainLoop
- PRINT TAB(0,23);"Loading file..."
+ PRINT TAB(0,24);"Loading file...";
  INPUT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
-  PRINT TAB(16,23);INT(100*I%/(cmdrs%-1));"%"
+  PRINT TAB(16,24);INT(100*I%/(cmdrs%-1));"%";
   INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
   INPUT#F%,name$(I%),kills%(I%),deaths%(I%)
   INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
   INPUT#F%,machine%(I%),network%(I%),station%(I%)
  NEXT
- PRINT TAB(0,23);"File loaded";SPC(9)
+ PRINT TAB(0,24);"File loaded";SPC(9);
  CLOSE#F%
  PROCbeep(1)
  cmrec%=-1
@@ -355,7 +376,7 @@ ENDPROC
 :
 DEF PROCfileError(e$)
  ON ERROR PROCend
- PRINT TAB(0,23);
+ PRINT TAB(0,24);
  IF e$="" THEN REPORT ELSE PRINT e$;
  PROCbeep(0)
  CLOSE#F%
