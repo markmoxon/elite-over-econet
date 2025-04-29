@@ -1,0 +1,24 @@
+This server contains two directories:
+
+* ArcElite contains version 1.14 of Archimedes Elite
+from Ian Bell's personal website.
+
+* EliteNet contains the !EliteNet application that
+lets Archimedes Elite send scores to a multiplayer
+scoreboard over Econet.
+
+For information about Elite, see the !!ReadMe file
+and Docs directory in ArcElite.
+
+For information about !EliteNet, click Menu on the
+!EliteNet application in the Finder and choose Help
+from the App submenu.
+
+You may find it quicker to copy the ArcElite and
+EliteNet directories to your hard disc. They will
+both happily load over Econet, but it will be much
+faster from local storage.
+
+Right on, Commanders!
+
+Mark Moxon
