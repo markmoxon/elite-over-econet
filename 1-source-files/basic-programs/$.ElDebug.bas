@@ -35,7 +35,7 @@ IF choice%=3 THEN PRINT "Sending test data to ";fname$(0)
 PRINT '"Press P at any time to pause"
 PRINT '"Press any key to start":a$=GET$:PRINT'"Starting..."
 :
-IF choice%=3 THEN PROCinitCmdrs
+IF choice%=3 THEN PROCinitTestCmdrs
 REPEAT
  IF choice%=1 THEN PROCmonitorLoop
  IF choice%=2 THEN PROCforwardLoop
@@ -180,7 +180,7 @@ DEF PROCforwardLoop
 ENDPROC
 :
 DEF PROCtestLoop
- I%=RND(max%+1)-1
+ I%=RND(cmdrs%)-1
  PROCupdateCmdr(I%)
  PROCprocessKeys
  PROCpause
@@ -271,8 +271,8 @@ DEF PROClogString(s$)
  NEXT
 ENDPROC
 :
-DEF PROCinitCmdrs
- FOR I%=0 TO max%
+DEF PROCinitTestCmdrs
+ FOR I%=0 TO cmdrs%-1
   IF I%>=25 THEN name$(I%)=LEFT$(cname$(I% MOD 25),6)+STR$(I% DIV 25) ELSE name$(I%)=cname$(I% MOD 25)
   legal%(I%)=0
   condition%(I%)=0
