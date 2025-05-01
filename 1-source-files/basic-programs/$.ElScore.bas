@@ -342,7 +342,7 @@ DEF PROCsave(file$)
  PRINT TAB(0,24);"Saving file...";
  PRINT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
-  PRINT TAB(15,24);INT(100*I%/(cmdrs%-1));"%";
+  PRINT TAB(15,24);INT(100*(I%+1)/cmdrs%);"%";
   PRINT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
   PRINT#F%,name$(I%),kills%(I%),deaths%(I%)
   PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
@@ -361,7 +361,7 @@ DEF PROCload(file$)
  PRINT TAB(0,24);"Loading file...";
  INPUT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
-  PRINT TAB(16,24);INT(100*I%/(cmdrs%-1));"%";
+  PRINT TAB(16,24);INT(100*(I%+1)/cmdrs%);"%";
   INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
   INPUT#F%,name$(I%),kills%(I%),deaths%(I%)
   INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
