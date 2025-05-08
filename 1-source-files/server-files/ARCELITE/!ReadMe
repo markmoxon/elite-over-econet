@@ -1,0 +1,79 @@
+Archimedes Elite over Econet
+by Mark Moxon, Warren Burch and Clive Gringras
+
+This server contains two directories:
+
+* ArcElite contains version 1.14 of Archimedes Elite
+from Ian Bell's personal website.
+
+* EliteNet contains the !EliteNet application that
+lets Archimedes Elite send scores to a multiplayer
+scoreboard over Econet.
+
+For information about Elite, see the !!ReadMe file
+and Docs directory in ArcElite.
+
+For information about !EliteNet, click Menu on the
+!EliteNet application in the EliteNet directory
+display and choose Help from the App submenu.
+
+***
+
+NOTE: This software is experimental. To minimise
+the risk of problems, I recommend you set things
+up as follows:
+
+* First, run Elite on its own and set up your
+  commander (i.e. load a commander if required,
+  and save it under the name you want on the
+  scoreboard).
+
+* Click the Elite icon on the icon bar to go
+  into the game, click to move past the title
+  screen, and click DESK or press F12 to return
+  to the Desktop.
+
+* Now you can run !EliteNet, to configure the
+  scoreboard and enable transmissions.
+
+* Once transmissions are active, quit !EliteNet
+  from the icon bar menu and play Elite as
+  normal.
+
+* If you want to change the configuration or
+  check the scores, press F12 to return from
+  Elite to the Desktop, then load !EliteNet and
+  make the changes, and quit !EliteNet when you
+  are done.
+
+At this time, the !EliteNet application can
+cause Elite to crash, so I recommend quitting
+!EliteNet when you ae not using it. The module
+that talks to the scoreboard is unaffected by
+this, so quitting !EliteNet doesn't affect score
+transmission, but it does reduce the likelihood
+of a crash.
+
+I am trying to fix this issue, but I'm not there
+yet!
+
+***
+
+You may find it quicker to copy the ArcElite and
+EliteNet directories to your hard disc and run the
+applications from there. They can both be loaded
+over Econet, but it is much faster to run them
+from local storage.
+
+Right on, Commanders!
+
+Mark Moxon
+
+---
+
+Archimedes Elite was written by Warren Burch and
+Clive Gringras and is copyright (c) Hybrid
+Technology 1991.
+
+!EliteNet is copyright (c) Mark Moxon and has been
+released under the MIT licence.

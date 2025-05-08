@@ -220,8 +220,8 @@ DEF PROCmenu
   IF fstation%>0 AND fport%>0 THEN PRINT "(";fnetwork%;".";FNpad0(fstation%);fstation%;" port ";fport%;")"
   IF auto%=0 THEN PRINT '" Enable";CHR$(130);"<A>utomated";CHR$(135);"page-turning" ELSE PRINT '" Change";CHR$(130);"<A>utomated";CHR$(135);"page-turning (";auto%;"s)"
   PRINT 'CHR$(130);"<D>elete";CHR$(135);"a score"
-  PRINT 'CHR$(130);"<S>ave";CHR$(135);"scores to a file"
-  PRINT 'CHR$(130);"<L>oad";CHR$(135);"scores from a file"
+  PRINT 'CHR$(130);"<S>ave";CHR$(135);"or";CHR$(130);"<L>oad";CHR$(135);"scores"
+  PRINT '" Enter";CHR$(130);"<M>OS";CHR$(135);"star-commands"
   PRINT 'CHR$(130);"<R>eturn";CHR$(135);"to scoreboard"
   PRINT 'CHR$(130);"<Q>uit"
   q$=GET$
@@ -231,6 +231,7 @@ DEF PROCmenu
   IF q$="S" OR q$="s" THEN INPUT TAB(0,22);"Enter the filename to save:"'file$:IF file$<>"" THEN PROCsave(file$)
   IF q$="L" OR q$="l" THEN INPUT TAB(0,22);"Enter the filename to load:"'file$:IF file$<>"" THEN PROCload(file$)
   IF q$="A" OR q$="a" THEN PROCauto
+  IF q$="M" OR q$="m" THEN CLS:PRINT "Enter MOS star-commands here"'"Press RETURN to return to the menu"':PROCstarCommand
   IF q$="Q" OR q$="q" THEN PRINT TAB(0,22);"Are you sure you want to quit (Y/N)?":REPEAT:a$=GET$:UNTIL a$="Y" OR a$="y" OR a$="N" OR a$="n":IF a$="Y" OR a$="y" THEN PROCend
  UNTIL q$="R" OR q$="r"
  CLS
@@ -264,6 +265,15 @@ DEF PROCdelete(dn%,ds%)
   IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCconfirmDeletion(I%):nomatch%=FALSE
  NEXT
  IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
+ENDPROC
+:
+DEF PROCstarCommand
+ ON ERROR PROCinlineError(""):PROCstarCommand:PROCmainMenu:PROCmainLoop
+ REPEAT
+  INPUT "*" C$
+  IF C$<>"" THEN OSCLI(C$)
+ UNTIL C$=""
+ ON ERROR PROCend
 ENDPROC
 :
 DEF PROCconfirmDeletion(cm%)
@@ -342,7 +352,7 @@ DEF PROCsave(file$)
  PRINT TAB(0,24);"Saving file...";
  PRINT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
-  PRINT TAB(15,24);INT(100*I%/(cmdrs%-1));"%";
+  PRINT TAB(15,24);INT(100*(I%+1)/cmdrs%);"%";
   PRINT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
   PRINT#F%,name$(I%),kills%(I%),deaths%(I%)
   PRINT#F%,credits%(I%),condition%(I%),legal%(I%)
@@ -361,7 +371,7 @@ DEF PROCload(file$)
  PRINT TAB(0,24);"Loading file...";
  INPUT#F%,cmdrs%
  FOR I%=0 TO cmdrs%-1
-  PRINT TAB(16,24);INT(100*I%/(cmdrs%-1));"%";
+  PRINT TAB(16,24);INT(100*(I%+1)/cmdrs%);"%";
   INPUT#F%,rowCmdr%(I%,0),rowCmdr%(I%,1),rowUpdt%(I%)
   INPUT#F%,name$(I%),kills%(I%),deaths%(I%)
   INPUT#F%,credits%(I%),condition%(I%),legal%(I%)
@@ -375,11 +385,14 @@ DEF PROCload(file$)
 ENDPROC
 :
 DEF PROCfileError(e$)
- ON ERROR PROCend
- PRINT TAB(0,24);
- IF e$="" THEN REPORT ELSE PRINT e$;
+ IF e$="" THEN PRINT TAB(0,23);:REPORT ELSE PRINT TAB(0,24);e$;
  PROCbeep(0)
- CLOSE#F%
+ ON ERROR PROCend
+ENDPROC
+:
+DEF PROCinlineError(e$)
+ IF e$="" THEN REPORT:PRINT ELSE PRINT e$
+ PROCbeep(0)
 ENDPROC
 :
 : REM Econet library
