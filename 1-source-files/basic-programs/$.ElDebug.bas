@@ -112,7 +112,6 @@ DEF PROCtestMenu
  INPUT '"Please enter the station number of the"'"scoreboard to test: " fstation%(0)
  INPUT '"Please enter the port number of the"'"scoreboard to test: " fport%(0)
  INPUT '"Please enter the number of players"'"to emulate: " cmdrs%
- cmdrs%=cmdrs%-1
  fcount%=1
  DIM name$(cmdrs%),credits%(cmdrs%),kills%(cmdrs%),deaths%(cmdrs%)
  DIM machine%(cmdrs%),condition%(cmdrs%),legal%(cmdrs%),network%(cmdrs%),station%(cmdrs%)
