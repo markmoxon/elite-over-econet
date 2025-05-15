@@ -261,8 +261,8 @@ DEF PROCdelete(dn%,ds%)
  INPUT TAB(0,22);"Enter the station number of the score"'"to delete: " ds%
  PRINT TAB(0,22);SPC(40);TAB(0,23);SPC(40);
  nomatch%=TRUE
- FOR I%=cmdrs%-1 TO 0 STEP -1
-  IF network%(I%)=dn% AND station%(I%)=ds% THEN PROCconfirmDeletion(I%):nomatch%=FALSE
+ FOR J%=cmdrs%-1 TO 0 STEP -1
+  IF network%(J%)=dn% AND station%(J%)=ds% THEN PROCconfirmDeletion(J%):nomatch%=FALSE
  NEXT
  IF nomatch% THEN PRINT TAB(0,22);"No players found on ";dn%;".";FNpad0(ds%);ds%:PROCbeep(0)
 ENDPROC
