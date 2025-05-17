@@ -4,7 +4,8 @@ REM By Mark Moxon
 max%=99
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 DIM fstation%(4),fnetwork%(4),fport%(4),fname$(4)
-DIM dM$(4):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP":dM$(3)="BBC B":dM$(4)="Archimedes"
+DIM dM$(5):dM$(0)="BBC B+":dM$(1)="Master":dM$(2)="6502SP"
+dM$(3)="BBC B":dM$(4)="Archimedes":dM$(5)="Electron"
 DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
 DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
 DIM cname$(24):cname$(0)="ALEX":cname$(1)="ELYSSIA":cname$(2)="JAMESON"
