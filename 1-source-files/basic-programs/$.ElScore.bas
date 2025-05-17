@@ -10,8 +10,6 @@ DIM machine%(max%),network%(max%),station%(max%)
 DIM M$(5):M$(0)="B+":M$(1)="M ":M$(2)="SP":M$(3)="B ":M$(4)="A ":M$(5)="E "
 DIM C$(3):C$(0)=CHR$(151):C$(1)=CHR$(146):C$(2)=CHR$(147):C$(3)=CHR$(145)
 DIM L$(2):L$(0)=CHR$(130)+"Cln":L$(1)=CHR$(131)+"Off":L$(2)=CHR$(129)+"Fug"
-DIM dC$(3):dC$(0)="Docked":dC$(1)="Green":dC$(2)="Yellow":dC$(3)="Red"
-DIM dL$(2):dL$(0)="Clean":dL$(1)="Offender":dL$(2)="Fugitive"
 DIM cblock% 40,tblock% 40,rxbuffer% 40
 OSWORD=&FFF1:OSBYTE=&FFF4:OSARGS=&FFDA
 port%=0:fstation%=0:fnetwork%=0:fport%=0:ostation%=0:onetwork%=0:saving%=0
