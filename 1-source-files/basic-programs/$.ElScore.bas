@@ -120,7 +120,7 @@ DEF FNupdateCmdr(cm%)
  deaths%(cm%)=newdeaths%
  credits%(cm%)=rxbuffer%!12
  IF credits%(cm%)<0 THEN credits%(cm%)=0
- machine%(cm%)=FNlimit(rxbuffer%?16,4)
+ machine%(cm%)=FNlimit(rxbuffer%?16,5)
  station%(cm%)=cblock%?3
  network%(cm%)=cblock%?4
  rowUpdt%(rowCmdr%(cm%,sort%))=1
