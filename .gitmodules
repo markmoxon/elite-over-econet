@@ -10,3 +10,6 @@
 [submodule "dfsimage"]
 	path = dfsimage
 	url = https://github.com/monkeyman79/dfsimage.git
+[submodule "elite-source-code-acorn-electron"]
+	path = elite-source-code-acorn-electron
+	url = https://github.com/markmoxon/elite-source-code-acorn-electron.git
