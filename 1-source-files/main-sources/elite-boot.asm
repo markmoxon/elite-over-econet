@@ -333,6 +333,9 @@
  LDX #1                 \ type in X
  JSR OSBYTE
 
+ CPX #0                 \ If X = 0 then this is an Electron, so jump to electron
+ BEQ electron           \ to load the Acorn Electron version
+
  CPX #3                 \ If X < 3 or X > 5 then this is not a BBC Master so
  BCC bbc                \ jump to bbc to load the BBC Micro version
  CPX #6
@@ -405,6 +408,12 @@
  STA ZP+1
 
  JSR PrintMessage       \ Print the text at electronText ("Acorn Electron")
+
+ LDX #LO(osCommand)     \ Set (Y X) to point to osCommand ("DIR $.EliteGame")
+ LDY #HI(osCommand)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in osCommand to
+                        \ change to the game binary folder
 
  JSR ChangeToKey        \ Change the start of osCommand to create a KEY 0
                         \ command in keyCommand
@@ -655,7 +664,7 @@
  STA (ZP),Y             \ the KEY 0 command
 
  CMP #&0D               \ If we just copied a carriage return then we have
- BEQ cdeb2              \ copied the whole string, so jump to celk2 to return
+ BEQ cdeb2              \ copied the whole string, so jump to cdeb2 to return
                         \ from the subroutine
 
  INY                    \ Increment the index into the KEY 0 command
