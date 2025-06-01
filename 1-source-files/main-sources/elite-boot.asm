@@ -333,6 +333,9 @@
  LDX #1                 \ type in X
  JSR OSBYTE
 
+ CPX #0                 \ If X = 0 then this is an Electron, so jump to electron
+ BEQ electron           \ to load the Acorn Electron version
+
  CPX #3                 \ If X < 3 or X > 5 then this is not a BBC Master so
  BCC bbc                \ jump to bbc to load the BBC Micro version
  CPX #6
@@ -391,6 +394,34 @@
  JMP RunElite           \ Run the 6502 Second Processor version of Elite over
                         \ Econet, returning from the subroutine using a tail
                         \ call
+
+.electron
+
+                        \ This is an Electron
+
+ JSR PrintLoadMessage   \ Print "Loading Elite over Econet for the" and a
+                        \ carriage return
+
+ LDA #LO(electronText)  \ Set ZP(1 0) to the text at electronText
+ STA ZP
+ LDA #HI(electronText)
+ STA ZP+1
+
+ JSR PrintMessage       \ Print the text at electronText ("Acorn Electron")
+
+ LDX #LO(osCommand)     \ Set (Y X) to point to osCommand ("DIR $.EliteGame")
+ LDY #HI(osCommand)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in osCommand to
+                        \ change to the game binary folder
+
+ JSR ChangeToKey        \ Change the start of osCommand to create a KEY 0
+                        \ command in keyCommand
+
+ JSR ChangeToKeyElk     \ Change the end of osCommand to create a KEY 0 command
+                        \ in keyCommand to load the debugger
+
+ JMP runBasic           \ Jump up to runBasic to switch to BASIC and "press" f0
 
 \ ******************************************************************************
 \
@@ -644,6 +675,46 @@
                         \ effectively a JMP as X is never zero)
 
 .cdeb2
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: ChangeToKeyElk
+\       Type: Subroutine
+\   Category: Loader
+\    Summary: Change the end of osCommand to create a KEY 0 command in
+\             keyCommand to load the Acorn Electron version
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   Y                   The offset from ZP(1 0) of the end of the directory path
+\
+\ ******************************************************************************
+
+.ChangeToKeyElk
+
+ LDX #0                 \ Set X = 0 to act as an index into the string to copy
+
+.celk1
+
+ LDA elElectronName,X   \ Copy the X-th byte of elElectronName to the Y-th byte
+ STA (ZP),Y             \ of the KEY 0 command
+
+ CMP #&0D               \ If we just copied a carriage return then we have
+ BEQ celk2              \ copied the whole string, so jump to celk2 to return
+                        \ from the subroutine
+
+ INY                    \ Increment the index into the KEY 0 command
+
+ INX                    \ Increment the index into the elDebugName string
+
+ BNE celk1              \ Loop back to copy the next character (this BNE is
+                        \ effectively a JMP as X is never zero)
+
+.celk2
 
  RTS                    \ Return from the subroutine
 
@@ -1032,6 +1103,20 @@
 
 \ ******************************************************************************
 \
+\       Name: electronText
+\       Type: Variable
+\   Category: Loader
+\    Summary: Message for loading the Acorn Electron version
+\
+\ ******************************************************************************
+
+.electronText
+
+ EQUS "Acorn Electron..."
+ EQUB 0
+
+\ ******************************************************************************
+\
 \       Name: masterText
 \       Type: Variable
 \   Category: Loader
@@ -1134,6 +1219,23 @@
 .elDebugName
 
  EQUS ".ElDebug"
+ EQUB &22
+ EQUS "|M"
+ EQUB 13
+
+\ ******************************************************************************
+\
+\       Name: elElectronName
+\       Type: Variable
+\   Category: Loader
+\    Summary: The last part of the f0 definition to run the Acorn Electron
+\             version
+\
+\ ******************************************************************************
+
+.elElectronName
+
+ EQUS ".ELTEL"
  EQUB &22
  EQUS "|M"
  EQUB 13

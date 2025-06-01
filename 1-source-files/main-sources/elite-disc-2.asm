@@ -53,6 +53,14 @@
  PUTFILE "elite-source-code-6502-second-processor/4-reference-binaries/executive/I.CODE.bin", "G.ELTXI", &FF2400, &FF2C89
  PUTFILE "elite-source-code-6502-second-processor/4-reference-binaries/executive/P.CODE.bin", "G.ELTXP", &001000, &0010D3
 
+\ Acorn Electron Elite (Econet version) = CHAIN "ELTEL"
+
+ PUTBASIC "elite-source-code-acorn-electron/1-source-files/basic-programs/load-rom.bas", "G.ELTEL"
+ PUTFILE "elite-source-code-acorn-electron/1-source-files/basic-programs/$.ELITE-disc.bin", "G.ELTEE", &FF0E00, &FF8023
+ PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELITEDA.bin", "G.ELTED", &FF4400, &FF5200
+ PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELTROM.bin", "G.ELTER", &FF8000, &FF8000
+ PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELITECO.bin", "G.ELTEC", &000000, &FFFFFF
+
 \ Boot files
 
  PUTFILE "2-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00

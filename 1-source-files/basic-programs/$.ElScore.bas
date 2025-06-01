@@ -28,6 +28,11 @@ END
 DEF PROCmainLoop
  REPEAT
   PROCreceive
+  IF $rxbuffer%<>"" THEN PROCprocess
+ UNTIL FALSE
+ENDPROC
+:
+DEF PROCprocess
   PRINT TAB(18,0);CHR$(226);
   IF cmdrs%>0 THEN cmrec%=FNfindCmdr($rxbuffer%,cblock%?4,cblock%?3) ELSE cmrec%=-1
   IF cmrec%=-1 AND cmdrs%<=max% THEN PROCaddCmdr
@@ -37,7 +42,6 @@ DEF PROCmainLoop
   IF star%<>-1 THEN PRINT TAB(0,star%);" ":star%=-1
   PROCupdateTable(0)
   IF fstation%>0 AND fport%>0 THEN PROCforward(fstation%,fnetwork%,fport%)
- UNTIL FALSE
 ENDPROC
 :
 DEF PROCerror
