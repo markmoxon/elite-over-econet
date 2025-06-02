@@ -2,7 +2,7 @@ REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
 max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0
-auto%=0:autoTime%=0:quit%=FALSE
+auto%=0:autoTime%=0:auto$="":quit%=FALSE
 DIM rowCmdr%(max%,1),rowUpdt%(max%)
 DIM name$(max%),kills%(max%),deaths%(max%)
 DIM credits%(max%),condition%(max%),legal%(max%)
@@ -62,18 +62,28 @@ ENDPROC
 :
 DEF PROCprocessKeys
  K%=INKEY(0)
- IF K%=ASC("S") THEN PROCchangeSort:ENDPROC
+ IF K%=ASC("S") THEN PROCchangeSort(0):ENDPROC
  IF K%=ASC("M") THEN PROCmainMenu:ENDPROC
  IF K%=ASC("R") THEN PROCupdateScreen:ENDPROC
  IF K%=136 THEN PROCprevPage:ENDPROC
- IF K%=137 THEN PROCnextPage:ENDPROC
- IF auto%>0 AND cmdrs%>20 THEN PROCcheckAuto
+ IF K%=137 THEN PROCnextPage(0):ENDPROC
+ IF auto%>0 THEN PROCcheckAuto
 ENDPROC
 :
 DEF PROCcheckAuto
  T%=autoTime%-TIME
- IF T%<0 THEN PROCnextPage:autoTime%=TIME+auto%*100:ENDPROC
- PRINT TAB(8,2);STR$(INT(T%/100)+1)+"  "
+ IF T%<0 THEN PROCautoNextPage ELSE PRINT TAB(8,2);STR$(INT(T%/100)+1)+"  "
+ENDPROC
+:
+DEF PROCautoNextPage
+ PROCnextPage(1)
+ IF auto$<>"" THEN PROCsave_screen
+ autoTime%=TIME+auto%*100
+ENDPROC
+:
+DEF PROCsave_screen
+ OSCLI("SAVE "+auto$+" 7C00 8000")
+ OSCLI("ACCESS "+auto$+" WR/R")
 ENDPROC
 :
 DEF PROCmainMenu
@@ -98,12 +108,12 @@ DEF PROCprevPage
  PROCupdateScreen
 ENDPROC
 :
-DEF PROCnextPage
+DEF PROCnextPage(toggleSort%)
  *FX15,1
  IF K%=137 THEN PROCbeep(1)
  page%=page%+1
  IF page%>INT((cmdrs%-1)/20) THEN page%=0
- PROCupdateScreen
+ IF page%=0 AND toggleSort%=1 THEN PROCchangeSort(1) ELSE PROCupdateScreen
 ENDPROC
 :
 DEF PROCupdateScreen
@@ -149,11 +159,11 @@ DEF FNfindCmdrRow(cm%,st%)
  NEXT
 =match%
 :
-DEF PROCchangeSort
+DEF PROCchangeSort(header%)
  *FX15,1
  SOUND 3,241,188,1
  IF sort%=0 THEN sort%=1 ELSE sort%=0
- PROChighlightSort
+ IF header%=1 THEN PROCprintHeader ELSE PROChighlightSort
  IF cmdrs%>1 THEN PROCupdateTable(1)
 ENDPROC
 :
@@ -252,8 +262,11 @@ DEF PROCauto
  PRINT TAB(0,19);"To disable automated page-turning, just"'"press RETURN"
  REPEAT
   PRINT TAB(0,24);SPC(39);
-  INPUT TAB(0,22);"Enter the page-turning interval in"'"seconds (in the range 10 to 500):"'auto%
+  INPUT TAB(0,22);"Enter the page-turning interval in"'"seconds (10 to 500): " auto%
  UNTIL auto%=0 OR (auto%>=10 AND auto%<=500)
+ PRINT TAB(0,19);"To skip screen-saving on page turns,   "'"just press RETURN"
+ PRINT TAB(0,23);SPC(39);
+ INPUT TAB(0,22);"Enter the screen filename to save: "'auto$
 ENDPROC
 :
 DEF PROCdelete(dn%,ds%)
