@@ -82,7 +82,7 @@ DEF PROCautoNextPage
 ENDPROC
 :
 DEF PROCsave_screen
- OSCLI("SAVE "+auto$+" 7C00 8000")
+ OSCLI("SAVE "+auto$+" 7C00 7FBF")
  OSCLI("ACCESS "+auto$+" WR/R")
 ENDPROC
 :
@@ -229,7 +229,7 @@ DEF PROCmenu
   PRINT '" Change this scoreboard's";CHR$(130);"<P>ort";CHR$(135);"(";port%;")"
   IF fstation%>0 AND fport%>0 THEN PRINT '" Change";CHR$(130);"<F>orwarding";CHR$(135); ELSE PRINT '" Set up";CHR$(130);"<F>orwarding";CHR$(135);"to another machine"
   IF fstation%>0 AND fport%>0 THEN PRINT "(";fnetwork%;".";FNpad0(fstation%);fstation%;" port ";fport%;")"
-  IF auto%=0 THEN PRINT '" Enable";CHR$(130);"<A>utomated";CHR$(135);"page-turning" ELSE PRINT '" Change";CHR$(130);"<A>utomated";CHR$(135);"page-turning (";auto%;"s)"
+  IF auto%=0 THEN PRINT '" Enable";CHR$(130);"<A>utomated";CHR$(135);"page-turning/saving" ELSE PRINT '" Change";CHR$(130);"<A>utomated";CHR$(135);"page-turning (";auto%;"s)"
   PRINT 'CHR$(130);"<D>elete";CHR$(135);"a score"
   PRINT 'CHR$(130);"<S>ave";CHR$(135);"or";CHR$(130);"<L>oad";CHR$(135);"scores"
   PRINT '" Enter";CHR$(130);"<M>OS";CHR$(135);"star-commands"
