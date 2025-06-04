@@ -2,7 +2,7 @@ REM ElScore - Scoreboard for Elite over Econet
 REM By Mark Moxon
 :
 max%=99:cmdrs%=0:sort%=0:page%=0:star%=-1:cmrec%=-1:thisRow%=0
-auto%=0:autoTime%=0:auto$="":quit%=FALSE
+auto%=0:autoTime%=0:auto$="":autoSaved%=FALSE:quit%=FALSE
 DIM rowCmdr%(max%,1),rowUpdt%(max%)
 DIM name$(max%),kills%(max%),deaths%(max%)
 DIM credits%(max%),condition%(max%),legal%(max%)
@@ -77,13 +77,17 @@ ENDPROC
 :
 DEF PROCautoNextPage
  PROCnextPage(1)
- IF auto$<>"" THEN PROCsave_screen
  autoTime%=TIME+auto%*100
+ IF auto$<>"" THEN PROCsave_screen
 ENDPROC
 :
 DEF PROCsave_screen
+ ON ERROR PROCfileError(""):PRINT TAB(0,24);SPC(39);:PROCmainLoop
+ IF autoSaved% THEN OSCLI("ACCESS "+auto$+" WR")
  OSCLI("SAVE "+auto$+" 7C00 7FBF")
  OSCLI("ACCESS "+auto$+" WR/R")
+ autoSaved%=TRUE
+ ON ERROR PROCend
 ENDPROC
 :
 DEF PROCmainMenu
