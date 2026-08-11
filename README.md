@@ -22,7 +22,7 @@ See [my profile](https://github.com/markmoxon) for more repositories to explore.
 
 This repository contains source code for Elite over Econet for the BBC Micro, BBC Master 128 and 6502 Second Processor.
 
-Elite over Econet enables you to load Elite over an Acorn network. It also provides multiplayer scoreboard support, so you can run live Elite competitions over the network. For more information, see the [bbcelite.com website](https://elite.bbcelite.com/hacks/elite_over_econet.html).
+Elite over Econet enables you to load Elite over an Acorn network. It also provides multiplayer scoreboard support, so you can run live Elite competitions over the network. For more information, see the [bbcelite.com website](https://elite.bbcelite.com/hacks/elite_over_econet/).
 
 This repository contains submodules for each of the individual programs on the disc. Each submodule points to a branch called `econet` that contains the version of that program to be included in the Elite over Econet disc.
 
