@@ -1,6 +1,6 @@
 # Source files for Elite over Econet
 
-This folder contains the source files for the Elite Compendium.
+This folder contains the source files for Elite over Econet.
 
 * [basic-programs](basic-programs) contains the source code for BASIC files such as ElScore and ElDebug
 
