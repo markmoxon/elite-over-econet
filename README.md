@@ -26,7 +26,7 @@ Elite over Econet enables you to load Elite over an Acorn network. It also provi
 
 This repository contains submodules for each of the individual programs on the disc. Each submodule points to a branch called `econet` that contains the version of that program to be included in the Elite over Econet disc.
 
-The repository also contains the loader code and build process for producing the final DSD disc. It does this by producing two SSD images, one for each side, and then combining them into a DSD image (as BeebAsm can only create SSD images).
+The repository also contains the loader code and a build process for producing a DSD disc image, as well as two SSD images for use with SD cards. The SSD images are produced by BeebAsm, and the DSD image is created using the [oaknut-disc Python tool](https://rob-smallshire.github.io/oaknut/disc/index.html), which can be installed using `pip install oaknut-disc` (pipx, uv and uvx are also supported).
 
 See the individual subprojects for more information.
 
