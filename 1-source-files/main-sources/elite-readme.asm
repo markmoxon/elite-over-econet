@@ -141,7 +141,7 @@
  EQUS "---------------------------------------"
  EQUB 10, 13
 
- SAVE "2-assembled-output/ReadMe.txt", readme, P%
+ SAVE "3-assembled-output/ReadMe.txt", readme, P%
 
 .readmeArc
 
@@ -247,4 +247,4 @@
  EQUS "---------------------------------------"
  EQUB 10
 
- SAVE "2-assembled-output/ReadMeArc.txt", readmeArc, P%
+ SAVE "3-assembled-output/ReadMeArc.txt", readmeArc, P%

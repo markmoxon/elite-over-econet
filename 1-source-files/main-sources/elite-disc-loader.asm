@@ -344,4 +344,4 @@
 \ ******************************************************************************
 
  PRINT "S.ELTAB ", ~CODE%, " ", ~P%, " ", ~LOAD%, " ", ~LOAD%
- SAVE "2-assembled-output/ELTAB.bin", CODE%, P%, LOAD%
+ SAVE "3-assembled-output/ELTAB.bin", CODE%, P%, LOAD%

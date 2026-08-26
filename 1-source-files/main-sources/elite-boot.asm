@@ -1317,4 +1317,4 @@
 \ ******************************************************************************
 
  PRINT "S.Elite ", ~CODE%, " ", ~P%, " ", ~LOAD%, " ", ~LOAD%
- SAVE "2-assembled-output/Elite.bin", CODE%, P%, LOAD%
+ SAVE "3-assembled-output/Elite.bin", CODE%, P%, LOAD%

@@ -51,12 +51,12 @@
 
 \ BBC Micro Disc Elite (standard version) = *RUN EliteB
 
- PUTFILE "2-assembled-output/ELTAB.bin", "G.ELTAB", &002400, &002400
+ PUTFILE "3-assembled-output/ELTAB.bin", "G.ELTAB", &002400, &002400
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/ELITE4.bin", "G.ELTAI", &001900, &00197B
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/D.CODE.bin", "G.ELTAD", &0012E3, &0012E3
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/T.CODE.bin", "G.ELTAT", &0012E3, &0012E3
 
 \ ReadMe files
 
- PUTFILE "2-assembled-output/Version.txt", "G.Version", &FFFFFF, &FFFFFF
- PUTFILE "2-assembled-output/ReadMe.txt", "ReadMe", &FFFFFF, &FFFFFF
+ PUTFILE "3-assembled-output/Version.txt", "G.Version", &FFFFFF, &FFFFFF
+ PUTFILE "3-assembled-output/ReadMe.txt", "ReadMe", &FFFFFF, &FFFFFF
