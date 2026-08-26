@@ -46,5 +46,5 @@
  EQUS "---------------------------------------"
  EQUB 10, 13
 
- SAVE "2-assembled-output/Version.txt", version, P%
+ SAVE "3-assembled-output/Version.txt", version, P%
 

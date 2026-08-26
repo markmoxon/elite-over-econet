@@ -63,8 +63,8 @@
 
 \ Boot files
 
- PUTFILE "2-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00
- PUTFILE "2-assembled-output/Elite.bin", "L.Elite", &002400, &002400
+ PUTFILE "3-assembled-output/EliteB.bin", "L.EliteB", &000B00, &000B00
+ PUTFILE "3-assembled-output/Elite.bin", "L.Elite", &002400, &002400
 
 \ Scoreboard
 
