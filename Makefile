@@ -1,7 +1,12 @@
 BEEBASM?=beebasm
+DISC?=oaknut-disc
+DSD?=3-compiled-game-discs/elite-over-econet.dsd
 
 .PHONY:all
-all:
+all: build-ssd build-dsd
+
+.PHONY:build-ssd
+build-ssd:
 	$(BEEBASM) -i 1-source-files/main-sources/elite-readme.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-version.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot-disc.asm -v > 2-assembled-output/compile.txt
@@ -9,9 +14,12 @@ all:
 	$(BEEBASM) -i 1-source-files/main-sources/elite-boot.asm -v >> 2-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-disc-1.asm -do 2-assembled-output/side1.ssd
 	$(BEEBASM) -i 1-source-files/main-sources/elite-disc-2.asm -do 2-assembled-output/side2.ssd
-	dfsimage create 3-compiled-game-discs/elite-over-econet.dsd
-	dfsimage backup --title="E L I T E" --from 2-assembled-output/side1.ssd --to -1 3-compiled-game-discs/elite-over-econet.dsd
-	dfsimage backup --title="E L I T E" --from 2-assembled-output/side2.ssd --to -2 3-compiled-game-discs/elite-over-econet.dsd
+
+.PHONY:build-dsd
+build-dsd:
+	$(DISC) create $(DSD) --title "E L I T E"
+	$(DISC) cp -r "2-assembled-output/side1.ssd:*" $(DSD)
+	$(DISC) cp -r "2-assembled-output/side2.ssd:*" $(DSD)::2.
 
 .PHONY:b2
 b2:
