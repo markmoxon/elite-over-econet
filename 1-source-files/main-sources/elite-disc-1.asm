@@ -42,7 +42,7 @@
 
 \ BBC Micro Disc Elite (Econet Sideways RAM version) = *RUN EliteB
 
- PUTFILE "elite-source-code-bbc-micro-disc/1-source-files/images/$.SCREEN.bin", "G.ELTBS", &007800, &007BE8
+ PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/SCREEN.bin", "G.ELTBS", &007800, &007BE8
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/ELTROM.bin", "G.ELTBR", &003400, &003400
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/MNUCODE.bin", "G.ELTBM", &007400, &00743B
  PUTFILE "elite-source-code-bbc-micro-disc/3-assembled-output/sELITE4.bin", "G.ELTBI", &001900, &00197B

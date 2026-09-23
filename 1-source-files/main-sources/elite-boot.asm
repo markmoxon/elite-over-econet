@@ -997,7 +997,7 @@
 \       Name: RunElite
 \       Type: Subroutine
 \   Category: Loader
-\    Summary: Run an Elite binary
+\    Summary: Run an Elite binary (6502SP, Master, Executive versions only)
 \
 \ ------------------------------------------------------------------------------
 \
@@ -1024,11 +1024,76 @@
  JSR OSCLI              \ Call OSCLI to run the OS command in osCommand to
                         \ change to the game binary folder
 
+ LDA #114               \ Call OSBYTE with A = 114 and X = 1 to ensure we only
+ LDX #1                 \ use shadow memory when the mode number is greater than
+ JSR OSBYTE             \ 127, so this ensures we change to standard mode 7 and
+                        \ not shadow mode 7 in the following loop
+
+ LDA #LO(B%)            \ Set the low byte of ZP(1 0) to point to the VDU code
+ STA ZP                 \ table at B%
+
+ LDA #HI(B%)            \ Set the high byte of ZP(1 0) to point to the VDU code
+ STA ZP+1               \ table at B%
+
+ LDY #0                 \ We are now going to print the VDU commands from B%
+
+.load1
+
+ LDA (ZP),Y             \ Pass the Y-th byte of the B% table to OSWRCH
+ JSR OSWRCH
+
+ INY                    \ Increment the loop counter
+
+ CPY #12                \ Loop back for the next byte until we have done them
+ BNE load1              \ all 12
+
+ LDX #LO(MESS1)         \ Set (Y X) to point to MESS1 ("RUN ELTBS")
+ LDY #HI(MESS1)
+
+ JSR OSCLI              \ Call OSCLI to run the OS command in MESS1 to show the
+                        \ Acornsoft loading screen
+
+ LDX #&90               \ Call OSBYTE with A = 129, X = 144 and Y = 1 to scan
+ LDY #1                 \ the keyboard for &190 centiseconds (4 seconds)
+ LDA #129
+ JSR OSBYTE
+
  LDX #LO(runElt)        \ Set (Y X) to point to runElt ("*RUN ELTxy")
  LDY #HI(runElt)
 
  JMP OSCLI              \ Call OSCLI to run the OS command in runElt to run the
                         \ BBC Micro version of Elite over Econet
+
+\ ******************************************************************************
+\
+\       Name: B%
+\       Type: Variable
+\   Category: Loader
+\    Summary: VDU commands for the mode 7 loading screen
+\
+\ ******************************************************************************
+
+.B%
+
+ EQUB 22, 7             \ Switch to screen mode 7
+
+ EQUB 23, 0, 10, 32     \ Set 6845 register R10 = 32
+ EQUB 0, 0, 0           \
+ EQUB 0, 0, 0           \ This disbles the cursor
+
+\ ******************************************************************************
+\
+\       Name: MESS1
+\       Type: Variable
+\   Category: Loader
+\    Summary: Run the code that displays the Acornsoft loading screen (SCREEN)
+\
+\ ******************************************************************************
+
+.MESS1
+
+ EQUS "RUN ELTBS"
+ EQUB 13
 
 \ ******************************************************************************
 \
