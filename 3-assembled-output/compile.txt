@@ -185,7 +185,7 @@
      0C8E   43 37 33 
      0C91   0D
 S.EliteB &B00  &C92  &B00  &B00 
-Saving file '2-assembled-output/EliteB.bin'
+Saving file '3-assembled-output/EliteB.bin'
 .ENTRY
      2400   A9 83      LDA #&83
      2402   20 F4 FF   JSR &FFF4
@@ -305,7 +305,7 @@ Saving file '2-assembled-output/EliteB.bin'
      24EE   52 55 4E ...
      24F9   0D
 S.ELTAB &2400  &24FA  &2400  &2400 
-Saving file '2-assembled-output/ELTAB.bin'
+Saving file '3-assembled-output/ELTAB.bin'
 .ENTRY
      2400   A9 EA      LDA #&EA
      2402   A2 00      LDX #&00
@@ -377,7 +377,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2495   C9 58      CMP #&58
      2497   D0 12      BNE &24AB
      2499   20 A5 26   JSR &26A5
-     249C   A9 55      LDA #&55
+     249C   A9 96      LDA #&96
      249E   85 70      STA &70
      24A0   A9 27      LDA #&27
      24A2   85 71      STA &71
@@ -387,7 +387,7 @@ Saving file '2-assembled-output/ELTAB.bin'
 .entr5
      24AB   C9 53      CMP #&53
      24AD   D0 38      BNE &24E7
-     24AF   A9 6A      LDA #&6A
+     24AF   A9 AB      LDA #&AB
      24B1   85 70      STA &70
      24B3   A9 27      LDA #&27
      24B5   85 71      STA &71
@@ -399,8 +399,8 @@ Saving file '2-assembled-output/ELTAB.bin'
      24C2   A2 01      LDX #&01
      24C4   A0 00      LDY #&00
      24C6   20 F4 FF   JSR &FFF4
-     24C9   A2 F9      LDX #&F9
-     24CB   A0 27      LDY #&27
+     24C9   A2 3A      LDX #&3A
+     24CB   A0 28      LDY #&28
      24CD   20 F7 FF   JSR &FFF7
      24D0   A9 0F      LDA #&0F
      24D2   A2 00      LDX #&00
@@ -409,13 +409,13 @@ Saving file '2-assembled-output/ELTAB.bin'
      24D9   A2 00      LDX #&00
      24DB   A0 80      LDY #&80
      24DD   20 F4 FF   JSR &FFF4
-     24E0   A2 E5      LDX #&E5
-     24E2   A0 26      LDY #&26
+     24E0   A2 26      LDX #&26
+     24E2   A0 27      LDY #&27
      24E4   4C F7 FF   JMP &FFF7
 .entr6
      24E7   C9 44      CMP #&44
      24E9   D0 14      BNE &24FF
-     24EB   A9 9D      LDA #&9D
+     24EB   A9 DE      LDA #&DE
      24ED   85 70      STA &70
      24EF   A9 27      LDA #&27
      24F1   85 71      STA &71
@@ -441,7 +441,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      251C   E0 06      CPX #&06
      251E   B0 12      BCS &2532
      2520   20 A5 26   JSR &26A5
-     2523   A9 2E      LDA #&2E
+     2523   A9 6F      LDA #&6F
      2525   85 70      STA &70
      2527   A9 27      LDA #&27
      2529   85 71      STA &71
@@ -450,17 +450,17 @@ Saving file '2-assembled-output/ELTAB.bin'
      252F   4C BD 26   JMP &26BD
 .bbc
      2532   20 A5 26   JSR &26A5
-     2535   A9 0F      LDA #&0F
+     2535   A9 50      LDA #&50
      2537   85 70      STA &70
      2539   A9 27      LDA #&27
      253B   85 71      STA &71
      253D   20 B0 26   JSR &26B0
-     2540   A2 DE      LDX #&DE
-     2542   A0 26      LDY #&26
+     2540   A2 1F      LDX #&1F
+     2542   A0 27      LDY #&27
      2544   4C F7 FF   JMP &FFF7
 .copro
      2547   20 A5 26   JSR &26A5
-     254A   A9 3C      LDA #&3C
+     254A   A9 7D      LDA #&7D
      254C   85 70      STA &70
      254E   A9 27      LDA #&27
      2550   85 71      STA &71
@@ -469,12 +469,12 @@ Saving file '2-assembled-output/ELTAB.bin'
      2556   4C BD 26   JMP &26BD
 .electron
      2559   20 A5 26   JSR &26A5
-     255C   A9 1C      LDA #&1C
+     255C   A9 5D      LDA #&5D
      255E   85 70      STA &70
      2560   A9 27      LDA #&27
      2562   85 71      STA &71
      2564   20 B0 26   JSR &26B0
-     2567   A2 02      LDX #&02
+     2567   A2 43      LDX #&43
      2569   A0 28      LDY #&28
      256B   20 F7 FF   JSR &FFF7
      256E   20 BE 25   JSR &25BE
@@ -499,7 +499,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2599   A9 25      LDA #&25
      259B   8D 03 02   STA &0203
      259E   58         CLI
-     259F   A2 12      LDX #&12
+     259F   A2 53      LDX #&53
      25A1   A0 28      LDY #&28
      25A3   20 F7 FF   JSR &FFF7
      25A6   18         CLC
@@ -518,15 +518,15 @@ Saving file '2-assembled-output/ELTAB.bin'
      25BB   4C A7 25   JMP &25A7
 .ChangeToKey
      25BE   A9 49      LDA #&49
-     25C0   8D 02 28   STA &2802
+     25C0   8D 43 28   STA &2843
      25C3   A9 4E      LDA #&4E
-     25C5   8D 03 28   STA &2803
+     25C5   8D 44 28   STA &2844
      25C8   A9 20      LDA #&20
-     25CA   8D 04 28   STA &2804
+     25CA   8D 45 28   STA &2845
      25CD   A9 22      LDA #&22
-     25CF   8D 05 28   STA &2805
+     25CF   8D 46 28   STA &2846
 .FindEndOfPath
-     25D2   A9 06      LDA #&06
+     25D2   A9 47      LDA #&47
      25D4   85 70      STA &70
      25D6   A9 28      LDA #&28
      25D8   85 71      STA &71
@@ -543,7 +543,7 @@ Saving file '2-assembled-output/ELTAB.bin'
 .ChangeToKeyScore
      25E8   A2 00      LDX #&00
 .csco1
-     25EA   BD CE 27   LDA &27CE,X
+     25EA   BD 0F 28   LDA &280F,X
      25ED   91 70      STA (&70),Y
      25EF   C9 0D      CMP #&0D
      25F1   F0 04      BEQ &25F7
@@ -555,7 +555,7 @@ Saving file '2-assembled-output/ELTAB.bin'
 .ChangeToKeyDebug
      25F8   A2 00      LDX #&00
 .cdeb1
-     25FA   BD DA 27   LDA &27DA,X
+     25FA   BD 1B 28   LDA &281B,X
      25FD   91 70      STA (&70),Y
      25FF   C9 0D      CMP #&0D
      2601   F0 04      BEQ &2607
@@ -567,7 +567,7 @@ Saving file '2-assembled-output/ELTAB.bin'
 .ChangeToKeyElk
      2608   A2 00      LDX #&00
 .celk1
-     260A   BD E6 27   LDA &27E6,X
+     260A   BD 27 28   LDA &2827,X
      260D   91 70      STA (&70),Y
      260F   C9 0D      CMP #&0D
      2611   F0 04      BEQ &2617
@@ -580,7 +580,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2618   20 D2 25   JSR &25D2
      261B   A2 00      LDX #&00
 .cver1
-     261D   BD F0 27   LDA &27F0,X
+     261D   BD 31 28   LDA &2831,X
      2620   91 70      STA (&70),Y
      2622   C9 0D      CMP #&0D
      2624   F0 04      BEQ &262A
@@ -589,7 +589,7 @@ Saving file '2-assembled-output/ELTAB.bin'
      2628   D0 F3      BNE &261D
 .cver2
      262A   A9 40      LDA #&40
-     262C   A2 06      LDX #&06
+     262C   A2 47      LDX #&47
      262E   A0 28      LDY #&28
      2630   20 CE FF   JSR &FFCE
      2633   C9 00      CMP #&00
@@ -657,9 +657,9 @@ Saving file '2-assembled-output/ELTAB.bin'
 .oswordBlock
      26A1   00 00 00 00
 .PrintLoadMessage
-     26A5   A9 EB      LDA #&EB
+     26A5   A9 2C      LDA #&2C
      26A7   85 70      STA &70
-     26A9   A9 26      LDA #&26
+     26A9   A9 27      LDA #&27
      26AB   85 71      STA &71
      26AD   4C B0 26   JMP &26B0
 .PrintMessage
@@ -673,88 +673,125 @@ Saving file '2-assembled-output/ELTAB.bin'
 .prin2
      26BC   60         RTS
 .RunElite
-     26BD   8E DB 26   STX &26DB
-     26C0   8C DC 26   STY &26DC
+     26BD   8E 1C 27   STX &271C
+     26C0   8C 1D 27   STY &271D
      26C3   20 B0 26   JSR &26B0
-     26C6   A2 02      LDX #&02
+     26C6   A2 43      LDX #&43
      26C8   A0 28      LDY #&28
      26CA   20 F7 FF   JSR &FFF7
-     26CD   A2 D4      LDX #&D4
-     26CF   A0 26      LDY #&26
-     26D1   4C F7 FF   JMP &FFF7
+     26CD   A9 72      LDA #&72
+     26CF   A2 01      LDX #&01
+     26D1   20 F4 FF   JSR &FFF4
+     26D4   A9 FF      LDA #&FF
+     26D6   85 70      STA &70
+     26D8   A9 26      LDA #&26
+     26DA   85 71      STA &71
+     26DC   A0 00      LDY #&00
+.load1
+     26DE   B1 70      LDA (&70),Y
+     26E0   20 EE FF   JSR &FFEE
+     26E3   C8         INY
+     26E4   C0 0C      CPY #&0C
+     26E6   D0 F6      BNE &26DE
+     26E8   A2 0B      LDX #&0B
+     26EA   A0 27      LDY #&27
+     26EC   20 F7 FF   JSR &FFF7
+     26EF   A2 90      LDX #&90
+     26F1   A0 01      LDY #&01
+     26F3   A9 81      LDA #&81
+     26F5   20 F4 FF   JSR &FFF4
+     26F8   A2 15      LDX #&15
+     26FA   A0 27      LDY #&27
+     26FC   4C F7 FF   JMP &FFF7
+.B%
+     26FF   16
+     2700   07
+     2701   17
+     2702   00
+     2703   0A
+     2704   20
+     2705   00
+     2706   00
+     2707   00
+     2708   00
+     2709   00
+     270A   00
+.MESS1
+     270B   52 55 4E ...
+     2714   0D
 .runElt
-     26D4   52 55 4E ...
-     26DD   0D
+     2715   52 55 4E ...
+     271E   0D
 .runEliteB
-     26DE   45 6C 69 ...
-     26E4   0D
+     271F   45 6C 69 ...
+     2725   0D
 .basicCommand
-     26E5   42 41 53 ...
-     26EA   0D
+     2726   42 41 53 ...
+     272B   0D
 .loadMessage
-     26EB   4C 6F 61 ...
-     270C   0A
-     270D   0D
-     270E   00
+     272C   4C 6F 61 ...
+     274D   0A
+     274E   0D
+     274F   00
 .bbcText
-     270F   42 42 43 ...
-     271B   00
+     2750   42 42 43 ...
+     275C   00
 .electronText
-     271C   41 63 6F ...
-     272D   00
+     275D   41 63 6F ...
+     276E   00
 .masterText
-     272E   42 42 43 ...
-     273B   00
+     276F   42 42 43 ...
+     277C   00
 .spText
-     273C   36 35 30 ...
-     2754   00
+     277D   36 35 30 ...
+     2795   00
 .executiveText
-     2755   45 78 65 ...
-     2769   00
+     2796   45 78 65 ...
+     27AA   00
 .scoreText
-     276A   4C 6F 61 ...
-     2784   0A
-     2785   0D
-     2786   45 6C 69 ...
-     279A   0A
-     279B   0D
-     279C   00
+     27AB   4C 6F 61 ...
+     27C5   0A
+     27C6   0D
+     27C7   45 6C 69 ...
+     27DB   0A
+     27DC   0D
+     27DD   00
 .debugText
-     279D   4C 6F 61 ...
-     27B5   0A
-     27B6   0D
-     27B7   45 6C 69 ...
-     27CB   0A
-     27CC   0D
-     27CD   00
+     27DE   4C 6F 61 ...
+     27F6   0A
+     27F7   0D
+     27F8   45 6C 69 ...
+     280C   0A
+     280D   0D
+     280E   00
 .elScoreName
-     27CE   2E 45 6C ...
-     27D6   22
-     27D7   7C 4D 
-     27D9   0D
+     280F   2E 45 6C ...
+     2817   22
+     2818   7C 4D 
+     281A   0D
 .elDebugName
-     27DA   2E 45 6C ...
-     27E2   22
-     27E3   7C 4D 
-     27E5   0D
+     281B   2E 45 6C ...
+     2823   22
+     2824   7C 4D 
+     2826   0D
 .elElectronName
-     27E6   2E 45 4C ...
-     27EC   22
-     27ED   7C 4D 
-     27EF   0D
+     2827   2E 45 4C ...
+     282D   22
+     282E   7C 4D 
+     2830   0D
 .versionName
-     27F0   2E 56 65 ...
-     27F8   0D
+     2831   2E 56 65 ...
+     2839   0D
 .keyCommand
-     27F9   4B 45 59 ...
+     283A   4B 45 59 ...
 .osCommand
-     2802   44 49 52 ...
+     2843   44 49 52 ...
 .gamePath
-     2806   24 2E 45 ...
-     2811   0D
+     2847   24 2E 45 ...
+     2852   0D
 .loadEliteConf
-     2812   4C 4F 41 ...
-     2821   32 38 30 ...
-     2825   0D
-S.Elite &2400  &2826  &2400  &2400 
-Saving file '2-assembled-output/Elite.bin'
+     2853   4C 4F 41 ...
+     2862   32 38 34 ...
+     2866   0D
+S.Elite &2400  &2867  &2400  &2400 
+Saving file '3-assembled-output/Elite.bin'
