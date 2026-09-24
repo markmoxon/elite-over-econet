@@ -56,7 +56,7 @@
 \ Acorn Electron Elite (Econet version) = CHAIN "ELTEL"
 
  PUTBASIC "elite-source-code-acorn-electron/1-source-files/basic-programs/load-rom.bas", "G.ELTEL"
- PUTFILE "elite-source-code-acorn-electron/1-source-files/basic-programs/$.ELITE-disc.bin", "G.ELTEE", &FF0E00, &FF8023
+ PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELITE-econet.bin", "G.ELTEE", &FF0E00, &FF8023
  PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELITEDA.bin", "G.ELTED", &FF4400, &FF5200
  PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELTROM.bin", "G.ELTER", &FF8000, &FF8000
  PUTFILE "elite-source-code-acorn-electron/3-assembled-output/ELITECO.bin", "G.ELTEC", &000000, &FFFFFF
