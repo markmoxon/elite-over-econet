@@ -35,6 +35,9 @@ build-l3fs:
 	$(DISC) cp -r "$(DSD)::2.D.*" "$(L3FS):afs:$$.EliteGame.D."
 	$(DISC) cp -r "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library."
 	$(DISC) cp -r "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library1."
+	$(DISC) chmod "$(L3FS):afs:$$.EliteGame.*" R/R
+	$(DISC) chmod "$(L3FS):afs:$$.Library.Elite*" R/R
+	$(DISC) chmod "$(L3FS):afs:$$.Library1.Elite*" R/R
 
 .PHONY:b2
 b2:
