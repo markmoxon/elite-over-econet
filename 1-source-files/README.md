@@ -6,6 +6,8 @@ This folder contains the source files for Elite over Econet.
 
 * [main-sources](main-sources) contains the source code for the disc images and README file
 
+* [econet-server](econet-server) contains binary files for creating a Level 3 File Server disc
+
 The bulk of the source code comes from the project's submodules.
 
 ---
