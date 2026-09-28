@@ -1,9 +1,10 @@
 BEEBASM?=beebasm
 DISC?=oaknut-disc
 DSD?=4-compiled-game-discs/elite-over-econet.dsd
+L3FS=4-compiled-game-discs/elite-over-econet-scsi0.dat
 
 .PHONY:all
-all: build-ssd build-dsd
+all: build-ssd build-dsd build-l3fs
 
 .PHONY:build-ssd
 build-ssd:
@@ -20,6 +21,20 @@ build-dsd:
 	$(DISC) create $(DSD) --title "E L I T E"
 	$(DISC) cp -r "3-assembled-output/side1.ssd:*" $(DSD)
 	$(DISC) cp -r "3-assembled-output/side2.ssd:*" $(DSD)::2.
+
+.PHONY:build-l3fs
+build-l3fs:
+	$(DISC) create $(L3FS) --geometry capacity=10MB --title Server
+	$(DISC) cp "1-source-files/econet-server/FS3v126.ssd:$$.FS3v126" "$(L3FS):$$.FS3v126"
+	$(DISC) put --load 0xFFFFFFFF --exec 0xFFFFFFFF "$(L3FS):$$.!BOOT" "1-source-files/econet-server/$$.!BOOT.bin"
+	$(DISC) opt $(L3FS) EXEC
+	$(DISC) afs init $(L3FS) --disc-name Server --user Syst:S:5MB --user ELITE:2MB --omit-user Welcome --emplace Library --emplace Library1
+	$(DISC) cp -r "$(DSD)::2.C.MAX" "$(L3FS):afs:$$.ELITE.EliteCmdrs.MAX"
+	$(DISC) cp -r "$(DSD)::0.G.*" "$(L3FS):afs:$$.EliteGame."
+	$(DISC) cp -r "$(DSD)::2.G.*" "$(L3FS):afs:$$.EliteGame."
+	$(DISC) cp -r "$(DSD)::2.D.*" "$(L3FS):afs:$$.EliteGame.D."
+	$(DISC) cp -r "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library."
+	$(DISC) cp -r "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library1."
 
 .PHONY:b2
 b2:
