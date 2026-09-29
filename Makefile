@@ -38,6 +38,7 @@ build-l3fs:
 	$(DISC) chmod "$(L3FS):afs:$$.EliteGame.*" R/R
 	$(DISC) chmod "$(L3FS):afs:$$.Library.Elite*" R/R
 	$(DISC) chmod "$(L3FS):afs:$$.Library1.Elite*" R/R
+
 .PHONY:b2
 b2:
 	curl -G "http://localhost:48075/reset/b2"
