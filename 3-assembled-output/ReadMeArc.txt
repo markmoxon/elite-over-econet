@@ -54,5 +54,5 @@ individual user's EliteCmdrs directory
 
 See www.bbcelite.com/hacks for details
 
-Build: 2026-09-28 19:18:22
+Build: 2026-09-30 00:18:30
 ---------------------------------------
