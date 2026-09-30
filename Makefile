@@ -29,15 +29,12 @@ build-l3fs:
 	$(DISC) put --load 0xFFFFFFFF --exec 0xFFFFFFFF "$(L3FS):$$.!BOOT" "1-source-files/econet-server/$$.!BOOT.bin"
 	$(DISC) opt $(L3FS) EXEC
 	$(DISC) afs init $(L3FS) --disc-name Server --user Syst:S:5MB --user ELITE:2MB --omit-user Welcome --emplace Library --emplace Library1
-	$(DISC) cp -r "$(DSD)::2.C.MAX" "$(L3FS):afs:$$.ELITE.EliteCmdrs.MAX"
-	$(DISC) cp -r "$(DSD)::0.G.*" "$(L3FS):afs:$$.EliteGame."
-	$(DISC) cp -r "$(DSD)::2.G.*" "$(L3FS):afs:$$.EliteGame."
-	$(DISC) cp -r "$(DSD)::2.D.*" "$(L3FS):afs:$$.EliteGame.D."
-	$(DISC) cp -r "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library."
-	$(DISC) cp -r "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library1."
-	$(DISC) chmod "$(L3FS):afs:$$.EliteGame.*" R/R
-	$(DISC) chmod "$(L3FS):afs:$$.Library.Elite*" R/R
-	$(DISC) chmod "$(L3FS):afs:$$.Library1.Elite*" R/R
+	$(DISC) cp -r --access WR/ "$(DSD)::2.C.MAX" "$(L3FS):afs:$$.ELITE.EliteCmdrs.MAX"
+	$(DISC) cp -r --access R/R "$(DSD)::0.G.*" "$(L3FS):afs:$$.EliteGame."
+	$(DISC) cp -r --access R/R "$(DSD)::2.G.*" "$(L3FS):afs:$$.EliteGame."
+	$(DISC) cp -r --access R/R "$(DSD)::2.D.*" "$(L3FS):afs:$$.EliteGame.D."
+	$(DISC) cp -r --access R/R "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library."
+	$(DISC) cp -r --access R/R "$(DSD)::2.L.*" "$(L3FS):afs:$$.Library1."
 
 .PHONY:b2
 b2:
