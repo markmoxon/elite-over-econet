@@ -12,7 +12,7 @@
 * BBC Micro with 6502 Second Processor
 * BBC Master 128, ET and Turbo
 
-To install on a Level 3 fileserver,
+To install on a Level 3 file server,
 copy files from this disc to your
 server as follows (files have been
 grouped into DFS directories to make
@@ -61,6 +61,6 @@
 
 See www.bbcelite.com/hacks for details
 
-Build: 2026-09-30 00:18:30
+Build: 2026-10-01 11:47:00
 ---------------------------------------
 

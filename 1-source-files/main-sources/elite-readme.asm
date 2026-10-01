@@ -50,7 +50,7 @@
  EQUS "* BBC Master 128, ET and Turbo"
  EQUB 10, 13
  EQUB 10, 13
- EQUS "To install on a Level 3 fileserver,"
+ EQUS "To install on a Level 3 file server,"
  EQUB 10, 13
  EQUS "copy files from this disc to your"
  EQUB 10, 13
@@ -167,7 +167,7 @@
  EQUS "* BBC Master 128, ET and Turbo"
  EQUB 10
  EQUB 10
- EQUS "To install on a Level 4 fileserver,"
+ EQUS "To install on a Level 4 file server,"
  EQUB 10
  EQUS "copy the directories from this archive"
  EQUB 10
@@ -176,7 +176,7 @@
  EQUB 10
  EQUS "1. Copy the EliteGame directory to your"
  EQUB 10
- EQUS "fileserver's root directory, to create"
+ EQUS "file server's root directory, to create"
  EQUB 10
  EQUS "a directory called $.EliteGame on the"
  EQUB 10
@@ -200,7 +200,7 @@
  EQUB 10
  EQUS "$.Library and $.Library1 on your"
  EQUB 10
- EQUS "fileserver, and ensure all users have"
+ EQUS "file server, and ensure all users have"
  EQUB 10
  EQUS "their library set accordingly"
  EQUB 10
