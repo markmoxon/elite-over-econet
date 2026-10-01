@@ -13,12 +13,12 @@ For the following networked machines:
 * BBC Micro with 6502 Second Processor
 * BBC Master 128, ET and Turbo
 
-To install on a Level 4 fileserver,
+To install on a Level 4 file server,
 copy the directories from this archive
 to your server as follows:
 
 1. Copy the EliteGame directory to your
-fileserver's root directory, to create
+file server's root directory, to create
 a directory called $.EliteGame on the
 server
 
@@ -31,7 +31,7 @@ e.g. $.Mark.EliteCmdrs for user Mark
 play Elite, copy the files from the
 Library and Library1 directories into
 $.Library and $.Library1 on your
-fileserver, and ensure all users have
+file server, and ensure all users have
 their library set accordingly
 
 If you want to restrict it to specific
@@ -56,5 +56,5 @@ individual user's EliteCmdrs directory
 
 See www.bbcelite.com/hacks for details
 
-Build: 2026-09-30 00:16:44
+Build: 2026-10-01 11:46:11
 ---------------------------------------
