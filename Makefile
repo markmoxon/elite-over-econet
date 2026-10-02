@@ -26,7 +26,11 @@ build-dsd:
 build-l3fs:
 	$(DISC) create $(L3FS) --geometry capacity=10MB --title Server
 	$(DISC) cp "1-source-files/econet-server/FS3v126.ssd:$$.FS3v126" "$(L3FS):$$.FS3v126"
-	$(DISC) put --load 0xFFFFFFFF --exec 0xFFFFFFFF "$(L3FS):$$.!BOOT" "1-source-files/econet-server/$$.!BOOT.bin"
+ifeq ($(rtc), no)
+	$(DISC) put --load 0xFFFFFFFF --exec 0xFFFFFFFF "$(L3FS):$$.!BOOT" "1-source-files/econet-server/$$.!BOOT-no-rtc.bin"
+else
+	$(DISC) put --load 0xFFFFFFFF --exec 0xFFFFFFFF "$(L3FS):$$.!BOOT" "1-source-files/econet-server/$$.!BOOT-rtc.bin"
+endif
 	$(DISC) opt $(L3FS) EXEC
 	$(DISC) afs init $(L3FS) --disc-name Server --user Syst:S:5MB --user ELITE:2MB --omit-user Welcome --emplace Library --emplace Library1
 	$(DISC) cp -r --access WR/ "$(DSD)::2.C.MAX" "$(L3FS):afs:$$.ELITE.EliteCmdrs.MAX"
